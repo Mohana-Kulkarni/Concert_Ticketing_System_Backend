@@ -1,6 +1,8 @@
 package com.example.concertsystem;
 
+import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.entity.User;
+import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.user.UserService;
 import com.faunadb.client.types.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -20,15 +22,52 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(UserService userService) {
+	public CommandLineRunner commandLineRunner(PlaceService placeService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
 //			deleteUserById(userService);
 //			updateUserInfoById(userService);
 //			updateUserRoleById(userService);
-			getUsersByRole(userService);
+//			getUsersByRole(userService);
+
+//			addNewPlace(placeService);
+//			getPlaceWithName(placeService);
+//			getPlaceWithId(placeService);
+//			updatePlaceName(placeService);
+			deletePlace(placeService);
 		};
+	}
+
+	private void deletePlace(PlaceService placeService) {
+		String id = "386527844088414274";
+		placeService.deletePlaceById(id);
+		System.out.println("Place deleted successfully!!!");
+	}
+
+	private void updatePlaceName(PlaceService placeService) throws ExecutionException, InterruptedException {
+		String id = "386527844088414274";
+		String city = "Pune";
+		placeService.updatePlaceById(id, city);
+		System.out.println("Place updated successfully!!!");
+	}
+
+	private void getPlaceWithName(PlaceService placeService) throws ExecutionException, InterruptedException {
+		String city = "Mumbai";
+		Place place = placeService.getPlaceByName(city);
+		System.out.println(place);
+	}
+
+	private void getPlaceWithId(PlaceService placeService) throws ExecutionException, InterruptedException {
+		String id = "386527844088414274";
+		Place place = placeService.getPlaceById(id);
+		System.out.println(place);
+	}
+
+	private void addNewPlace(PlaceService placeService) {
+		String city = "Mumbai";
+		placeService.addPlace(city);
+		System.out.println("Place added successfully!!!");
 	}
 
 	private void getUsersByRole(UserService userService) {
