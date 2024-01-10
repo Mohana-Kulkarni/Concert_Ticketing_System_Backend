@@ -7,7 +7,6 @@ public record Venue(
         String name,
         String address,
         int capacity,
-        Value.RefV place_id,
-        Value.RefV event_id
+        String placeId
 ) {
 }

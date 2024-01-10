@@ -2,8 +2,10 @@ package com.example.concertsystem;
 
 import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.entity.User;
+import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.user.UserService;
+import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.types.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +24,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(PlaceService placeService) {
+	public CommandLineRunner commandLineRunner(VenueService venueService, PlaceService placeService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -35,8 +37,49 @@ public class ConcertSystemApplication {
 //			getPlaceWithName(placeService);
 //			getPlaceWithId(placeService);
 //			updatePlaceName(placeService);
-			deletePlace(placeService);
+//			deletePlace(placeService);
+
+//			addNewVenue(venueService);
+//			getVenueWithId(venueService);
+//			getVenuesWithPlace(venueService);
+//			updateVenue(venueService);
+//			deleteVenue(venueService);
+
+
 		};
+	}
+
+	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
+		String city = "Mumbai";
+		List<Venue> venueList = venueService.getVenuesByPlace(city);
+		System.out.println(venueList);
+	}
+
+	private void updateVenue(VenueService venueService) throws ExecutionException, InterruptedException {
+		String id = "386542879951028288";
+		String name = "Amnora";
+		String address = "Hadapsar";
+		int capacity = 10000;
+		String placeId = "386542192727949378";
+		venueService.updateVenueById(id, name, address, capacity, placeId);
+		System.out.println("Venue updated successfully!!!");
+	}
+
+	private void getVenueWithId(VenueService venueService) throws ExecutionException, InterruptedException {
+		String id = "386542879951028288";
+		Venue venue = venueService.getVenueById(id);
+		System.out.println(venue);
+	}
+
+	private void addNewVenue(VenueService venueService) {
+		String name = "The Millers";
+		String address = "Station Road";
+		int capacity = 13000;
+		String placeId = "386544592540926018";
+
+		venueService.addVenue(name, address, capacity, placeId);
+		System.out.println("Venue added successfully!!!");
+
 	}
 
 	private void deletePlace(PlaceService placeService) {
@@ -65,7 +108,7 @@ public class ConcertSystemApplication {
 	}
 
 	private void addNewPlace(PlaceService placeService) {
-		String city = "Mumbai";
+		String city = "Pune";
 		placeService.addPlace(city);
 		System.out.println("Place added successfully!!!");
 	}
