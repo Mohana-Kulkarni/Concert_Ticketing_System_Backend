@@ -1,9 +1,11 @@
 package com.example.concertsystem;
 
 import com.example.concertsystem.entity.Place;
+import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.User;
 import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.service.place.PlaceService;
+import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.types.Value;
@@ -24,7 +26,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(VenueService venueService, PlaceService placeService) {
+	public CommandLineRunner commandLineRunner(TierService tierService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -45,8 +47,49 @@ public class ConcertSystemApplication {
 //			updateVenue(venueService);
 //			deleteVenue(venueService);
 
-
+//			addNewTier(tierService);
+//			getTierWithId(tierService);
+//			getTierWithName(tierService);
+//			updateTierInfo(tierService);
+//			deleteTier(tierService);
 		};
+	}
+
+	private void deleteTier(TierService tierService) {
+		String id = "386687425602125890";
+		tierService.deleteTierById(id);
+		System.out.println("Tier deleted successfully!!!");
+	}
+
+	private void updateTierInfo(TierService tierService) throws ExecutionException, InterruptedException {
+		String id = "386687425602125890";
+		String name = "Platinum";
+		int capacity = 2000;
+		int price = 10000;
+		tierService.updateTier(id,name,capacity, price);
+		System.out.println("Tier updated successfully!!!");
+	}
+
+	private void getTierWithName(TierService tierService) throws ExecutionException, InterruptedException {
+		String name = "VIP";
+		Tier tier = tierService.getTierByName(name);
+		System.out.println(tier);
+	}
+
+	private void getTierWithId(TierService tierService) throws ExecutionException, InterruptedException {
+		String id = "386687425602125890";
+		Tier tier = tierService.getTierById(id);
+		System.out.println(tier);
+
+	}
+
+	private void addNewTier(TierService tierService) {
+		String name = "Platinum";
+		int capacity = 3000;
+		int price = 10000;
+		tierService.addTier(name,capacity, price);
+		System.out.println("Tier added successfully!!!");
+
 	}
 
 	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {

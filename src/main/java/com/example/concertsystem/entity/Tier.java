@@ -6,7 +6,6 @@ public record Tier(
         String id,
         String name,
         int capacity,
-        int price,
-        Value.RefV event_id
+        int price
 ) {
 }
