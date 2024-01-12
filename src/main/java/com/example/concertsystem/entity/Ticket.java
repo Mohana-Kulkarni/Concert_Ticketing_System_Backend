@@ -2,9 +2,12 @@ package com.example.concertsystem.entity;
 
 import com.faunadb.client.types.Value;
 
+import java.util.List;
+
 public record Ticket(
         String id,
-        Value.RefV user_id,
-        Value.RefV seat_id
+        int count,
+        Value.RefV userId,
+        List<Value.RefV> seatId
 ) {
 }

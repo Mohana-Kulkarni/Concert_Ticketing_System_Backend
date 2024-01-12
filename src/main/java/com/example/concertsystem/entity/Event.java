@@ -11,7 +11,7 @@ public record Event(
         LocalDateTime dateAndTime,
         String description,
         Value.RefV venue_id,
-        List<Value.RefV> user_id,
-        List<Value.RefV> tier_id
+        List<Value.RefV> userId,
+        List<Value.RefV> tierId
 ) {
 }

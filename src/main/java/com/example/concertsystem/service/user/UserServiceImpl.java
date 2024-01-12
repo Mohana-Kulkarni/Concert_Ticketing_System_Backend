@@ -10,6 +10,7 @@ import static com.faunadb.client.query.Language.Value;
 import com.example.concertsystem.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -65,20 +66,37 @@ public class UserServiceImpl implements UserService{
     private List<User> parseUserResult(CompletableFuture<Value> result) {
         try {
             Value res = result.join();
-            return res.at("data").to(List.class).get();
+            List<Value> userData = res.at("data").to(List.class).get();
+            System.out.println(userData.size());
+
+            List<User> userList = new ArrayList<>();
+            for (Value userValue : userData) {
+                Value.RefV ref = userValue.at("ref").get(Value.RefV.class);
+                String id = ref.getId();
+                String name = userValue.at("data", "name").get(String.class);
+                String type = userValue.at("data", "type").get(String.class);
+
+                User user = new User(id, name, type);
+                userList.add(user);
+
+            }
+            return userList;
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
+
     }
 
     @Override
-    public void updateUserInfo(String id, String name) throws ExecutionException, InterruptedException {
+    public void updateUserInfo(String id, String name, String role) throws ExecutionException, InterruptedException {
         faunaClient.query(
                 Update(Ref(Collection("User"), id),
                         Obj(
                                 "data", Obj(
-                                        "name", Value(name))
+                                        "name", Value(name),
+                                        "type", Value(role)
+                                )
                         )
                 )
         ).get();
@@ -86,12 +104,14 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public void updateUserRole(String id, String role) throws ExecutionException, InterruptedException {
+    public void updateUserRole(String id, String name, String role) throws ExecutionException, InterruptedException {
         faunaClient.query(
                 Update(Ref(Collection("User"), id),
                         Obj(
                                 "data", Obj(
-                                        "type", Value(role))
+                                        "name", Value(name),
+                                        "type", Value(role)
+                                )
                         )
                 )
         ).get();

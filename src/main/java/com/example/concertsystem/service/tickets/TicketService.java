@@ -2,7 +2,7 @@ package com.example.concertsystem.service.tickets;
 
 import com.example.concertsystem.entity.Seats;
 import com.example.concertsystem.entity.Ticket;
-import org.springframework.security.core.userdetails.User;
+import com.example.concertsystem.entity.User;
 
 public interface TicketService {
     void generateTicket(User user, Seats seats);
