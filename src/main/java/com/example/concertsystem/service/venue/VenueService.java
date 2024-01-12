@@ -11,7 +11,7 @@ public interface VenueService {
     void addVenue(Venue venue);
     Venue getVenueById(String id) throws ExecutionException, InterruptedException;
     Venue getVenueByName(String name) throws ExecutionException, InterruptedException;
-    List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException;
+//    List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException;
     void updateVenueById(String id, Venue venue) throws ExecutionException, InterruptedException;
     void deleteVenueById(String id);
 

@@ -92,11 +92,11 @@ public class ConcertSystemApplication {
 //
 //	}
 //
-	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
-		String city = "Mumbai";
-		List<Venue> venueList = venueService.getVenuesByPlace(city);
-		System.out.println(venueList);
-	}
+//	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
+//		String city = "Mumbai";
+//		List<Venue> venueList = venueService.getVenuesByPlace(city);
+//		System.out.println(venueList);
+//	}
 
 //	private void updateVenue(VenueService venueService) throws ExecutionException, InterruptedException {
 //		String id = "386542879951028288";
@@ -118,9 +118,10 @@ public class ConcertSystemApplication {
 //		String name = "The Millers";
 //		String address = "Station Road";
 //		int capacity = 13000;
-//		String placeId = "386544592540926018";
+//		String placeId = "386521205301051456";
 //
-//		venueService.addVenue(name, address, capacity, placeId);
+//		Venue venue = new Venue(name, address, capacity, placeId);
+//		venueService.addVenue(venue);
 //		System.out.println("Venue added successfully!!!");
 //
 //	}

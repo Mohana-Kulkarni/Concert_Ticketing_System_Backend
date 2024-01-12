@@ -1,7 +1,5 @@
 package com.example.concertsystem.service.venue;
 
-import com.example.concertsystem.entity.Tier;
-import com.example.concertsystem.entity.User;
 import com.example.concertsystem.entity.Venue;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -83,42 +81,38 @@ public class VenueServiceImpl implements VenueService{
     }
 
 
-    @Override
-    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-        Value.RefV placeRef = faunaClient.query(
-                 Get(Match(Index("places_by_name"), Value(place)))
-        ).get().at("ref").get(Value.RefV.class);
-        System.out.println(placeRef.getId());
-        CompletableFuture<Value> result = faunaClient.query(
-                Paginate(
-                            Match(Index("venues_by_place_ref"), placeRef)
-                )
-        );
-
-        return parseVenueResult(result);
-//        return null;
-    }
+//    @Override
+//    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
+//        Value.RefV placeRef = (Value.RefV) getPlaceRefByName(place);
+//        CompletableFuture<List<Value>> result = faunaClient.query(
+//                Paginate(
+//                                Index("venues_by_place_ref")
+//                ), placeRef
+//        );
 //
-//    private Value getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
-//        return faunaClient.query(Get(Match(Index("places_by_name"), Value(place)))).get();
+//        return parseVenueResult(result);
+////        return null;
 //    }
+////
+    private Value getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
+        return faunaClient.query(Match(Index("places_by_name"), Value(place))).get();
+    }
 
-    private List<Venue> parseVenueResult(CompletableFuture<Value> result) {
+    private List<Venue> parseVenueResult(CompletableFuture<List<Value>> result) {
         try {
-            Value res = result.join();
+            Value res = (Value) result.join();
             List<Value> venueData = res.at("data").to(List.class).get();
+            System.out.println(res.at("ref").to(String.class).get());
             List<Venue> venueList = new ArrayList<>();
             for (Value venueValue : venueData) {
-                Value.RefV ref = venueValue.at("ref").get(Value.RefV.class);
-                String id = ref.getId();
+                String id = venueValue.at("ref").to(Value.RefV.class).get().getId();
                 String name = venueValue.at("data", "name").get(String.class);
                 String address = venueValue.at("data", "address").get(String.class);
                 int capacity = venueValue.at("data", "capacity").get(Integer.class);
-                String placeRef = venueValue.at("data", "placeId").get(Value.RefV.class).getId();
+                String placeId = venueValue.at("data", "placeId").to(Value.RefV.class).get().getId();
 
-                Venue venue = new Venue(id, name, address, capacity, placeRef);
+                Venue venue = new Venue(id, name, address, capacity, placeId);
                 venueList.add(venue);
-
             }
             return venueList;
         } catch (Exception e) {
@@ -129,7 +123,7 @@ public class VenueServiceImpl implements VenueService{
 
     @Override
     public void updateVenueById(String id, Venue venue) throws ExecutionException, InterruptedException {
-        Value.RefV placeRef = getPlaceRef(venue.placeId());
+
         faunaClient.query(
                 Update(Ref(Collection("Venue"), id),
                         Obj(
@@ -137,7 +131,7 @@ public class VenueServiceImpl implements VenueService{
                                         "name", Value(venue.name()),
                                         "address", Value(venue.address()),
                                         "capacity", Value(venue.capacity()),
-                                        "placeId", placeRef
+                                        "placeId", Value(venue.placeId())
                                 )
                         )
                 )
