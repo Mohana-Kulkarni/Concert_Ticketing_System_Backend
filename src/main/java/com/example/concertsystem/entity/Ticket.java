@@ -7,7 +7,8 @@ import java.util.List;
 public record Ticket(
         String id,
         int count,
-        Value.RefV userId,
-        List<Value.RefV> seatId
+        String userId,
+        String tierId,
+        String eventId
 ) {
 }

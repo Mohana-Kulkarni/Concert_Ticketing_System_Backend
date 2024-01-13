@@ -60,7 +60,7 @@ public class ConcertSystemApplication {
 		};
 	}
 
-	private void addNewEvent(EventService eventService) {
+	private void addNewEvent(EventService eventService) throws ExecutionException, InterruptedException {
 		String name = "Winter Concert";
 		DateTimeFormatter formatter
 				= DateTimeFormatter.ofPattern(
@@ -68,7 +68,7 @@ public class ConcertSystemApplication {
 		LocalDateTime now = LocalDateTime.now();
 		String dateTimeString = now.format(formatter);
 		String description = "It is a cold concert winter event. Free Beer and Chicken";
-		String venue = "386544741426135104";
+		String venue = "Amnora";
 
 		List<String> username = new ArrayList<>();
 		username.add("user@123");

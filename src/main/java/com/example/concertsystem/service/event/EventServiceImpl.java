@@ -3,6 +3,7 @@ package com.example.concertsystem.service.event;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
+import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.query.Expr;
 import com.faunadb.client.query.Language;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
 import static com.faunadb.client.query.Language.Obj;
@@ -25,14 +27,17 @@ public class EventServiceImpl implements EventService{
     private FaunaClient faunaClient;
     private UserService userService;
     private TierService tierService;
-    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService) {
+
+    private VenueService venueService;
+    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, VenueService venueService) {
         this.faunaClient = faunaClient;
         this.userService = userService;
         this.tierService = tierService;
+        this.venueService = venueService;
     }
     @Override
-    public void addEvent(String name, String date, String description, String venueId, List<String> userId, List<String> tierId) {
-        String venueRef = getVenueRef(venueId);
+    public void addEvent(String name, String date, String description, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
+        String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdByUserName(userId);
         List<String> tierRefs = tierService.getIdByTierName(tierId);
         Map<String, Object> eventData = new HashMap<>();
