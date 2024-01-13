@@ -28,7 +28,7 @@ public class UserController {
 
     @PostMapping("/")
     public void addUser(@RequestBody User user) {
-        userService.addUser(user.name(), user.typeOfUser());
+        userService.addUser(user.name(), user.typeOfUser(), user.userName(), user.profileImg());
     }
 
     @PutMapping("/{id}")

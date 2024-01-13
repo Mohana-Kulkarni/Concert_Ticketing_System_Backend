@@ -8,10 +8,10 @@ import java.util.List;
 public record Event(
         String id,
         String name,
-        LocalDateTime dateAndTime,
+        String dateAndTime,
         String description,
-        Value.RefV venue_id,
-        List<Value.RefV> userId,
-        List<Value.RefV> tierId
+        String venueId,
+        List<String> userId,
+        List<String> tierId
 ) {
 }

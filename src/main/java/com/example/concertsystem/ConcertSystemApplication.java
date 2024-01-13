@@ -1,9 +1,7 @@
 package com.example.concertsystem;
 
-import com.example.concertsystem.entity.Place;
-import com.example.concertsystem.entity.Tier;
-import com.example.concertsystem.entity.User;
-import com.example.concertsystem.entity.Venue;
+import com.example.concertsystem.entity.*;
+import com.example.concertsystem.service.event.EventService;
 import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
@@ -14,6 +12,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +28,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(VenueService venueService) {
+	public CommandLineRunner commandLineRunner(EventService eventService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -34,6 +36,7 @@ public class ConcertSystemApplication {
 //			updateUserInfoById(userService);
 //			updateUserRoleById(userService);
 //			getUsersByRole(userService);
+//			userByUserId(userService);
 
 //			addNewPlace(placeService);
 //			getPlaceWithName(placeService);
@@ -52,7 +55,29 @@ public class ConcertSystemApplication {
 //			getTierWithName(tierService);
 //			updateTierInfo(tierService);
 //			deleteTier(tierService);
+
+			addNewEvent(eventService);
 		};
+	}
+
+	private void addNewEvent(EventService eventService) {
+		String name = "Winter Concert";
+		DateTimeFormatter formatter
+				= DateTimeFormatter.ofPattern(
+				"yyyy-MM-dd HH:mm:ss a");
+		LocalDateTime now = LocalDateTime.now();
+		String dateTimeString = now.format(formatter);
+		String description = "It is a cold concert winter event. Free Beer and Chicken";
+		String venue = "86542879951028288";
+		List<String> username = new ArrayList<>();
+		username.add("user@123");
+		username.add("user@321");
+		List<String> tiername = new ArrayList<>();
+		tiername.add("Platinum");
+		eventService.addEvent(name, dateTimeString, description, venue, username, tiername);
+		System.out.println("Event Added Successfully");
+
+
 	}
 
 //	private void deleteTier(TierService tierService) {
@@ -169,6 +194,13 @@ public class ConcertSystemApplication {
 		System.out.println("User updated successfully!!");
 	}
 
+	private void userByUserId(UserService userService){
+		List<String> list = new ArrayList<>();
+		list.add("user@123");
+		list.add("user@321");
+		System.out.println(userService.getUserIdByUserName(list));
+	}
+
 	private void updateUserInfoById(UserService userService) throws ExecutionException, InterruptedException {
 		String userId = "386521241440223298";
 		userService.updateUserInfo(userId, "xyz", "role");
@@ -189,9 +221,11 @@ public class ConcertSystemApplication {
 	}
 
 	private void createNewUser(UserService userService) {
-		String name = "ghi";
+		String name = "abc";
 		String role = "user";
-		userService.addUser(name, role);
+		String userName = "user@321";
+		String profileImg = "user@gmail.com";
+		userService.addUser(name, role, userName, profileImg);
 		System.out.println("User added successfully!!");
 	}
 

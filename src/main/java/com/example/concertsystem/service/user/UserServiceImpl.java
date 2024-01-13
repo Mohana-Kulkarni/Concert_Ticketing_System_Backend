@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addUser(String name, String role) {
+    public void addUser(String name, String role, String userName, String profileImg) {
         faunaClient.query(
                 Create(
                         Collection("User"),
@@ -33,10 +33,13 @@ public class UserServiceImpl implements UserService{
                                 "data",
                                 Obj(
                                         "name", Value(name),
-                                        "type", Value(role))
+                                        "type", Value(role),
+                                        "userName", Value(userName),
+                                        "profileImg",Value(profileImg)
                                 )
                         )
-                );
+                )
+        );
     }
 
     @Override
@@ -46,7 +49,9 @@ public class UserServiceImpl implements UserService{
        return new User(
                res.at("ref").to(Value.RefV.class).get().getId(),
                res.at("data", "name").to(String.class).get(),
-               res.at("data", "type").to(String.class).get()
+               res.at("data", "type").to(String.class).get(),
+               res.at("data", "userName").to(String.class).get(),
+               res.at("data", "profileImg").to(String.class).get()
        );
     }
 
@@ -75,8 +80,10 @@ public class UserServiceImpl implements UserService{
                 String id = ref.getId();
                 String name = userValue.at("data", "name").get(String.class);
                 String type = userValue.at("data", "type").get(String.class);
+                String userName = userValue.at("data", "userName").to(String.class).get();
+                String profileImg =userValue.at("data", "profileImg").to(String.class).get();
 
-                User user = new User(id, name, type);
+                User user = new User(id, name, type, userName, profileImg);
                 userList.add(user);
 
             }
@@ -100,6 +107,18 @@ public class UserServiceImpl implements UserService{
                         )
                 )
         ).get();
+    }
+
+    public List<String> getUserIdByUserName(List<String> userName){
+        List<String> userRefs = new ArrayList<>();
+        for(String user : userName){
+            String value = faunaClient.query(Get(Match(Index("user_by_username"),
+                    Value(user)))).join().at("ref").get(Value.RefV.class).getId();
+            userRefs.add(value);
+        }
+        return userRefs;
+
+
     }
 
 

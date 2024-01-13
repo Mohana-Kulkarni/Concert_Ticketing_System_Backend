@@ -84,21 +84,20 @@ public class VenueServiceImpl implements VenueService{
 
 //    @Override
 //    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-//        Value.RefV placeRef = getPlaceRefByName(place);
-//        System.out.println(placeRef.getId());
+//        String placeRef = getPlaceRefByName(place);
+//        System.out.println(placeRef);
 //        CompletableFuture<List<Value>> result = faunaClient.query(
 //                Paginate(
 //                                Index("venues_by_place_ref_2")
 //                ), Value(placeRef)
 //        );
 //
-//        return parseVenueResult(result);
-////        return null;
+//        return parseVenueResult(null);
 //    }
 ////
-//    private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
-//        return (Value.RefV) faunaClient.query(Match(Index("place_by_name"), Value(place))).get().at("ref");
-//    }
+    private String getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
+        return faunaClient.query(Get(Match(Index("place_by_name"), Value("Pune")))).join().at("ref").get(Value.RefV.class).getId();
+    }
 //
 //    private List<Venue> parseVenueResult(CompletableFuture<List<Value>> result) {
 //        try {
@@ -124,16 +123,17 @@ public class VenueServiceImpl implements VenueService{
 //    }
 //    @Override
 //    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-////        Value.RefV placeRef = getPlaceRefByName(place);
-////        System.out.println(placeRef.getId());
-////        CompletableFuture<Value> result = faunaClient.query(
-////                Paginate(
-////                    Join(
-////                            Match(Index("place_by_name"), Value(place)),
-////                            Index("venues_by_place_ref")
-////                    )
-////            )
-////        );
+//        Value.RefV placeRef = getPlaceRefByName(place);
+//        System.out.println(placeRef.getId());
+//        CompletableFuture<Value> result = faunaClient.query(
+//                Paginate(
+//                    Join(
+//                            Match(Index("place_by_name"), Value(place)),
+//                            Index("venues_by_place_ref")
+//                    )
+//            )
+//        );
+//        CompletableFuture<Value> result = new CompletableFuture<>();
 //        CompletableFuture<Value> result = faunaClient.query(
 //                Language.Let(
 //                        Language.ToObject(
@@ -147,34 +147,34 @@ public class VenueServiceImpl implements VenueService{
 //        return parseVenueResult(result);
 //    }
 
-    private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
-        return faunaClient.query(Match(Index("places_by_name"), Value(place)))
-                .get().at("ref").to(Value.RefV.class).get();
-    }
+//    private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
+//        return faunaClient.query(Match(Index("places_by_name"), Value(place)))
+//                .get().at("ref").to(Value.RefV.class).get();
+//    }
 
-    private List<Venue> parseVenueResult(CompletableFuture<Value> result) {
-        try {
-            Value res = result.join();
-            List<Venue> venueData = res.at("data").to(List.class).get();
-//            System.out.println(res.at("ref").to(String.class).get());
-//            int i = 0;
-//            List<Venue> venueList = new ArrayList<>();
-//            for (Value venueValue : venueData) {
-//                String id = venueValue.at("data", "id").to(Value.RefV.class).get().getId();
-//                String name = venueValue.at("data", "name").get(String.class);
-//                String address = venueValue.at("data", "address").get(String.class);
-//                int capacity = venueValue.at("data", "capacity").get(Integer.class);
-//                String placeId = venueValue.at("data", "placeId").to(Value.RefV.class).get().getId();
-
-//                Venue venue = new Venue(id, name, address, capacity, placeId);
-//                venueList.add(venue);
-//            }
-            return venueData;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    }
+//    private List<Venue> parseVenueResult(CompletableFuture<Value> result) {
+//        try {
+//            Value res = result.join();
+//            List<Venue> venueData = res.at("data").to(List.class).get();
+////            System.out.println(res.at("ref").to(String.class).get());
+////            int i = 0;
+////            List<Venue> venueList = new ArrayList<>();
+////            for (Value venueValue : venueData) {
+////                String id = venueValue.at("data", "id").to(Value.RefV.class).get().getId();
+////                String name = venueValue.at("data", "name").get(String.class);
+////                String address = venueValue.at("data", "address").get(String.class);
+////                int capacity = venueValue.at("data", "capacity").get(Integer.class);
+////                String placeId = venueValue.at("data", "placeId").to(Value.RefV.class).get().getId();
+//
+////                Venue venue = new Venue(id, name, address, capacity, placeId);
+////                venueList.add(venue);
+////            }
+//            return venueData;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return Collections.emptyList();
+//        }
+//    }
 
 
     @Override

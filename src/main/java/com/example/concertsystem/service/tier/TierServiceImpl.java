@@ -8,6 +8,8 @@ import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -52,6 +54,17 @@ public class TierServiceImpl implements TierService{
         );
     }
 
+    public List<String> getIdByTierName(List<String> tierName){
+        List<String> tierRefs = new ArrayList<>();
+        for(String tier : tierName){
+            String value = faunaClient.query(Get(Match(Index("tier_by_name"),
+                    Value(tier)))).join().at("ref").get(Value.RefV.class).getId();
+            tierRefs.add(value);
+        }
+        return tierRefs;
+
+
+    }
     @Override
     public Tier getTierByName(String name) throws ExecutionException, InterruptedException {
         CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("tier_by_name"), Value(name))));
