@@ -34,10 +34,10 @@ public class VenueController {
         venueService.addVenue(venue);
     }
 
-    @PutMapping("/{id}")
-    public void updateVenueById(@PathVariable String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
-        venueService.updateVenueById(id, venue);
-    }
+//    @PutMapping("/{id}")
+//    public void updateVenueById(@PathVariable String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
+//        venueService.updateVenueById(id, venue);
+//    }
 
     @DeleteMapping("/{id}")
     public void deleteVenueById(@PathVariable String id) {

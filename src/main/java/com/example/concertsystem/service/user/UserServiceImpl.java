@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService{
         ).get();
     }
 
-    public List<String> getUserIdByUserName(List<String> userName){
+    public List<String> getUserIdsByUserName(List<String> userName){
         List<String> userRefs = new ArrayList<>();
         for(String user : userName){
             String value = faunaClient.query(Get(Match(Index("user_by_username"),
@@ -120,6 +120,16 @@ public class UserServiceImpl implements UserService{
 
 
     }
+    public String getUserIdByUserName(String userName){
+        String value = faunaClient.query(Get(Match(Index("user_by_name"),
+                Value(userName)))).join().at("ref").get(Value.RefV.class).getId();
+
+
+        return value;
+
+
+    }
+
 
 
     @Override

@@ -6,7 +6,7 @@ public record Tier(
         String id,
         String name,
         int capacity,
-        int price,
-        String eventId
+        int price
+
 ) {
 }

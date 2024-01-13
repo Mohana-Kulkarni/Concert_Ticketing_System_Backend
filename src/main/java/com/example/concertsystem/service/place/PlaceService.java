@@ -10,5 +10,6 @@ public interface PlaceService {
     Place getPlaceByName(String name) throws ExecutionException, InterruptedException;
     void updatePlaceById(String id, String name) throws ExecutionException, InterruptedException;
     void deletePlaceById(String id);
+    String getPlaceIdByPlaceName(String placeName);
 
 }

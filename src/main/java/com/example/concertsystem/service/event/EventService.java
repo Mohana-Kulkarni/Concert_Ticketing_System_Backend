@@ -9,12 +9,12 @@ import java.util.concurrent.ExecutionException;
 public interface EventService {
 
     void addEvent(String name, String date, String description, String venueId, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException;
-    Event updateEvent(String id, Event event);
-    Event getEventByArtist(String artist);
-    Event getEventByPlace(String place);
-    Event getEventById(String id);
+    void updateEvent(String id, String name, String date, String description, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException;
+    List<Event> getEventByArtist(String artist) throws ExecutionException, InterruptedException;
+    List<Event> getEventByPlace(String place) throws ExecutionException, InterruptedException;
+    Event getEventById(String id) throws ExecutionException, InterruptedException;
     void deleteEventById(String id);
-    Event getEventByVenue(String venue);
+    List<Event> getEventByVenue(String venue) throws ExecutionException, InterruptedException;
 
 
 }

@@ -68,8 +68,16 @@ public class PlaceServiceImpl implements PlaceService{
         ).get();
     }
 
+
     @Override
     public void deletePlaceById(String id) {
         faunaClient.query(Delete(Ref(Collection("Place"), id)));
+    }
+
+    @Override
+    public String getPlaceIdByPlaceName(String placeName) {
+        String value = faunaClient.query(Get(Match(Index("place_by_placeName"),
+                Value(placeName)))).join().at("ref").get(Value.RefV.class).getId();
+        return value;
     }
 }
