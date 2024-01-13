@@ -49,7 +49,7 @@ public class PlaceServiceImpl implements PlaceService{
 
     @Override
     public Place getPlaceByName(String name) throws ExecutionException, InterruptedException {
-        CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("places_by_name"), Value(name))));
+        CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name))));
         return new Place(
                 res.get().at("ref").to(Value.RefV.class).get().getId(),
                 res.get().at("data", "name").to(String.class).get()

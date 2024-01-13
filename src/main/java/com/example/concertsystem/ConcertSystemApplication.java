@@ -43,7 +43,7 @@ public class ConcertSystemApplication {
 
 //			addNewVenue(venueService);
 //			getVenueWithId(venueService);
-			getVenuesWithPlace(venueService);
+//			getVenuesWithPlace(venueService);
 //			updateVenue(venueService);
 //			deleteVenue(venueService);
 
@@ -92,11 +92,11 @@ public class ConcertSystemApplication {
 //
 //	}
 //
-	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
-		String city = "Mumbai";
-		List<Venue> venueList = venueService.getVenuesByPlace(city);
-		System.out.println(venueList);
-	}
+//	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
+//		String city = "Mumbai";
+//		List<Venue> venueList = venueService.getVenuesByPlace(city);
+//		System.out.println(venueList);
+//	}
 
 //	private void updateVenue(VenueService venueService) throws ExecutionException, InterruptedException {
 //		String id = "386542879951028288";

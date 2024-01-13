@@ -2,6 +2,7 @@ package com.example.concertsystem.service.venue;
 
 import com.example.concertsystem.entity.Venue;
 import com.faunadb.client.FaunaClient;
+import com.faunadb.client.query.Language;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,7 @@ public class VenueServiceImpl implements VenueService{
 //        System.out.println(placeRef.getId());
 //        CompletableFuture<List<Value>> result = faunaClient.query(
 //                Paginate(
-//                                Index("venues_by_place_ref")
+//                                Index("venues_by_place_ref_2")
 //                ), Value(placeRef)
 //        );
 //
@@ -96,7 +97,7 @@ public class VenueServiceImpl implements VenueService{
 //    }
 ////
 //    private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
-//        return (Value.RefV) faunaClient.query(Match(Index("places_by_name"), Value(place))).get().at("ref");
+//        return (Value.RefV) faunaClient.query(Match(Index("place_by_name"), Value(place))).get().at("ref");
 //    }
 //
 //    private List<Venue> parseVenueResult(CompletableFuture<List<Value>> result) {
@@ -121,21 +122,30 @@ public class VenueServiceImpl implements VenueService{
 //            return Collections.emptyList();
 //        }
 //    }
-    @Override
-    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-//        Value.RefV placeRef = getPlaceRefByName(place);
-//        System.out.println(placeRef.getId());
-        CompletableFuture<Value> result = faunaClient.query(
-                Paginate(
-                    Join(
-                            Match(Index("place_by_name"), Value(place)),
-                            Index("venues_by_place_ref")
-                    )
-            )
-        );
-
-        return parseVenueResult(result);
-    }
+//    @Override
+//    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
+////        Value.RefV placeRef = getPlaceRefByName(place);
+////        System.out.println(placeRef.getId());
+////        CompletableFuture<Value> result = faunaClient.query(
+////                Paginate(
+////                    Join(
+////                            Match(Index("place_by_name"), Value(place)),
+////                            Index("venues_by_place_ref")
+////                    )
+////            )
+////        );
+//        CompletableFuture<Value> result = faunaClient.query(
+//                Language.Let(
+//                        Language.ToObject(
+//                                Value("placeRef"), Language.Get(Language.Match(Language.Index("place_by_name"), Value("your_place"))),
+//                                "venues", Language.Paginate(Language.Match(Language.Index("venues_by_place_ref_2"), Language.Select(Value("ref"), Language.Var("placeRef"))))
+//                        ),
+//                        Language.Map(Language.Var("venues"), Language.Lambda("venueRef", Language.Get(Language.Var("venueRef"))))
+//                )
+//        );
+//
+//        return parseVenueResult(result);
+//    }
 
     private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
         return faunaClient.query(Match(Index("places_by_name"), Value(place)))

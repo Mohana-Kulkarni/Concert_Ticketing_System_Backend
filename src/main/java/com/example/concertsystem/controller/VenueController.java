@@ -24,10 +24,10 @@ public class VenueController {
     public Venue getVenueByName(@PathVariable String name) throws ExecutionException, InterruptedException {
         return venueService.getVenueByName(name);
     }
-    @GetMapping("/city={city}")
-    public List<Venue> getVenueByCity(@PathVariable String city) throws ExecutionException, InterruptedException {
-        return venueService.getVenuesByPlace(city);
-    }
+//    @GetMapping("/city={city}")
+//    public List<Venue> getVenueByCity(@PathVariable String city) throws ExecutionException, InterruptedException {
+//        return venueService.getVenuesByPlace(city);
+//    }
 
     @PostMapping("/")
     public void addVenue(@RequestBody Venue venue) {
