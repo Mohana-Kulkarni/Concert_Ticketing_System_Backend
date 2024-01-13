@@ -54,12 +54,11 @@ public class EventServiceImpl implements EventService{
 
 
     private String getVenueRef(String venueId) {
-        CompletableFuture<Value> result = faunaClient.query(Get(Ref(Collection("Venue"), venueId)));
+        Value result = faunaClient.query(Get(Ref(Collection("Venue"), venueId))).join();
         try {
-            Value res = result.join();
-            Value.RefV documentId = res.at("ref").to(Value.RefV.class).get();
-            System.out.println("The ref is : "  + documentId);
-            return String.valueOf(documentId);
+            Value res = result.at("ref").to(Value.RefV.class).get();
+            System.out.println("The ref is : "  + res);
+            return String.valueOf(res);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,5 +88,10 @@ public class EventServiceImpl implements EventService{
     @Override
     public void deleteEventById(String id) {
 
+    }
+
+    @Override
+    public Event getEventByVenue(String venue) {
+        return null;
     }
 }

@@ -68,7 +68,8 @@ public class ConcertSystemApplication {
 		LocalDateTime now = LocalDateTime.now();
 		String dateTimeString = now.format(formatter);
 		String description = "It is a cold concert winter event. Free Beer and Chicken";
-		String venue = "86542879951028288";
+		String venue = "386544741426135104";
+
 		List<String> username = new ArrayList<>();
 		username.add("user@123");
 		username.add("user@321");
