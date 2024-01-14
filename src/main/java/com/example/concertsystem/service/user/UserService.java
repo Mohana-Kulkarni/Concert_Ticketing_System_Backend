@@ -13,5 +13,5 @@ public interface UserService {
     void updateUserRole(String id, String name, String role) throws ExecutionException, InterruptedException;
     void deleteUser(String id);
     List<String> getUserIdsByUserName(List<String> userName);
-    String getUserIdByUserName(String userName);
+    String getIdByUserName(String userName);
 }

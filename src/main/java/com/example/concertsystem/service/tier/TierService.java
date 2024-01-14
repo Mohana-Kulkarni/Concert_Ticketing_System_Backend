@@ -1,4 +1,5 @@
 package com.example.concertsystem.service.tier;
+import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.entity.Tier;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface TierService {
     void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException;
     void deleteTierById(String id);
     List<String> getIdByTierName(List<String> tierName);
+    String getTierIdByTierName(String tierName);
+
 }

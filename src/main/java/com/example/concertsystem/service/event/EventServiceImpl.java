@@ -40,7 +40,7 @@ public class EventServiceImpl implements EventService{
     }
     @Override
     public void addEvent(String name, String date, String description, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
-        venueService.getVenueByName(venueName);
+//        venueService.getVenueByName(venueName);
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
         List<String> tierRefs = tierService.getIdByTierName(tierId);
@@ -49,8 +49,8 @@ public class EventServiceImpl implements EventService{
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
         eventData.put("venueId", venueRef);
-        eventData.put("userId", userRefs);
-        eventData.put("tierId", tierRefs);
+        eventData.put("userId", Collections.singletonList(String.valueOf(userRefs)));
+        eventData.put("tierId", Collections.singletonList(String.valueOf(tierRefs)));
 
         faunaClient.query(
                 Create(
@@ -96,7 +96,7 @@ public class EventServiceImpl implements EventService{
 
     @Override
     public List<Event> getEventByArtist(String artist) throws ExecutionException, InterruptedException {
-        String userRef = userService.getUserIdByUserName(artist);
+        String userRef = userService.getIdByUserName(artist);
         Value res = faunaClient.query(
                 Map(
                         Paginate(
@@ -114,8 +114,8 @@ public class EventServiceImpl implements EventService{
                     event.at("data", "dateAndTime").to(String.class).get(),
                     event.at("data", "description").to(String.class).get(),
                     event.at("data", "venueId").to(String.class).get(),
-                    event.at("data", "userId").to(List.class).get(),
-                    event.at("data", "tierId").to(List.class).get()
+                    Collections.singletonList(String.valueOf(event.at("data", "userId").to(List.class).get())),
+                    Collections.singletonList(String.valueOf(event.at("data", "tierId").to(List.class).get()))
             );
             eventList.add(eventByArt);
         }
@@ -142,19 +142,19 @@ public class EventServiceImpl implements EventService{
         Value res = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
 
         return new Event(
-                res.at("ref").to(Value.RefV.class).get().getId(),
+                id,
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "dateAndTime").to(String.class).get(),
                 res.at("data", "description").to(String.class).get(),
                 res.at("data", "venueId").to(String.class).get(),
-                res.at("data", "userId").to(List.class).get(),
-                res.at("data", "tierId").to(List.class).get()
+                Collections.singletonList(String.valueOf(res.at("data", "userId").to(List.class).get())),
+                Collections.singletonList(String.valueOf(res.at("data", "tierId").to(List.class).get()))
         );
     }
 
     @Override
     public void deleteEventById(String id) {
-
+        faunaClient.query(Delete(Ref(Collection("Event"), id)));
     }
 
     @Override
@@ -167,6 +167,11 @@ public class EventServiceImpl implements EventService{
             events.add(event);
         }
         return events;
+    }
+
+    @Override
+    public String getEventIdByName(String eventName) throws ExecutionException, InterruptedException {
+        return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
     }
 
     private List<String> getEventIdsByVenueId(String id) throws ExecutionException, InterruptedException {

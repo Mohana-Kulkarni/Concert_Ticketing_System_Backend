@@ -8,5 +8,6 @@ public record Tier(
         int capacity,
         int price
 
+
 ) {
 }

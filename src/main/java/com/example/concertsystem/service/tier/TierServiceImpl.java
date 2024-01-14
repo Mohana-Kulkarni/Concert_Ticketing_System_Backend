@@ -54,6 +54,7 @@ public class TierServiceImpl implements TierService{
         );
     }
 
+    @Override
     public List<String> getIdByTierName(List<String> tierName){
         List<String> tierRefs = new ArrayList<>();
         for(String tier : tierName){
@@ -62,9 +63,19 @@ public class TierServiceImpl implements TierService{
             tierRefs.add(value);
         }
         return tierRefs;
+    }
 
+
+    @Override
+    public String getTierIdByTierName(String tierName){
+        return faunaClient.query(Get(Match(Index("tier_by_name"),
+                    Value(tierName)))).join().at("ref").get(Value.RefV.class).getId();
 
     }
+
+
+
+
     @Override
     public Tier getTierByName(String name) throws ExecutionException, InterruptedException {
         CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("tier_by_name"), Value(name))));

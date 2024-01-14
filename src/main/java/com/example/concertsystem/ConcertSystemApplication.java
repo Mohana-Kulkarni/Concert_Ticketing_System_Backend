@@ -3,6 +3,7 @@ package com.example.concertsystem;
 import com.example.concertsystem.entity.*;
 import com.example.concertsystem.service.event.EventService;
 import com.example.concertsystem.service.place.PlaceService;
+import com.example.concertsystem.service.tickets.TicketService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
@@ -28,7 +29,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(VenueService venueService) {
+	public CommandLineRunner commandLineRunner(TicketService ticketService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -46,7 +47,7 @@ public class ConcertSystemApplication {
 
 //			addNewVenue(venueService);
 //			getVenueWithId(venueService);
-			getVenuesWithPlace(venueService);
+//			getVenuesWithPlace(venueService);
 //			updateVenue(venueService);
 //			deleteVenue(venueService);
 
@@ -62,7 +63,43 @@ public class ConcertSystemApplication {
 //			getEventWithId(eventService);
 //			getEventWithVenue(eventService);
 //			getEventWithPlace(eventService);
+
+//			buyTicket(ticketService);
+//			getTicketWithId(ticketService);
+//			getTicketWithUserName(ticketService);
+//			updateTicketWithId(ticketService);
+
 		};
+	}
+
+	private void updateTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
+		String id = "386884281674235970";
+		String userName = "user@123";
+		String tierName = "Platinum";
+		String eventName = "Spring Holiday Concert";
+		int count = 5;
+		ticketService.updateTicket(id, count, userName, tierName, eventName);
+		System.out.println("Ticket updated successfully!!!");
+	}
+
+	private void getTicketWithUserName(TicketService ticketService) throws ExecutionException, InterruptedException {
+		String userName = "user@123";
+		System.out.println(ticketService.getTicketByUserName(userName));
+	}
+
+	private void getTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
+		String id = "386884281674235970";
+		System.out.println(ticketService.getTicketById(id));
+	}
+
+	private void buyTicket(TicketService ticketService) throws ExecutionException, InterruptedException {
+		String userName = "ghi";
+		String tierName = "Platinum";
+		String eventName = "Spring Holiday Concert";
+		int count = 5;
+
+		ticketService.generateTicket(count, userName, tierName, eventName);
+		System.out.println("Ticket Booked Successfully!!!");
 	}
 
 	private void addNewEvent(EventService eventService) throws ExecutionException, InterruptedException {
@@ -85,13 +122,13 @@ public class ConcertSystemApplication {
 
 	}
 	private void updateEvent(EventService eventService) throws ExecutionException, InterruptedException {
-		String name = "Winter Holiday Concert";
+		String name = "Spring Holiday Concert";
 		DateTimeFormatter formatter
 				= DateTimeFormatter.ofPattern(
 				"yyyy-MM-dd HH:mm:ss a");
 		LocalDateTime now = LocalDateTime.now();
 		String dateTimeString = now.format(formatter);
-		String description = "It is a cold concert winter event. Free Beer(Draught) and Chicken";
+		String description = "It is a cold concert winter event. Free Beer(Draught)";
 		String venue = "Phoenix";
 
 		List<String> username = new ArrayList<>();
@@ -112,20 +149,20 @@ public class ConcertSystemApplication {
 	}
 
 	private void getEventWithId(EventService eventService) throws ExecutionException, InterruptedException {
-		String id = "386842618902872130";
+		String id = "386850976811712578";
 		Event event = eventService.getEventById(id);
 		System.out.println(event);
 
 	}
 
 	private void getEventWithVenue(EventService eventService) throws ExecutionException, InterruptedException {
-		String place = "Amnora";
+		String place = "Phoenix";
 		List<Event> event = eventService.getEventByVenue(place);
 		System.out.println(event);
 	}
 
 	private void getEventWithPlace(EventService eventService) throws ExecutionException, InterruptedException {
-		String place = "Mumbai";
+		String place = "Nashik";
 		List<Event> events = eventService.getEventByPlace(place);
 		System.out.println(events);
 

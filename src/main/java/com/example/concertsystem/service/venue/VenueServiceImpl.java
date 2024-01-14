@@ -81,24 +81,11 @@ public class VenueServiceImpl implements VenueService{
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "address").to(String.class).get(),
                 res.at("data", "capacity").to(Integer.class).get(),
-                res.at("data", "placeId").to(String.class).get()
+                String.valueOf(res.at("data", "placeId").to(String.class).get())
         );
     }
 
-
-//    @Override
-//    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-//        String placeRef = getPlaceRefByName(place);
-//        System.out.println(placeRef);
-//        CompletableFuture<List<Value>> result = faunaClient.query(
-//                Paginate(
-//                                Index("venues_by_place_ref_2")
-//                ), Value(placeRef)
-//        );
-//
-//        return parseVenueResult(null);
-//    }
-////
+    @Override
     public List<Venue> getVenueByPlace(String place) throws ExecutionException, InterruptedException {
         List<String> venueIds = getVenueIdsByPlaceName(place);
         List<Venue> venues = new ArrayList<>();

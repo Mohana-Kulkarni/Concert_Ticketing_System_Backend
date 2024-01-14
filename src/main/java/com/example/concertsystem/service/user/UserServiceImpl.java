@@ -112,16 +112,15 @@ public class UserServiceImpl implements UserService{
     public List<String> getUserIdsByUserName(List<String> userName){
         List<String> userRefs = new ArrayList<>();
         for(String user : userName){
-            String value = faunaClient.query(Get(Match(Index("user_by_username"),
-                    Value(user)))).join().at("ref").get(Value.RefV.class).getId();
+            String value = getIdByUserName(user);
             userRefs.add(value);
         }
         return userRefs;
 
 
     }
-    public String getUserIdByUserName(String userName){
-        String value = faunaClient.query(Get(Match(Index("user_by_name"),
+    public String getIdByUserName(String userName){
+        String value = faunaClient.query(Get(Match(Index("user_by_username"),
                 Value(userName)))).join().at("ref").get(Value.RefV.class).getId();
 
 

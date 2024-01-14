@@ -16,5 +16,7 @@ public interface EventService {
     void deleteEventById(String id);
     List<Event> getEventByVenue(String venue) throws ExecutionException, InterruptedException;
 
+    String getEventIdByName(String eventName) throws ExecutionException, InterruptedException;
+
 
 }
