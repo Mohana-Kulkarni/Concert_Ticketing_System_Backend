@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface TierService {
-    void addTier(String name, int capacity, int price);
+    void addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException;
     Tier getTierById(String id) throws ExecutionException, InterruptedException;
     Tier getTierByName(String name) throws ExecutionException, InterruptedException;
     void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException;

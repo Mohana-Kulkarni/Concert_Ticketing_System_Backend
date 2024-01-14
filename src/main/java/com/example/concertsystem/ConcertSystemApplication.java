@@ -64,7 +64,7 @@ public class ConcertSystemApplication {
 //			getEventWithVenue(eventService);
 //			getEventWithPlace(eventService);
 
-//			buyTicket(ticketService);
+			buyTicket(ticketService);
 //			getTicketWithId(ticketService);
 //			getTicketWithUserName(ticketService);
 //			updateTicketWithId(ticketService);
@@ -75,9 +75,9 @@ public class ConcertSystemApplication {
 	private void updateTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
 		String id = "386884281674235970";
 		String userName = "user@123";
-		String tierName = "Platinum";
+		String tierName = "Gold";
 		String eventName = "Spring Holiday Concert";
-		int count = 5;
+		int count = 3;
 		ticketService.updateTicket(id, count, userName, tierName, eventName);
 		System.out.println("Ticket updated successfully!!!");
 	}
@@ -93,10 +93,10 @@ public class ConcertSystemApplication {
 	}
 
 	private void buyTicket(TicketService ticketService) throws ExecutionException, InterruptedException {
-		String userName = "ghi";
-		String tierName = "Platinum";
-		String eventName = "Spring Holiday Concert";
-		int count = 5;
+		String userName = "user@123";
+		String tierName = "Gold";
+		String eventName = "Winter Holiday Concert";
+		int count = 3;
 
 		ticketService.generateTicket(count, userName, tierName, eventName);
 		System.out.println("Ticket Booked Successfully!!!");
@@ -174,14 +174,14 @@ public class ConcertSystemApplication {
 //		System.out.println("Tier deleted successfully!!!");
 //	}
 //
-//	private void updateTierInfo(TierService tierService) throws ExecutionException, InterruptedException {
-//		String id = "386687425602125890";
-//		String name = "Platinum";
-//		int capacity = 2000;
-//		int price = 10000;
-//		tierService.updateTier(id,name,capacity, price);
-//		System.out.println("Tier updated successfully!!!");
-//	}
+	private void updateTierInfo(TierService tierService) throws ExecutionException, InterruptedException {
+		String id = "386869956857299010";
+		String name = "Gold";
+		int capacity = 4998;
+		int price = 6000;
+		tierService.updateTier(id,name,capacity, price);
+		System.out.println("Tier updated successfully!!!");
+	}
 //
 //	private void getTierWithName(TierService tierService) throws ExecutionException, InterruptedException {
 //		String name = "VIP";
@@ -196,14 +196,14 @@ public class ConcertSystemApplication {
 //
 //	}
 //
-//	private void addNewTier(TierService tierService) {
-//		String name = "Platinum";
-//		int capacity = 3000;
-//		int price = 10000;
-//		tierService.addTier(name,capacity, price);
-//		System.out.println("Tier added successfully!!!");
-//
-//	}
+	private void addNewTier(TierService tierService) throws ExecutionException, InterruptedException {
+		String name = "Silver";
+		int capacity = 5000;
+		int price = 5000;
+		tierService.addTier(name,capacity, price);
+		System.out.println("Tier added successfully!!!");
+
+	}
 //
 	private void getVenuesWithPlace(VenueService venueService) throws ExecutionException, InterruptedException {
 		String city = "Mumbai";

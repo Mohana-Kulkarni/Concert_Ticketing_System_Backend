@@ -3,6 +3,7 @@ package com.example.concertsystem.service.tier;
 import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.Venue;
+import com.example.concertsystem.service.event.EventService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class TierServiceImpl implements TierService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addTier(String name, int capacity, int price) {
+    public void addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException {
         faunaClient.query(
                 Create(
                         Collection("Tier"),

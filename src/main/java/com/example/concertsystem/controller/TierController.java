@@ -24,7 +24,7 @@ public class TierController {
     }
 
     @PostMapping("/")
-    public void addTier(@RequestBody Tier tier) {
+    public void addTier(@RequestBody Tier tier) throws ExecutionException, InterruptedException {
         System.out.println(tier.name());
         System.out.println(tier.capacity());
         System.out.println(tier.price());

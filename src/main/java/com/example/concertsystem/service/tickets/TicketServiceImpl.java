@@ -1,18 +1,19 @@
 package com.example.concertsystem.service.tickets;
 
+import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.service.event.EventService;
-import com.example.concertsystem.service.event.EventServiceImpl;
-import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
-import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +27,6 @@ public class TicketServiceImpl implements TicketService{
     private FaunaClient faunaClient;
     private UserService userService;
     private TierService tierService;
-
     private EventService eventService;
     public TicketServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, EventService eventService) {
         this.faunaClient = faunaClient;
@@ -39,23 +39,35 @@ public class TicketServiceImpl implements TicketService{
         String userId = userService.getIdByUserName(userName);
         String tierId = tierService.getTierIdByTierName(tierName);
         String eventId = eventService.getEventIdByName(eventName);
-        faunaClient.query(
-                Create(
-                        Collection("Ticket"),
-                        Obj(
-                                "data",
-                                Obj(
-                                        "count", Value(count),
-                                        "userId", Value(userId),
-                                        "tierId", Value(tierId),
-                                        "eventId", Value(eventId)
-                                )
-                        )
-                )
-        );
+        Tier eventTier= tierService.getTierById(tierId);
 
-        Tier tier = tierService.getTierById(tierId);
-        tierService.updateTier(tierId, tier.name(), tier.capacity() - count, tier.price());
+
+//        faunaClient.query(
+//                Create(
+//                        Collection("Ticket"),
+//                        Obj(
+//                                "data",
+//                                Obj(
+//                                        "count", Value(count),
+//                                        "cost", Value((long) count * eventTier.price()),
+//                                        "userId", Value(userId),
+//                                        "tierId", Value(tierId),
+//                                        "eventId", Value(eventId)
+//                                )
+//                        )
+//                )
+//        );
+
+        Event event = eventService.getEventById(eventId);
+        String tierIdString = event.tierId().toString();
+        List<String> tierIds = Arrays.asList(tierIdString.replaceAll("[\\[\"\\]\" ]", "").split(","));
+        for(String id : tierIds) {
+            if(id == tierId) {
+                Tier tier = tierService.getTierById(id);
+                int capacity = tier.capacity() - count;
+                tierService.updateTier(tierId, tier.name(), capacity, tier.price());
+            }
+        }
 
     }
 
@@ -64,11 +76,13 @@ public class TicketServiceImpl implements TicketService{
         String userId = userService.getIdByUserName(userName);
         String tierId = tierService.getTierIdByTierName(tierName);
         String eventId = eventService.getEventIdByName(eventName);
+        Tier eventTier= tierService.getTierById(tierId);
         faunaClient.query(
                 Update(Ref(Collection("Ticket"), id),
                         Obj(
                                 "data", Obj(
                                         "count", Value(count),
+                                        "cost", Value((long) count * eventTier.price()),
                                         "userId", Value(userId),
                                         "tierId", Value(tierId),
                                         "eventId", Value(eventId)
@@ -85,6 +99,7 @@ public class TicketServiceImpl implements TicketService{
         return new Ticket(
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "count").to(Integer.class).get(),
+                res.at("data", "cost").to(Integer.class).get(),
                 res.at("data", "userId").to(String.class).get(),
                 res.at("data", "tierId").to(String.class).get(),
                 res.at("data", "eventId").to(String.class).get()
@@ -99,6 +114,7 @@ public class TicketServiceImpl implements TicketService{
         return new Ticket(
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "count").to(Integer.class).get(),
+                res.at("data", "cost").to(Integer.class).get(),
                 res.at("data", "userId").to(String.class).get(),
                 res.at("data", "tierId").to(String.class).get(),
                 res.at("data", "eventId").to(String.class).get()
