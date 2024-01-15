@@ -29,7 +29,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(TicketService ticketService) {
+	public CommandLineRunner commandLineRunner(TicketService ticketService, TierService tierService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -64,7 +64,7 @@ public class ConcertSystemApplication {
 //			getEventWithVenue(eventService);
 //			getEventWithPlace(eventService);
 
-			buyTicket(ticketService);
+			buyTicket(ticketService, tierService);
 //			getTicketWithId(ticketService);
 //			getTicketWithUserName(ticketService);
 //			updateTicketWithId(ticketService);
@@ -92,7 +92,7 @@ public class ConcertSystemApplication {
 		System.out.println(ticketService.getTicketById(id));
 	}
 
-	private void buyTicket(TicketService ticketService) throws ExecutionException, InterruptedException {
+	private void buyTicket(TicketService ticketService, TierService tierService) throws ExecutionException, InterruptedException {
 		String userName = "user@123";
 		String tierName = "Gold";
 		String eventName = "Winter Holiday Concert";

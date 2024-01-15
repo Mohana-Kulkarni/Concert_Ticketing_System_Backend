@@ -90,8 +90,9 @@ public class TierServiceImpl implements TierService{
 
     @Override
     public void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException {
-        faunaClient.query(
-                Update(Ref(Collection("Tier"), id),
+        Value res = faunaClient.query(
+                Update(
+                        Ref(Collection("Tier"), id),
                         Obj(
                                 "data", Obj(
                                         "name", Value(name),
@@ -101,6 +102,8 @@ public class TierServiceImpl implements TierService{
                         )
                 )
         ).get();
+
+        System.out.println(res);
     }
 
     @Override

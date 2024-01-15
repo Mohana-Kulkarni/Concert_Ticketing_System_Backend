@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static com.faunadb.client.query.Language.*;
 import static com.faunadb.client.query.Language.Obj;
@@ -49,8 +50,8 @@ public class EventServiceImpl implements EventService{
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
         eventData.put("venueId", venueRef);
-        eventData.put("userId", Collections.singletonList(String.valueOf(userRefs)));
-        eventData.put("tierId", Collections.singletonList(String.valueOf(tierRefs)));
+        eventData.put("userId", userRefs);
+        eventData.put("tierId", tierRefs);
 
         faunaClient.query(
                 Create(
@@ -108,14 +109,22 @@ public class EventServiceImpl implements EventService{
         List<Value> events = res.at("data").to(List.class).get();
         List<Event> eventList = new ArrayList<>();
         for(Value event : events){
+            List<Value.StringV> artists = event.at("data", "userId").to(List.class).get();
+            List<String> artistList = artists.stream().map(
+                    stringV -> stringV.to(String.class).get())
+                    .collect(Collectors.toList());
+            List<Value.StringV> tiers = event.at("data", "tierId").to(List.class).get();
+            List<String> tiersList = tiers.stream().map(
+                            stringV -> stringV.to(String.class).get())
+                    .collect(Collectors.toList());
             Event eventByArt = new Event(
                     event.at("ref").to(Value.RefV.class).get().getId(),
                     event.at("data", "name").to(String.class).get(),
                     event.at("data", "dateAndTime").to(String.class).get(),
                     event.at("data", "description").to(String.class).get(),
                     event.at("data", "venueId").to(String.class).get(),
-                    Collections.singletonList(String.valueOf(event.at("data", "userId").to(List.class).get())),
-                    Collections.singletonList(String.valueOf(event.at("data", "tierId").to(List.class).get()))
+                    artistList,
+                    tiersList
             );
             eventList.add(eventByArt);
         }
@@ -140,15 +149,22 @@ public class EventServiceImpl implements EventService{
     @Override
     public Event getEventById(String id) throws ExecutionException, InterruptedException {
         Value res = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
-
+        List<Value.StringV> artists = res.at("data", "userId").to(List.class).get();
+        List<String> artistList = artists.stream().map(
+                        stringV -> stringV.to(String.class).get())
+                .collect(Collectors.toList());
+        List<Value.StringV> tiers = res.at("data", "tierId").to(List.class).get();
+        List<String> tiersList = tiers.stream().map(
+                        stringV -> stringV.to(String.class).get())
+                .collect(Collectors.toList());
         return new Event(
                 id,
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "dateAndTime").to(String.class).get(),
                 res.at("data", "description").to(String.class).get(),
                 res.at("data", "venueId").to(String.class).get(),
-                Collections.singletonList(String.valueOf(res.at("data", "userId").to(List.class).get())),
-                Collections.singletonList(String.valueOf(res.at("data", "tierId").to(List.class).get()))
+                artistList,
+                tiersList
         );
     }
 

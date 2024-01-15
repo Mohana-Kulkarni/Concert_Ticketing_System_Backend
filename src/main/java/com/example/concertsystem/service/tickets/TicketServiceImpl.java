@@ -41,33 +41,34 @@ public class TicketServiceImpl implements TicketService{
         String eventId = eventService.getEventIdByName(eventName);
         Tier eventTier= tierService.getTierById(tierId);
 
-
-//        faunaClient.query(
-//                Create(
-//                        Collection("Ticket"),
-//                        Obj(
-//                                "data",
-//                                Obj(
-//                                        "count", Value(count),
-//                                        "cost", Value((long) count * eventTier.price()),
-//                                        "userId", Value(userId),
-//                                        "tierId", Value(tierId),
-//                                        "eventId", Value(eventId)
-//                                )
-//                        )
-//                )
-//        );
-
         Event event = eventService.getEventById(eventId);
-        String tierIdString = event.tierId().toString();
-        List<String> tierIds = Arrays.asList(tierIdString.replaceAll("[\\[\"\\]\" ]", "").split(","));
-        for(String id : tierIds) {
-            if(id == tierId) {
-                Tier tier = tierService.getTierById(id);
-                int capacity = tier.capacity() - count;
-                tierService.updateTier(tierId, tier.name(), capacity, tier.price());
-            }
+        List<String> tierIdsList = Arrays.asList(event.tierId().get(0).replaceAll("[\\[\\] ]", "").split(","));
+        System.out.println(tierIdsList.get(0));
+
+        if(!tierIdsList.contains(tierId)) {
+            return;
         }
+
+        faunaClient.query(
+                Create(
+                        Collection("Ticket"),
+                        Obj(
+                                "data",
+                                Obj(
+                                        "count", Value(count),
+                                        "cost", Value((long) count * eventTier.price()),
+                                        "userId", Value(userId),
+                                        "tierId", Value(tierId),
+                                        "eventId", Value(eventId)
+                                )
+                        )
+                )
+        );
+
+
+        Tier tier = tierService.getTierById(tierId);
+        int updatedCapacity = tier.capacity() - count;
+        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price());
 
     }
 
