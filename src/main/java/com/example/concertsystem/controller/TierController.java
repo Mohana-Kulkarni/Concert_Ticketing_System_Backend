@@ -13,12 +13,12 @@ public class TierController {
     @Autowired
     private TierService tierService;
 
-    @GetMapping("/id={id}")
+    @GetMapping("/id?{id}")
     public Tier getTierById(@PathVariable String id) throws ExecutionException, InterruptedException {
         return tierService.getTierById(id);
     }
 
-    @GetMapping("/name={name}")
+    @GetMapping("/name?{name}")
     public Tier getTierByName(@PathVariable String name) throws ExecutionException, InterruptedException {
         return tierService.getTierByName(name);
     }
@@ -31,12 +31,12 @@ public class TierController {
         tierService.addTier(tier.name(), tier.capacity(), tier.price());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/id?{id}")
     public void updateTierById(@PathVariable String id, @RequestBody Tier tier) throws ExecutionException, InterruptedException {
         tierService.updateTier(id, tier.name(),tier.capacity(), tier.price());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id?{id}")
     public void deleteTierById(@PathVariable String id) {
         tierService.deleteTierById(id);
     }

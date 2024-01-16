@@ -16,12 +16,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/id={id}")
+    @GetMapping("/id?{id}")
     public User getUserById(@PathVariable String id) throws ExecutionException, InterruptedException {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/role={role}")
+    @GetMapping("/role?{role}")
     public List<User> getUserByRole(@PathVariable String role) throws ExecutionException, InterruptedException {
         return userService.getUsersByType(role);
     }
@@ -36,12 +36,12 @@ public class UserController {
         userService.updateUserInfo(id, user.name(),user.typeOfUser());
     }
 
-    @PutMapping("/id={id}")
+    @PutMapping("/id?{id}")
     public void updateUserRoleById(@PathVariable String id, @RequestBody User user) throws ExecutionException, InterruptedException {
         userService.updateUserRole(id, user.name(), user.typeOfUser());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id?{id}")
     public void deletePlaceById(@PathVariable String id) {
         userService.deleteUser(id);
     }

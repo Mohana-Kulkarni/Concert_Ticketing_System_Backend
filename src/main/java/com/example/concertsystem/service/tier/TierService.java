@@ -9,6 +9,7 @@ public interface TierService {
     void addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException;
     Tier getTierById(String id) throws ExecutionException, InterruptedException;
     Tier getTierByName(String name) throws ExecutionException, InterruptedException;
+//    int getAvailableSeats();
     void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException;
     void deleteTierById(String id);
     List<String> getIdByTierName(List<String> tierName);

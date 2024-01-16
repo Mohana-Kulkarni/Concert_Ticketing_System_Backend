@@ -15,16 +15,16 @@ public class VenueController {
     @Autowired
     private VenueService venueService;
 
-    @GetMapping("/id={id}")
+    @GetMapping("/id?{id}")
     public Venue getVenueById(@PathVariable String id) throws ExecutionException, InterruptedException {
         return venueService.getVenueById(id);
     }
 
-    @GetMapping("/name={name}")
+    @GetMapping("/name?{name}")
     public Venue getVenueByName(@PathVariable String name) throws ExecutionException, InterruptedException {
         return venueService.getVenueByName(name);
     }
-    @GetMapping("/city={city}")
+    @GetMapping("/city?{city}")
     public List<Venue> getVenueByCity(@PathVariable String city) throws ExecutionException, InterruptedException {
         return venueService.getVenueByPlace(city);
     }
@@ -34,10 +34,10 @@ public class VenueController {
         venueService.addVenue(venue);
     }
 
-//    @PutMapping("/{id}")
-//    public void updateVenueById(@PathVariable String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
-//        venueService.updateVenueById(id, venue);
-//    }
+    @PutMapping("/id?{id}")
+    public void updateVenueById(@PathVariable String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
+        venueService.updateVenueById(id, venue.name(), venue.address(), venue.capacity(), venue.placeId());
+    }
 
     @DeleteMapping("/{id}")
     public void deleteVenueById(@PathVariable String id) {

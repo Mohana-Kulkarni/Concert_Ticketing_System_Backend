@@ -29,7 +29,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(TicketService ticketService, TierService tierService) {
+	public CommandLineRunner commandLineRunner(EventService eventService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -63,13 +63,19 @@ public class ConcertSystemApplication {
 //			getEventWithId(eventService);
 //			getEventWithVenue(eventService);
 //			getEventWithPlace(eventService);
+//			getAllEventsList(eventService);
 
-			buyTicket(ticketService, tierService);
+//			buyTicket(ticketService, tierService);
 //			getTicketWithId(ticketService);
 //			getTicketWithUserName(ticketService);
 //			updateTicketWithId(ticketService);
 
+
 		};
+	}
+
+	private void getAllEventsList(EventService eventService) throws ExecutionException, InterruptedException {
+		eventService.getAllEvents();
 	}
 
 	private void updateTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
@@ -102,43 +108,43 @@ public class ConcertSystemApplication {
 		System.out.println("Ticket Booked Successfully!!!");
 	}
 
-	private void addNewEvent(EventService eventService) throws ExecutionException, InterruptedException {
-		String name = "Summer Concert";
-		DateTimeFormatter formatter
-				= DateTimeFormatter.ofPattern(
-				"yyyy-MM-dd HH:mm:ss a");
-		LocalDateTime now = LocalDateTime.now();
-		String dateTimeString = now.format(formatter);
-		String description = "It is a Hot concert Summer event. Free Wine and Pizza";
-		String venue = "The Millers";
-
-		List<String> username = new ArrayList<>();
-		username.add("user@123");
-		List<String> tiername = new ArrayList<>();
-		tiername.add("Platinum");
-		eventService.addEvent(name, dateTimeString, description, venue, username, tiername);
-		System.out.println("Event Added Successfully");
-
-
-	}
-	private void updateEvent(EventService eventService) throws ExecutionException, InterruptedException {
-		String name = "Spring Holiday Concert";
-		DateTimeFormatter formatter
-				= DateTimeFormatter.ofPattern(
-				"yyyy-MM-dd HH:mm:ss a");
-		LocalDateTime now = LocalDateTime.now();
-		String dateTimeString = now.format(formatter);
-		String description = "It is a cold concert winter event. Free Beer(Draught)";
-		String venue = "Phoenix";
-
-		List<String> username = new ArrayList<>();
-		username.add("user@123");
-		username.add("user@321");
-		List<String> tiername = new ArrayList<>();
-		tiername.add("Platinum");
-		eventService.updateEvent("386837366771286080",name,dateTimeString,description,venue,username,tiername);
-		System.out.println("Event updated successfully!!!");
-	}
+//	private void addNewEvent(EventService eventService) throws ExecutionException, InterruptedException {
+//		String name = "Summer Concert";
+//		DateTimeFormatter formatter
+//				= DateTimeFormatter.ofPattern(
+//				"yyyy-MM-dd HH:mm:ss a");
+//		LocalDateTime now = LocalDateTime.now();
+//		String dateTimeString = now.format(formatter);
+//		String description = "It is a Hot concert Summer event. Free Wine and Pizza";
+//		String venue = "The Millers";
+//
+//		List<String> username = new ArrayList<>();
+//		username.add("user@123");
+//		List<String> tiername = new ArrayList<>();
+//		tiername.add("Platinum");
+//		eventService.addEvent(name, dateTimeString, description, venue, username, tiername);
+//		System.out.println("Event Added Successfully");
+//
+//
+//	}
+//	private void updateEvent(EventService eventService) throws ExecutionException, InterruptedException {
+//		String name = "Spring Holiday Concert";
+//		DateTimeFormatter formatter
+//				= DateTimeFormatter.ofPattern(
+//				"yyyy-MM-dd HH:mm:ss a");
+//		LocalDateTime now = LocalDateTime.now();
+//		String dateTimeString = now.format(formatter);
+//		String description = "It is a cold concert winter event. Free Beer(Draught)";
+//		String venue = "Phoenix";
+//
+//		List<String> username = new ArrayList<>();
+//		username.add("user@123");
+//		username.add("user@321");
+//		List<String> tiername = new ArrayList<>();
+//		tiername.add("Platinum");
+//		eventService.updateEvent("386837366771286080",name,dateTimeString,description,venue,username,tiername);
+//		System.out.println("Event updated successfully!!!");
+//	}
 
 	private void eventByArtist(EventService eventService) throws ExecutionException, InterruptedException {
 		String artist = "abc";

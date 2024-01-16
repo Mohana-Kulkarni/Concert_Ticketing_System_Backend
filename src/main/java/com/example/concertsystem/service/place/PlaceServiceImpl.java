@@ -1,12 +1,13 @@
 package com.example.concertsystem.service.place;
 
 import com.example.concertsystem.entity.Place;
-import com.example.concertsystem.entity.User;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -54,6 +55,26 @@ public class PlaceServiceImpl implements PlaceService{
                 res.get().at("ref").to(Value.RefV.class).get().getId(),
                 res.get().at("data", "name").to(String.class).get()
         );
+    }
+
+    @Override
+    public List<Place> getAllPlaces() throws ExecutionException, InterruptedException {
+        List<Value> res = (List<Value>) faunaClient.query(
+                Map(
+                        Paginate(Documents(Collection("Place"))),
+                        Lambda("placeRef", Get(Var("placeRef")))
+                )
+        ).get();
+
+        List<Place> places = new ArrayList<>();
+        for(Value val : res) {
+            Place place = new Place(
+                    val.at("ref").to(Value.RefV.class).get().getId(),
+                    val.at("data", "city").to(String.class).get()
+            );
+            places.add(place);
+        }
+        return places;
     }
 
     @Override

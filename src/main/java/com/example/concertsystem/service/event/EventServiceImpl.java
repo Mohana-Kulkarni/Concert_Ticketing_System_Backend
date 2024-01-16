@@ -15,7 +15,9 @@ import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Provider;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +42,7 @@ public class EventServiceImpl implements EventService{
         this.placeService = placeService;
     }
     @Override
-    public void addEvent(String name, String date, String description, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
+    public void addEvent(String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
 //        venueService.getVenueByName(venueName);
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
@@ -49,6 +51,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("name", name);
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
+        eventData.put("duration", eventDuration);
         eventData.put("venueId", venueRef);
         eventData.put("userId", userRefs);
         eventData.put("tierId", tierRefs);
@@ -76,7 +79,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void updateEvent(String id, String name, String date, String description, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
+    public void updateEvent(String id, String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
         List<String> tierRefs = tierService.getIdByTierName(tierId);
@@ -84,6 +87,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("name", name);
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
+        eventData.put("duration", eventDuration);
         eventData.put("venueId", venueRef);
         eventData.put("userId", userRefs);
         eventData.put("tierId", tierRefs);
@@ -122,6 +126,7 @@ public class EventServiceImpl implements EventService{
                     event.at("data", "name").to(String.class).get(),
                     event.at("data", "dateAndTime").to(String.class).get(),
                     event.at("data", "description").to(String.class).get(),
+                    event.at("data", "duration").to(String.class).get(),
                     event.at("data", "venueId").to(String.class).get(),
                     artistList,
                     tiersList
@@ -162,6 +167,7 @@ public class EventServiceImpl implements EventService{
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "dateAndTime").to(String.class).get(),
                 res.at("data", "description").to(String.class).get(),
+                res.at("data", "description").to(String.class).get(),
                 res.at("data", "venueId").to(String.class).get(),
                 artistList,
                 tiersList
@@ -190,6 +196,59 @@ public class EventServiceImpl implements EventService{
         return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
     }
 
+    @Override
+    public List<Event> getAllEvents() throws ExecutionException, InterruptedException {
+        List<Value> res = (List<Value>) faunaClient.query(
+                Map(
+                        Paginate(Documents(Collection("Event"))),
+                        Lambda("eventRef", Get(Var("eventRef")))
+                )
+        ).get();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
+        LocalDateTime now = LocalDateTime.now();
+        String dateString = now.format(formatter);
+        System.out.println(dateString);
+
+        LocalDate date1 = LocalDate.parse(dateString, formatter);
+
+        List<Event> eventList = new ArrayList<>();
+        for(Value val : res) {
+            String eventDate = val.at("data", "dateAndTime").to(String.class).get();
+            LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
+            String date = dateTime.format(formatter);
+
+            LocalDate date2 = LocalDate.parse(dateString, formatter);
+
+            if(date1.isBefore(date2) || date1.equals(date2)) {
+                List<Value.StringV> artists = val.at("data", "userId").to(List.class).get();
+                List<String> artistList = artists.stream().map(
+                                stringV -> stringV.to(String.class).get())
+                        .collect(Collectors.toList());
+                List<Value.StringV> tiers = val.at("data", "tierId").to(List.class).get();
+                List<String> tiersList = tiers.stream().map(
+                                stringV -> stringV.to(String.class).get())
+                        .collect(Collectors.toList());
+
+
+                Event event = new Event(
+                        val.at("ref").to(Value.RefV.class).get().getId(),
+                        val.at("data", "name").to(String.class).get(),
+                        val.at("data", "dateAndTime").to(String.class).get(),
+                        val.at("data", "description").to(String.class).get(),
+                        val.at("data", "description").to(String.class).get(),
+                        val.at("data", "venueId").to(String.class).get(),
+                        artistList,
+                        tiersList
+                );
+                eventList.add(event);
+            }
+
+        }
+        return eventList;
+    }
+
     private List<String> getEventIdsByVenueId(String id) throws ExecutionException, InterruptedException {
         ArrayList<Value> res = faunaClient.query(
                 Paginate(Match(Index("event_by_venueId"), Value(id)))
@@ -201,4 +260,5 @@ public class EventServiceImpl implements EventService{
         }
         return eventIds;
     }
+
 }

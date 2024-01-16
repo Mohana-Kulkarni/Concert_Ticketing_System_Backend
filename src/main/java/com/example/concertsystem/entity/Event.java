@@ -1,8 +1,5 @@
 package com.example.concertsystem.entity;
 
-import com.faunadb.client.types.Value;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 public record Event(
@@ -10,6 +7,7 @@ public record Event(
         String name,
         String dateAndTime,
         String description,
+        String eventDuration,
         String venueId,
         List<String> userId,
         List<String> tierId
