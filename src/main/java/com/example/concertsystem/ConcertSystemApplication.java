@@ -30,7 +30,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(EventService eventService) {
+	public CommandLineRunner commandLineRunner(TierService tierService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -57,6 +57,7 @@ public class ConcertSystemApplication {
 //			getTierWithName(tierService);
 //			updateTierInfo(tierService);
 //			deleteTier(tierService);
+//			getTierByNameEvent(tierService);
 
 //			addNewEvent(eventService);
 //			updateEvent(eventService);
@@ -73,6 +74,13 @@ public class ConcertSystemApplication {
 
 
 		};
+	}
+
+	private void getTierByNameEvent(TierService tierService) throws ExecutionException, InterruptedException {
+		String name = "Platinum";
+		String eventId = "387233174551265344";
+		Tier tier = tierService.getTierByNameEventId(name, eventId);
+		System.out.println(tier);
 	}
 
 	private void getAllEventsList(EventService eventService) throws ExecutionException, InterruptedException {

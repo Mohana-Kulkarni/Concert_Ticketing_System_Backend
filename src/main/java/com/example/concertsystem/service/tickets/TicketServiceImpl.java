@@ -1,8 +1,11 @@
 package com.example.concertsystem.service.tickets;
 
+import com.example.concertsystem.dto.EventResponse;
+import com.example.concertsystem.dto.TicketResponse;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.entity.Tier;
+import com.example.concertsystem.entity.User;
 import com.example.concertsystem.service.event.EventService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
@@ -34,58 +37,49 @@ public class TicketServiceImpl implements TicketService{
         this.tierService = tierService;
         this.eventService = eventService;
     }
-//    @Override
-//    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
-//        String userId = userService.getIdByUserName(userName);
-//        String tierId = tierService.getTierIdByTierName(tierName);
-//        String eventId = eventService.getEventIdByName(eventName);
-//        Tier eventTier= tierService.getTierById(tierId);
-//
-//        Event event = eventService.getEventById(eventId);
-//        List<String> tierIdsList = Arrays.asList(event.tierId().get(0).replaceAll("[\\[\\] ]", "").split(","));
-//        System.out.println(tierIdsList.get(0));
-//
-//        if(!tierIdsList.contains(tierId)) {
-//            return;
-//        }
-//
-//        faunaClient.query(
-//                Create(
-//                        Collection("Ticket"),
-//                        Obj(
-//                                "data",
-//                                Obj(
-//                                        "count", Value(count),
-//                                        "cost", Value((long) count * eventTier.price()),
-//                                        "userId", Value(userId),
-//                                        "tierId", Value(tierId),
-//                                        "eventId", Value(eventId)
-//                                )
-//                        )
-//                )
-//        );
-//
-//
-//        Tier tier = tierService.getTierById(tierId);
-//        int updatedCapacity = tier.capacity() - count;
-//        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price());
-//
-//    }
+    @Override
+    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
+        String userId = userService.getIdByUserName(userName);
+        String eventId = eventService.getEventIdByName(eventName);
+        Tier tier = tierService.getTierByNameEventId(tierName, eventId);
+
+
+
+        faunaClient.query(
+                Create(
+                        Collection("Ticket"),
+                        Obj(
+                                "data",
+                                Obj(
+                                        "count", Value(count),
+                                        "cost", Value((long) count * tier.price()),
+                                        "userId", Value(userId),
+                                        "tierId", Value(tier.id()),
+                                        "eventId", Value(eventId)
+                                )
+                        )
+                )
+        );
+
+        int updatedCapacity = tier.capacity() - count;
+        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price(), tier.eventId());
+
+    }
 
     @Override
     public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
         String userId = userService.getIdByUserName(userName);
-        String tierId = tierService.getTierIdByTierName(tierName);
         String eventId = eventService.getEventIdByName(eventName);
-        Tier eventTier= tierService.getTierById(tierId);
+        Tier tier = tierService.getTierByNameEventId(tierName, eventId);
+
         faunaClient.query(
                 Update(Ref(Collection("Ticket"), id),
                         Obj(
                                 "data", Obj(
                                         "count", Value(count),
-                                        "cost", Value((long) count * eventTier.price()),
+                                        "cost", Value((long) count * tier.price()),
                                         "userId", Value(userId),
-                                        "tierId", Value(tierId),
+                                        "tierId", Value(tier.id()),
                                         "eventId", Value(eventId)
                                 )
                         )
@@ -94,31 +88,36 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public Ticket getTicketById(String id) throws ExecutionException, InterruptedException {
+    public TicketResponse getTicketById(String id) throws ExecutionException, InterruptedException {
         Value res = faunaClient.query(Get(Ref(Collection("Ticket"), Value(id)))).get();
-
-        return new Ticket(
+        User user = userService.getUserById(res.at("data", "userId").to(String.class).get());
+        Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
+        EventResponse event = eventService.getEventById(res.at("data", "eventId").to(String.class).get());
+        return new TicketResponse(
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "count").to(Integer.class).get(),
                 res.at("data", "cost").to(Integer.class).get(),
-                res.at("data", "userId").to(String.class).get(),
-                res.at("data", "tierId").to(String.class).get(),
-                res.at("data", "eventId").to(String.class).get()
+                user,
+                tier,
+                event
         );
 
     }
 
     @Override
-    public Ticket getTicketByUserName(String userName) throws ExecutionException, InterruptedException {
+    public TicketResponse getTicketByUserName(String userName) throws ExecutionException, InterruptedException {
         String userId = userService.getIdByUserName(userName);
         Value res = faunaClient.query(Get(Match(Index("ticket_by_userId"), Value(userId)))).get();
-        return new Ticket(
+        User user = userService.getUserById(res.at("data", "userId").to(String.class).get());
+        Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
+        EventResponse event = eventService.getEventById(res.at("data", "eventId").to(String.class).get());
+        return new TicketResponse(
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "count").to(Integer.class).get(),
                 res.at("data", "cost").to(Integer.class).get(),
-                res.at("data", "userId").to(String.class).get(),
-                res.at("data", "tierId").to(String.class).get(),
-                res.at("data", "eventId").to(String.class).get()
+                user,
+                tier,
+                event
         );
     }
 

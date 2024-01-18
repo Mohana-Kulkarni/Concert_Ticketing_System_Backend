@@ -16,14 +16,14 @@ public class PlaceController {
     @Autowired
     private PlaceService placeService;
 
-    @GetMapping("/id?{id}")
-    public Place getPlaceById(@PathVariable String id) throws ExecutionException, InterruptedException {
+    @GetMapping("/id")
+    public Place getPlaceById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         return placeService.getPlaceById(id);
     }
 
-    @GetMapping("/city?{name}")
-    public Place getPlaceByName(@PathVariable String name) throws ExecutionException, InterruptedException {
-        return placeService.getPlaceByName(name);
+    @GetMapping("/city")
+    public Place getPlaceByName(@RequestParam("city") String city) throws ExecutionException, InterruptedException {
+        return placeService.getPlaceByName(city);
     }
 
     @PostMapping("/")
@@ -32,13 +32,13 @@ public class PlaceController {
         placeService.addPlace(place.city());
     }
 
-    @PutMapping("/id?{id}")
-    public void updatePlaceById(@PathVariable String id, @RequestBody Place place) throws ExecutionException, InterruptedException {
+    @PutMapping("/id")
+    public void updatePlaceById(@RequestParam("id") String id, @RequestBody Place place) throws ExecutionException, InterruptedException {
         placeService.updatePlaceById(id, place.city());
     }
 
-    @DeleteMapping("/id?{id}")
-    public void deletePlaceById(@PathVariable String id) {
+    @DeleteMapping("/id")
+    public void deletePlaceById(@RequestParam("id") String id) {
         placeService.deletePlaceById(id);
     }
 }

@@ -18,7 +18,7 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public EventResponse getEventById(@PathVariable String id) throws ExecutionException, InterruptedException {
         return eventService.getEventById(id);
     }

@@ -16,13 +16,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/id?{id}")
-    public User getUserById(@PathVariable String id) throws ExecutionException, InterruptedException {
+    @GetMapping("/id")
+    public User getUserById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/role?{role}")
-    public List<User> getUserByRole(@PathVariable String role) throws ExecutionException, InterruptedException {
+    @GetMapping("/role")
+    public List<User> getUserByRole(@RequestParam("role") String role) throws ExecutionException, InterruptedException {
         return userService.getUsersByType(role);
     }
 
@@ -31,18 +31,18 @@ public class UserController {
         userService.addUser(user.name(), user.typeOfUser(), user.userName(), user.profileImg());
     }
 
-    @PutMapping("/{id}")
-    public void updateUserById(@PathVariable String id, @RequestBody User user) throws ExecutionException, InterruptedException {
+    @PutMapping("/id")
+    public void updateUserById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
         userService.updateUserInfo(id, user.name(),user.typeOfUser());
     }
 
-    @PutMapping("/id?{id}")
-    public void updateUserRoleById(@PathVariable String id, @RequestBody User user) throws ExecutionException, InterruptedException {
+    @PutMapping("/id")
+    public void updateUserRoleById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
         userService.updateUserRole(id, user.name(), user.typeOfUser());
     }
 
-    @DeleteMapping("/id?{id}")
-    public void deletePlaceById(@PathVariable String id) {
+    @DeleteMapping("/id")
+    public void deletePlaceById(@RequestParam("id") String id) {
         userService.deleteUser(id);
     }
 }

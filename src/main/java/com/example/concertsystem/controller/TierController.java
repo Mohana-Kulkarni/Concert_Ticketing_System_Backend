@@ -13,13 +13,13 @@ public class TierController {
     @Autowired
     private TierService tierService;
 
-    @GetMapping("/id?{id}")
-    public Tier getTierById(@PathVariable String id) throws ExecutionException, InterruptedException {
+    @GetMapping("/id")
+    public Tier getTierById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         return tierService.getTierById(id);
     }
 
-    @GetMapping("/name?{name}")
-    public Tier getTierByName(@PathVariable String name) throws ExecutionException, InterruptedException {
+    @GetMapping("/name")
+    public Tier getTierByName(@RequestParam("name") String name) throws ExecutionException, InterruptedException {
         return tierService.getTierByName(name);
     }
 
@@ -31,13 +31,13 @@ public class TierController {
         tierService.addTier(tier.name(), tier.capacity(), tier.price(), tier.eventId());
     }
 
-    @PutMapping("/id?{id}")
-    public void updateTierById(@PathVariable String id, @RequestBody Tier tier) throws ExecutionException, InterruptedException {
+    @PutMapping("/id")
+    public void updateTierById(@RequestParam("id") String id, @RequestBody Tier tier) throws ExecutionException, InterruptedException {
         tierService.updateTier(id, tier.name(),tier.capacity(), tier.price(), tier.eventId());
     }
 
-    @DeleteMapping("/id?{id}")
-    public void deleteTierById(@PathVariable String id) {
+    @DeleteMapping("/id")
+    public void deleteTierById(@RequestParam("id") String id) {
         tierService.deleteTierById(id);
     }
 

@@ -15,5 +15,6 @@ public interface TierService {
     List<String> getIdByTierName(List<String> tierName);
     String getTierIdByTierName(String tierName);
     List<Tier> getTierListByIds(List<String> tierId) throws ExecutionException, InterruptedException;
+    Tier getTierByNameEventId(String name, String eventId) throws ExecutionException, InterruptedException;
 
 }
