@@ -25,10 +25,10 @@ public class TicketController {
         return ticketService.getTicketByUserName(name);
     }
 
-    @PostMapping("/")
-    public void bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException {
-        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId());
-    }
+//    @PostMapping("/")
+//    public void bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException {
+//        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId());
+//    }
 
     @PutMapping("/id?{id}")
     public void updateTicketById(@PathVariable String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException {

@@ -27,7 +27,7 @@ public class TierServiceImpl implements TierService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException {
+    public void addTier(String name, int capacity, int price, String eventId) throws ExecutionException, InterruptedException {
         faunaClient.query(
                 Create(
                         Collection("Tier"),
@@ -36,7 +36,8 @@ public class TierServiceImpl implements TierService{
                                 Obj(
                                         "name", Value(name),
                                         "capacity", Value(capacity),
-                                        "price", Value(price)
+                                        "price", Value(price),
+                                        "eventId", Value(eventId)
                                 )
                         )
                 )
@@ -51,7 +52,8 @@ public class TierServiceImpl implements TierService{
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "capacity").to(Integer.class).get(),
-                res.at("data","price").to(Integer.class).get()
+                res.at("data","price").to(Integer.class).get(),
+                res.at("data", "eventId").to(String.class).get()
         );
     }
 
@@ -74,7 +76,16 @@ public class TierServiceImpl implements TierService{
 
     }
 
+    @Override
+    public List<Tier> getTierListByIds(List<String> tierId) throws ExecutionException, InterruptedException {
 
+        List<Tier> tierList = new ArrayList<>();
+        for (String id : tierId) {
+            Tier tier = getTierById(id);
+            tierList.add(tier);
+        }
+        return tierList;
+    }
 
 
     @Override
@@ -84,12 +95,13 @@ public class TierServiceImpl implements TierService{
                 res.get().at("ref").to(Value.RefV.class).get().getId(),
                 res.get().at("data", "name").to(String.class).get(),
                 res.get().at("data", "capacity").to(Integer.class).get(),
-                res.get().at("data", "price").to(Integer.class).get()
+                res.get().at("data", "price").to(Integer.class).get(),
+                res.get().at("data", "eventId").to(String.class).get()
         );
     }
 
     @Override
-    public void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException {
+    public void updateTier(String id, String name, int capacity, int price, String eventId) throws ExecutionException, InterruptedException {
         Value res = faunaClient.query(
                 Update(
                         Ref(Collection("Tier"), id),
@@ -97,7 +109,8 @@ public class TierServiceImpl implements TierService{
                                 "data", Obj(
                                         "name", Value(name),
                                         "capacity", Value(capacity),
-                                        "price", Value(price)
+                                        "price", Value(price),
+                                        "eventId", Value(eventId)
                                 )
                         )
                 )

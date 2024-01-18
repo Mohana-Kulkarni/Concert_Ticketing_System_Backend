@@ -1,6 +1,8 @@
 package com.example.concertsystem.service.event;
 
+import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Event;
+import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.User;
 import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.tier.TierService;
@@ -31,19 +33,18 @@ public class EventServiceImpl implements EventService{
     private FaunaClient faunaClient;
     private UserService userService;
     private TierService tierService;
-    private PlaceService placeService;
 
     private VenueService venueService;
-    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, VenueService venueService, PlaceService placeService) {
+    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, VenueService venueService) {
         this.faunaClient = faunaClient;
         this.userService = userService;
         this.tierService = tierService;
         this.venueService = venueService;
-        this.placeService = placeService;
     }
     @Override
     public void addEvent(String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
 //        venueService.getVenueByName(venueName);
+        System.out.println(eventDuration);
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
         List<String> tierRefs = tierService.getIdByTierName(tierId);
@@ -62,6 +63,7 @@ public class EventServiceImpl implements EventService{
                         Obj("data", Value(eventData))
                 )
         );
+        System.out.println(Value(eventData));
     }
 
 
@@ -100,7 +102,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<Event> getEventByArtist(String artist) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException {
         String userRef = userService.getIdByUserName(artist);
         Value res = faunaClient.query(
                 Map(
@@ -111,25 +113,23 @@ public class EventServiceImpl implements EventService{
                 )
         ).get();
         List<Value> events = res.at("data").to(List.class).get();
-        List<Event> eventList = new ArrayList<>();
+        List<EventResponse> eventList = new ArrayList<>();
         for(Value event : events){
-            List<Value.StringV> artists = event.at("data", "userId").to(List.class).get();
-            List<String> artistList = artists.stream().map(
-                    stringV -> stringV.to(String.class).get())
-                    .collect(Collectors.toList());
-            List<Value.StringV> tiers = event.at("data", "tierId").to(List.class).get();
-            List<String> tiersList = tiers.stream().map(
-                            stringV -> stringV.to(String.class).get())
-                    .collect(Collectors.toList());
-            Event eventByArt = new Event(
+            List<String> artists = event.at("data", "userId").collect(String.class).stream().toList();
+            List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
+
+            List<User> artistObjList = userService.getUserListById(artists);
+            List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+
+            EventResponse eventByArt = new EventResponse(
                     event.at("ref").to(Value.RefV.class).get().getId(),
                     event.at("data", "name").to(String.class).get(),
                     event.at("data", "dateAndTime").to(String.class).get(),
                     event.at("data", "description").to(String.class).get(),
                     event.at("data", "duration").to(String.class).get(),
                     event.at("data", "venueId").to(String.class).get(),
-                    artistList,
-                    tiersList
+                    artistObjList,
+                    tierObjList
             );
             eventList.add(eventByArt);
         }
@@ -137,40 +137,41 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<Event> getEventByPlace(String place) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException {
         List<String> venueIds = venueService.getVenueIdsByPlaceName(place);
         List<String> eventIds = new ArrayList<>();
         for(String id:venueIds){
             eventIds.addAll(getEventIdsByVenueId(id));
         }
-        List<Event> events = new ArrayList<>();
+        List<EventResponse> events = new ArrayList<>();
         for(String id : eventIds){
-            Event event = getEventById(id);
+            EventResponse event = getEventById(id);
             events.add(event);
         }
         return events;
     }
 
     @Override
-    public Event getEventById(String id) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
-        List<Value.StringV> artists = res.at("data", "userId").to(List.class).get();
-        List<String> artistList = artists.stream().map(
-                        stringV -> stringV.to(String.class).get())
-                .collect(Collectors.toList());
-        List<Value.StringV> tiers = res.at("data", "tierId").to(List.class).get();
-        List<String> tiersList = tiers.stream().map(
-                        stringV -> stringV.to(String.class).get())
-                .collect(Collectors.toList());
-        return new Event(
+    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException {
+        CompletableFuture<Value> res = faunaClient.query(Get(Ref(Collection("Event"), id)));
+        Value val = res.join();
+
+        List<String> artists = val.at("data", "userId").collect(String.class).stream().toList();
+        List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
+
+        List<User> artistObjList = userService.getUserListById(artists);
+        List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+
+
+        return new EventResponse(
                 id,
-                res.at("data", "name").to(String.class).get(),
-                res.at("data", "dateAndTime").to(String.class).get(),
-                res.at("data", "description").to(String.class).get(),
-                res.at("data", "description").to(String.class).get(),
-                res.at("data", "venueId").to(String.class).get(),
-                artistList,
-                tiersList
+                val.at("data", "name").to(String.class).get(),
+                val.at("data", "dateAndTime").to(String.class).get(),
+                val.at("data", "description").to(String.class).get(),
+                val.at("data", "duration").to(String.class).get(),
+                val.at("data", "venueId").to(String.class).get(),
+                artistObjList,
+                tierObjList
         );
     }
 
@@ -180,12 +181,12 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<Event> getEventByVenue(String venue) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException {
         String venueRef = venueService.getVenueIdByVenueName(venue);
         List<String> eventIds = getEventIdsByVenueId(venueRef);
-        List<Event> events = new ArrayList<>();
+        List<EventResponse> events = new ArrayList<>();
         for(String id : eventIds){
-            Event event = getEventById(id);
+            EventResponse event = getEventById(id);
             events.add(event);
         }
         return events;
@@ -197,7 +198,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<Event> getAllEvents() throws ExecutionException, InterruptedException {
+    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
         List<Value> res = (List<Value>) faunaClient.query(
                 Map(
                         Paginate(Documents(Collection("Event"))),
@@ -213,7 +214,7 @@ public class EventServiceImpl implements EventService{
 
         LocalDate date1 = LocalDate.parse(dateString, formatter);
 
-        List<Event> eventList = new ArrayList<>();
+        List<EventResponse> eventList = new ArrayList<>();
         for(Value val : res) {
             String eventDate = val.at("data", "dateAndTime").to(String.class).get();
             LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
@@ -232,15 +233,15 @@ public class EventServiceImpl implements EventService{
                         .collect(Collectors.toList());
 
 
-                Event event = new Event(
+                EventResponse event = new EventResponse(
                         val.at("ref").to(Value.RefV.class).get().getId(),
                         val.at("data", "name").to(String.class).get(),
                         val.at("data", "dateAndTime").to(String.class).get(),
                         val.at("data", "description").to(String.class).get(),
                         val.at("data", "description").to(String.class).get(),
                         val.at("data", "venueId").to(String.class).get(),
-                        artistList,
-                        tiersList
+                        userService.getUserListById(artistList),
+                        tierService.getTierListByIds(tiersList)
                 );
                 eventList.add(event);
             }

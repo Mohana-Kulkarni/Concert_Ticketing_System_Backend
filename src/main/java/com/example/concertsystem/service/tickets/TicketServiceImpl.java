@@ -34,43 +34,43 @@ public class TicketServiceImpl implements TicketService{
         this.tierService = tierService;
         this.eventService = eventService;
     }
-    @Override
-    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
-        String userId = userService.getIdByUserName(userName);
-        String tierId = tierService.getTierIdByTierName(tierName);
-        String eventId = eventService.getEventIdByName(eventName);
-        Tier eventTier= tierService.getTierById(tierId);
-
-        Event event = eventService.getEventById(eventId);
-        List<String> tierIdsList = Arrays.asList(event.tierId().get(0).replaceAll("[\\[\\] ]", "").split(","));
-        System.out.println(tierIdsList.get(0));
-
-        if(!tierIdsList.contains(tierId)) {
-            return;
-        }
-
-        faunaClient.query(
-                Create(
-                        Collection("Ticket"),
-                        Obj(
-                                "data",
-                                Obj(
-                                        "count", Value(count),
-                                        "cost", Value((long) count * eventTier.price()),
-                                        "userId", Value(userId),
-                                        "tierId", Value(tierId),
-                                        "eventId", Value(eventId)
-                                )
-                        )
-                )
-        );
-
-
-        Tier tier = tierService.getTierById(tierId);
-        int updatedCapacity = tier.capacity() - count;
-        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price());
-
-    }
+//    @Override
+//    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
+//        String userId = userService.getIdByUserName(userName);
+//        String tierId = tierService.getTierIdByTierName(tierName);
+//        String eventId = eventService.getEventIdByName(eventName);
+//        Tier eventTier= tierService.getTierById(tierId);
+//
+//        Event event = eventService.getEventById(eventId);
+//        List<String> tierIdsList = Arrays.asList(event.tierId().get(0).replaceAll("[\\[\\] ]", "").split(","));
+//        System.out.println(tierIdsList.get(0));
+//
+//        if(!tierIdsList.contains(tierId)) {
+//            return;
+//        }
+//
+//        faunaClient.query(
+//                Create(
+//                        Collection("Ticket"),
+//                        Obj(
+//                                "data",
+//                                Obj(
+//                                        "count", Value(count),
+//                                        "cost", Value((long) count * eventTier.price()),
+//                                        "userId", Value(userId),
+//                                        "tierId", Value(tierId),
+//                                        "eventId", Value(eventId)
+//                                )
+//                        )
+//                )
+//        );
+//
+//
+//        Tier tier = tierService.getTierById(tierId);
+//        int updatedCapacity = tier.capacity() - count;
+//        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price());
+//
+//    }
 
     @Override
     public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {

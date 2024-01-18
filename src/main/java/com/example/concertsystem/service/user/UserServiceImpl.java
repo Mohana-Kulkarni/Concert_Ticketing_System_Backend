@@ -129,6 +129,15 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Override
+    public List<User> getUserListById(List<String> userId) throws ExecutionException, InterruptedException {
+        List<User> userList = new ArrayList<>();
+        for(String id : userId) {
+            User user = getUserById(id);
+            userList.add(user);
+        }
+        return userList;
+    }
 
 
     @Override

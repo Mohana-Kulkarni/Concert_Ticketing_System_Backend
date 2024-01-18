@@ -14,4 +14,6 @@ public interface UserService {
     void deleteUser(String id);
     List<String> getUserIdsByUserName(List<String> userName);
     String getIdByUserName(String userName);
+
+    List<User> getUserListById(List<String> userId) throws ExecutionException, InterruptedException;
 }

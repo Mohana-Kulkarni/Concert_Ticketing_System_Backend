@@ -28,12 +28,12 @@ public class TierController {
         System.out.println(tier.name());
         System.out.println(tier.capacity());
         System.out.println(tier.price());
-        tierService.addTier(tier.name(), tier.capacity(), tier.price());
+        tierService.addTier(tier.name(), tier.capacity(), tier.price(), tier.eventId());
     }
 
     @PutMapping("/id?{id}")
     public void updateTierById(@PathVariable String id, @RequestBody Tier tier) throws ExecutionException, InterruptedException {
-        tierService.updateTier(id, tier.name(),tier.capacity(), tier.price());
+        tierService.updateTier(id, tier.name(),tier.capacity(), tier.price(), tier.eventId());
     }
 
     @DeleteMapping("/id?{id}")
