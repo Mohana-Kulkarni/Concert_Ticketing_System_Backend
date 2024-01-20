@@ -10,6 +10,6 @@ public record Event(
         String eventDuration,
         String venueId,
         List<String> userId,
-        List<String> tierId
+        List<Tier> tierId
 ) {
 }

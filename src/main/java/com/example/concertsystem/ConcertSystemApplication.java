@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -72,16 +73,20 @@ public class ConcertSystemApplication {
 //			getTicketWithUserName(ticketService);
 //			updateTicketWithId(ticketService);
 
+			Random random = new Random();
+			int n = random.nextInt(9000) + 1000;
+			String eventId = "event" + n;
+			System.out.println(eventId);
 
 		};
 	}
 
-	private void getTierByNameEvent(TierService tierService) throws ExecutionException, InterruptedException {
-		String name = "Platinum";
-		String eventId = "387233174551265344";
-		Tier tier = tierService.getTierByNameEventId(name, eventId);
-		System.out.println(tier);
-	}
+//	private void getTierByNameEvent(TierService tierService) throws ExecutionException, InterruptedException {
+//		String name = "Platinum";
+//		String eventId = "387233174551265344";
+//		Tier tier = tierService.getTierByEventId(eventId);
+//		System.out.println(tier);
+//	}
 
 	private void getAllEventsList(EventService eventService) throws ExecutionException, InterruptedException {
 		eventService.getAllEvents();

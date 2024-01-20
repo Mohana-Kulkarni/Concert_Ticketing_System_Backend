@@ -13,11 +13,7 @@ import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
@@ -41,28 +37,31 @@ public class TicketServiceImpl implements TicketService{
     public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
         String userId = userService.getIdByUserName(userName);
         String eventId = eventService.getEventIdByName(eventName);
-        Tier tier = tierService.getTierByNameEventId(tierName, eventId);
-
-
-
-        faunaClient.query(
-                Create(
-                        Collection("Ticket"),
-                        Obj(
-                                "data",
+        List<Tier> tierList = eventService.getEventById(eventId).tierId();
+        Tier newTier = null;
+        for(Tier tier : tierList) {
+            if((tier.name()).equals(tierName)) {
+                newTier = tier;
+                faunaClient.query(
+                        Create(
+                                Collection("Ticket"),
                                 Obj(
-                                        "count", Value(count),
-                                        "cost", Value((long) count * tier.price()),
-                                        "userId", Value(userId),
-                                        "tierId", Value(tier.id()),
-                                        "eventId", Value(eventId)
+                                        "data",
+                                        Obj(
+                                                "count", Value(count),
+                                                "cost", Value((long) count * tier.price()),
+                                                "userId", Value(userId),
+                                                "tierId", Value(tier.id()),
+                                                "eventId", Value(eventId)
+                                        )
                                 )
                         )
-                )
-        );
-
-        int updatedCapacity = tier.capacity() - count;
-        tierService.updateTier(tier.id(), tierName, updatedCapacity, tier.price(), tier.eventId());
+                );
+                break;
+            }
+        }
+        int updatedCapacity = newTier.capacity() - count;
+        tierService.updateTier(newTier.id(), tierName, updatedCapacity, newTier.price());
 
     }
 
@@ -70,21 +69,26 @@ public class TicketServiceImpl implements TicketService{
     public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
         String userId = userService.getIdByUserName(userName);
         String eventId = eventService.getEventIdByName(eventName);
-        Tier tier = tierService.getTierByNameEventId(tierName, eventId);
-
-        faunaClient.query(
-                Update(Ref(Collection("Ticket"), id),
-                        Obj(
-                                "data", Obj(
-                                        "count", Value(count),
-                                        "cost", Value((long) count * tier.price()),
-                                        "userId", Value(userId),
-                                        "tierId", Value(tier.id()),
-                                        "eventId", Value(eventId)
+        List<Tier> tierList = eventService.getEventById(eventId).tierId();
+        for (Tier tier : tierList) {
+            if((tier.name()).equals(tierName)) {
+                faunaClient.query(
+                        Update(Ref(Collection("Ticket"), id),
+                                Obj(
+                                        "data", Obj(
+                                                "count", Value(count),
+                                                "cost", Value((long) count * tier.price()),
+                                                "userId", Value(userId),
+                                                "tierId", Value(tier.id()),
+                                                "eventId", Value(eventId)
+                                        )
                                 )
                         )
-                )
-        ).get();
+                ).get();
+                break;
+            }
+        }
+
     }
 
     @Override

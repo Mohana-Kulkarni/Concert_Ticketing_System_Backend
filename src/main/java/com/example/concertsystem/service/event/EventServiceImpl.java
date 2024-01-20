@@ -42,12 +42,13 @@ public class EventServiceImpl implements EventService{
         this.venueService = venueService;
     }
     @Override
-    public void addEvent(String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException {
-//        venueService.getVenueByName(venueName);
+    public void addEvent(String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException {
         System.out.println(eventDuration);
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
-        List<String> tierRefs = tierService.getIdByTierName(tierId);
+        String eventId = getTiersAddedForEvent(tierList);
+        List<String> tierIds = tierService.getTierByEventId(eventId);
+
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("dateAndTime", date);
@@ -55,7 +56,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("duration", eventDuration);
         eventData.put("venueId", venueRef);
         eventData.put("userId", userRefs);
-        eventData.put("tierId", tierRefs);
+        eventData.put("tierId", tierIds);
 
         faunaClient.query(
                 Create(
@@ -63,11 +64,30 @@ public class EventServiceImpl implements EventService{
                         Obj("data", Value(eventData))
                 )
         );
-        System.out.println(Value(eventData));
     }
 
+    @Override
+    public void addEvent2(String name, String date, String description, String eventDuration, String venueId, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException {
+        System.out.println(eventDuration);
+        List<String> tierIds = tierService.addNewTiers(tierList);
 
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("name", name);
+        eventData.put("dateAndTime", date);
+        eventData.put("description", description);
+        eventData.put("duration", eventDuration);
+        eventData.put("venueId", venueId);
+        eventData.put("userId", userId);
+        eventData.put("tierId", tierIds);
 
+        CompletableFuture<Value> res = faunaClient.query(
+                Create(
+                        Collection("Event"),
+                        Obj("data", Value(eventData))
+                )
+        );
+
+    }
     private String getVenueRef(String venueId) {
         Value result = faunaClient.query(Get(Ref(Collection("Venue"), venueId))).join();
         try {
@@ -197,6 +217,16 @@ public class EventServiceImpl implements EventService{
         return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
     }
 
+    private String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException {
+        Random random = new Random();
+        int n = random.nextInt(9000) + 1000;
+        String eventId = "event" + n;
+        System.out.println(eventId);
+        for (Tier tier : tierList) {
+            tierService.addTier(tier.name(), tier.capacity(), tier.price());
+        }
+        return eventId;
+    }
     @Override
     public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
         List<Value> res = (List<Value>) faunaClient.query(

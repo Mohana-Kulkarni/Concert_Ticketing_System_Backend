@@ -25,15 +25,15 @@ public class TierController {
 
     @PostMapping("/")
     public void addTier(@RequestBody Tier tier) throws ExecutionException, InterruptedException {
-        System.out.println(tier.name());
-        System.out.println(tier.capacity());
-        System.out.println(tier.price());
-        tierService.addTier(tier.name(), tier.capacity(), tier.price(), tier.eventId());
+//        System.out.println(tier.name());
+//        System.out.println(tier.capacity());
+//        System.out.println(tier.price());
+        tierService.addTier(tier.name(), tier.capacity(), tier.price());
     }
 
     @PutMapping("/id")
     public void updateTierById(@RequestParam("id") String id, @RequestBody Tier tier) throws ExecutionException, InterruptedException {
-        tierService.updateTier(id, tier.name(),tier.capacity(), tier.price(), tier.eventId());
+        tierService.updateTier(id, tier.name(),tier.capacity(), tier.price());
     }
 
     @DeleteMapping("/id")

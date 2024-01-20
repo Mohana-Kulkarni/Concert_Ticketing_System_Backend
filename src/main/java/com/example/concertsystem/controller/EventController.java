@@ -18,37 +18,43 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    @GetMapping("/{id}")
-    public EventResponse getEventById(@PathVariable String id) throws ExecutionException, InterruptedException {
+    @GetMapping("/id")
+    public EventResponse getEventById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         return eventService.getEventById(id);
     }
 
-    @GetMapping("/city/{name}")
-    public List<EventResponse> getEventByName(@PathVariable String name) throws ExecutionException, InterruptedException {
-        return eventService.getEventByPlace(name);
+    @GetMapping("/city")
+    public List<EventResponse> getEventByName(@RequestParam("city") String  city) throws ExecutionException, InterruptedException {
+        return eventService.getEventByPlace(city);
     }
 
-    @GetMapping("/venue/{name}")
-    public List<EventResponse> getEventByVenue(@PathVariable String name) throws ExecutionException, InterruptedException {
-        return eventService.getEventByVenue(name);
+    @GetMapping("/venue")
+    public List<EventResponse> getEventByVenue(@RequestParam("venue") String venue) throws ExecutionException, InterruptedException {
+        return eventService.getEventByVenue(venue);
     }
-    @GetMapping("/artist/{name}")
-    public List<EventResponse> getEventByArtist(@PathVariable String name) throws ExecutionException, InterruptedException {
-        return eventService.getEventByArtist(name);
+    @GetMapping("/artist")
+    public List<EventResponse> getEventByArtist(@RequestParam("artist") String artist) throws ExecutionException, InterruptedException {
+        return eventService.getEventByArtist(artist);
     }
     @PostMapping("/")
     public void addEvent(@RequestBody Event event) throws ExecutionException, InterruptedException {
         System.out.println(event);
+        eventService.addEvent2(event.name(), event.dateAndTime(), event.description(), event.eventDuration(),event.venueId(), event.userId(), event.tierId());
+    }
+
+    @PostMapping("/new/")
+    public void addNewEvent(@RequestBody Event event) throws ExecutionException, InterruptedException {
         eventService.addEvent(event.name(), event.dateAndTime(), event.description(), event.eventDuration(),event.venueId(), event.userId(), event.tierId());
     }
 
-    @PutMapping("/update/id/{id}")
-    public void updateEventById(@PathVariable String id, @RequestBody Event event) throws ExecutionException, InterruptedException {
-        eventService.updateEvent(id, event.name(), event.dateAndTime(), event.description(), event.eventDuration(), event.venueId(), event.userId(), event.tierId());
-    }
+//    @PutMapping("/update/id")
+//    public void updateEventById(@RequestParam("id") String id, @RequestBody Event event) throws ExecutionException, InterruptedException {
+//
+//        eventService.updateEvent(id, event.name(), event.dateAndTime(), event.description(), event.eventDuration(), event.venueId(), event.userId(), event.tierId());
+//    }
 
-    @DeleteMapping("/delete/id/{id}")
-    public void deleteEventById(@PathVariable String id) {
+    @DeleteMapping("/delete/id")
+    public void deleteEventById(@RequestParam("id") String id) {
         eventService.deleteEventById(id);
     }
 }

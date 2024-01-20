@@ -36,12 +36,12 @@ public class UserController {
         userService.updateUserInfo(id, user.name(),user.typeOfUser());
     }
 
-    @PutMapping("/id")
+    @PutMapping("/update/id")
     public void updateUserRoleById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
         userService.updateUserRole(id, user.name(), user.typeOfUser());
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/delete/id")
     public void deletePlaceById(@RequestParam("id") String id) {
         userService.deleteUser(id);
     }
