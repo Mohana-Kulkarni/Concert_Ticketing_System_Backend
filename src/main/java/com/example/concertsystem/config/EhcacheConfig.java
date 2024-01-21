@@ -33,7 +33,7 @@ public class EhcacheConfig {
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
                                 .offheap(30, MemoryUnit.MB)
                                 .build())
-                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofSeconds(10)))
+                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofSeconds(360)))
                 .build();
 
         CachingProvider cachingProvider = Caching.getCachingProvider();
@@ -52,7 +52,7 @@ public class EhcacheConfig {
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
                                 .offheap(10, MemoryUnit.MB)
                                 .build())
-                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofSeconds(10)))
+                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofSeconds(360)))
                 .build();
 
         CachingProvider cachingProvider2 = Caching.getCachingProvider();
