@@ -73,10 +73,6 @@ public class ConcertSystemApplication {
 //			getTicketWithUserName(ticketService);
 //			updateTicketWithId(ticketService);
 
-			Random random = new Random();
-			int n = random.nextInt(9000) + 1000;
-			String eventId = "event" + n;
-			System.out.println(eventId);
 
 		};
 	}
