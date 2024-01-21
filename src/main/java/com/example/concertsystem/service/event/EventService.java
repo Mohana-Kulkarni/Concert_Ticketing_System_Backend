@@ -1,10 +1,9 @@
 package com.example.concertsystem.service.event;
 
 import com.example.concertsystem.dto.EventResponse;
-import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
+import com.example.concertsystem.Wrapper.ListWrapper;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +20,12 @@ public interface EventService {
 //    String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException;
 
     List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException;
-    void deleteEventById(String id);
+    void deleteEventById(String id) throws ExecutionException, InterruptedException;
+    String getPlaceByEventId(String EventId);
+    ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException;
+    ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException;
+    ListWrapper getEventByVenueName(String venue) throws ExecutionException, InterruptedException;
+
 
 
 }

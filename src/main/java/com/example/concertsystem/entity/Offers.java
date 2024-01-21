@@ -1,4 +1,6 @@
 package com.example.concertsystem.entity;
 
-public record Offers() {
+import java.io.Serializable;
+
+public record Offers() implements Serializable {
 }

@@ -7,6 +7,7 @@ import com.faunadb.client.FaunaClient;
 import com.faunadb.client.query.Language;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ public class VenueServiceImpl implements VenueService{
         }
         return venues;
     }
+
 
     public List<String> getVenueIdsByPlaceName(String placeName) throws ExecutionException, InterruptedException {
         String placeRef = placeService.getPlaceIdByPlaceName(placeName);
