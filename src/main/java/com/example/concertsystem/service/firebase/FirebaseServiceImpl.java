@@ -6,6 +6,9 @@ import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +44,21 @@ public class FirebaseServiceImpl implements FirebaseService {
             e.printStackTrace();
             return "Image couldn't upload, Something went wrong";
         }
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getImage(String fileName) throws IOException {
+        String destFileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
+        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
+        Credentials credentials = GoogleCredentials.fromStream(inputStream);
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        Blob blob = storage.get(BlobId.of("concert-ticketing-system-67922.appspot.com", fileName));
+        byte[] content= blob.getContent();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+
+        return ResponseEntity.ok().headers(headers).body(content);
     }
 
     @Override
