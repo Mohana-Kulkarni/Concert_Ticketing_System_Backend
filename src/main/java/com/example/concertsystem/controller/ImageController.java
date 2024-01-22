@@ -30,3 +30,4 @@ public class ImageController {
         return firebaseService.upload(multipartFile);
     }
 }
+

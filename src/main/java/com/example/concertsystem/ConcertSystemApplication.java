@@ -12,6 +12,7 @@ import com.faunadb.client.types.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
+@EnableCaching
 public class ConcertSystemApplication {
 
 	public static void main(String[] args) {
@@ -31,7 +33,7 @@ public class ConcertSystemApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(TierService tierService) {
+	public CommandLineRunner commandLineRunner(EventService eventService) {
 		return runner-> {
 //			createNewUser(userService);
 //			getUserByUserId(userService);
@@ -67,6 +69,8 @@ public class ConcertSystemApplication {
 //			getEventWithVenue(eventService);
 //			getEventWithPlace(eventService);
 //			getAllEventsList(eventService);
+//			getPlaceByEventId(eventService);
+
 
 //			buyTicket(ticketService, tierService);
 //			getTicketWithId(ticketService);
@@ -106,6 +110,10 @@ public class ConcertSystemApplication {
 	private void getTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
 		String id = "386884281674235970";
 		System.out.println(ticketService.getTicketById(id));
+	}
+
+	private void getPlaceByEventId(EventService eventService) throws ExecutionException, InterruptedException {
+		System.out.println(eventService.getPlaceByEventId("387425161922478146"));
 	}
 
 //	private void buyTicket(TicketService ticketService, TierService tierService) throws ExecutionException, InterruptedException {

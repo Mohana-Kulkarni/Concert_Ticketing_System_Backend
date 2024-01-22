@@ -2,9 +2,7 @@ package com.example.concertsystem.controller;
 
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Event;
-import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.service.event.EventService;
-import com.example.concertsystem.service.place.PlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,16 +23,17 @@ public class EventController {
 
     @GetMapping("/city")
     public List<EventResponse> getEventByName(@RequestParam("city") String  city) throws ExecutionException, InterruptedException {
-        return eventService.getEventByPlace(city);
-    }
+        eventService.getEventByPlaceName(city);
+        return eventService.getEventByPlaceName(city).getList();
 
+    }
     @GetMapping("/venue")
     public List<EventResponse> getEventByVenue(@RequestParam("venue") String venue) throws ExecutionException, InterruptedException {
-        return eventService.getEventByVenue(venue);
+        return eventService.getEventByVenueName(venue).getList();
     }
     @GetMapping("/artist")
     public List<EventResponse> getEventByArtist(@RequestParam("artist") String artist) throws ExecutionException, InterruptedException {
-        return eventService.getEventByArtist(artist);
+        return eventService.getEventByArtistName(artist).getList();
     }
     @PostMapping("/")
     public void addEvent(@RequestBody Event event) throws ExecutionException, InterruptedException {
@@ -47,14 +46,13 @@ public class EventController {
         eventService.addEvent(event.name(), event.dateAndTime(), event.description(), event.eventDuration(),event.venueId(), event.userId(), event.tierId());
     }
 
-//    @PutMapping("/update/id")
-//    public void updateEventById(@RequestParam("id") String id, @RequestBody Event event) throws ExecutionException, InterruptedException {
-//
+    @PutMapping("/update/id")
+    public void updateEventById(@RequestParam("id") String id, @RequestBody Event event) throws ExecutionException, InterruptedException {
 //        eventService.updateEvent(id, event.name(), event.dateAndTime(), event.description(), event.eventDuration(), event.venueId(), event.userId(), event.tierId());
-//    }
+    }
 
     @DeleteMapping("/delete/id")
-    public void deleteEventById(@RequestParam("id") String id) {
+    public void deleteEventById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         eventService.deleteEventById(id);
     }
 }

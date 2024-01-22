@@ -2,6 +2,8 @@ package com.example.concertsystem.entity;
 
 import com.faunadb.client.types.Value;
 
+import java.io.Serializable;
+
 public record Tier(
         String id,
         String name,
@@ -9,5 +11,5 @@ public record Tier(
         int price
 
 
-) {
+) implements Serializable {
 }

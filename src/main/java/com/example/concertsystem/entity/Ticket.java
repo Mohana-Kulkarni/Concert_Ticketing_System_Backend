@@ -2,6 +2,7 @@ package com.example.concertsystem.entity;
 
 import com.faunadb.client.types.Value;
 
+import java.io.Serializable;
 import java.util.List;
 
 public record Ticket(
@@ -11,5 +12,5 @@ public record Ticket(
         String userId,
         String tierId,
         String eventId
-) {
+) implements Serializable  {
 }

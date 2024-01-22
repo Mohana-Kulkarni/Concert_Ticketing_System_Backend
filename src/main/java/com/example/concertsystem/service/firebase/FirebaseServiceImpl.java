@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.firebase;
 
+import com.example.concertsystem.service.firebase.FirebaseService;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
