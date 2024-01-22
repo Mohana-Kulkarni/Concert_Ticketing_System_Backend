@@ -88,29 +88,29 @@ public class ConcertSystemApplication {
 //		System.out.println(tier);
 //	}
 
-	private void getAllEventsList(EventService eventService) throws ExecutionException, InterruptedException {
-		eventService.getAllEvents();
-	}
+//	private void getAllEventsList(EventService eventService) throws ExecutionException, InterruptedException {
+//		eventService.getAllEvents();
+//	}
 
-	private void updateTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
-		String id = "386884281674235970";
-		String userName = "user@123";
-		String tierName = "Gold";
-		String eventName = "Spring Holiday Concert";
-		int count = 3;
-		ticketService.updateTicket(id, count, userName, tierName, eventName);
-		System.out.println("Ticket updated successfully!!!");
-	}
+//	private void updateTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
+//		String id = "386884281674235970";
+//		String userName = "user@123";
+//		String tierName = "Gold";
+//		String eventName = "Spring Holiday Concert";
+//		int count = 3;
+//		ticketService.updateTicket(id, count, userName, tierName, eventName);
+//		System.out.println("Ticket updated successfully!!!");
+//	}
 
-	private void getTicketWithUserName(TicketService ticketService) throws ExecutionException, InterruptedException {
-		String userName = "user@123";
-		System.out.println(ticketService.getTicketByUserName(userName));
-	}
+//	private void getTicketWithUserName(TicketService ticketService) throws ExecutionException, InterruptedException {
+//		String userName = "user@123";
+//		System.out.println(ticketService.getTicketByUserName(userName));
+//	}
 
-	private void getTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
-		String id = "386884281674235970";
-		System.out.println(ticketService.getTicketById(id));
-	}
+//	private void getTicketWithId(TicketService ticketService) throws ExecutionException, InterruptedException {
+//		String id = "386884281674235970";
+//		System.out.println(ticketService.getTicketById(id));
+//	}
 
 	private void getPlaceByEventId(EventService eventService) throws ExecutionException, InterruptedException {
 		System.out.println(eventService.getPlaceByEventId("387425161922478146"));
@@ -172,12 +172,12 @@ public class ConcertSystemApplication {
 //		}
 //	}
 //
-	private void getEventWithId(EventService eventService) throws ExecutionException, InterruptedException {
-		String id = "387191950416019522";
-		EventResponse event = eventService.getEventById(id);
-		System.out.println(event);
-
-	}
+//	private void getEventWithId(EventService eventService) throws ExecutionException, InterruptedException {
+//		String id = "387191950416019522";
+//		EventResponse event = eventService.getEventById(id);
+//		System.out.println(event);
+//
+//	}
 //
 //	private void getEventWithVenue(EventService eventService) throws ExecutionException, InterruptedException {
 //		String place = "Phoenix";

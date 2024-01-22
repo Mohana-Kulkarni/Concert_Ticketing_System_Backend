@@ -13,6 +13,7 @@ import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -34,7 +35,7 @@ public class TicketServiceImpl implements TicketService{
         this.eventService = eventService;
     }
     @Override
-    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
+    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException, IOException {
         String userId = userService.getIdByUserName(userName);
         String eventId = eventService.getEventIdByName(eventName);
         List<Tier> tierList = eventService.getEventById(eventId).tierId();
@@ -66,7 +67,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException {
+    public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException, IOException {
         String userId = userService.getIdByUserName(userName);
         String eventId = eventService.getEventIdByName(eventName);
         List<Tier> tierList = eventService.getEventById(eventId).tierId();
@@ -92,7 +93,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public TicketResponse getTicketById(String id) throws ExecutionException, InterruptedException {
+    public TicketResponse getTicketById(String id) throws ExecutionException, InterruptedException, IOException {
         Value res = faunaClient.query(Get(Ref(Collection("Ticket"), Value(id)))).get();
         User user = userService.getUserById(res.at("data", "userId").to(String.class).get());
         Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
@@ -109,7 +110,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public TicketResponse getTicketByUserName(String userName) throws ExecutionException, InterruptedException {
+    public TicketResponse getTicketByUserName(String userName) throws ExecutionException, InterruptedException, IOException {
         String userId = userService.getIdByUserName(userName);
         Value res = faunaClient.query(Get(Match(Index("ticket_by_userId"), Value(userId)))).get();
         User user = userService.getUserById(res.at("data", "userId").to(String.class).get());

@@ -3,6 +3,7 @@ import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.User;
 import com.example.concertsystem.Wrapper.ListWrapper;
+import com.example.concertsystem.service.firebase.FirebaseService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
@@ -14,8 +15,11 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,27 +40,36 @@ public class EventServiceImpl implements EventService{
     private Logger logger = Logger.getLogger(EventServiceImpl.class.getName());
     private VenueService venueService;
     private CacheManager cacheManager;
-    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, VenueService venueService, CacheManager cacheManager) {
+    private FirebaseService firebaseService;
+    public EventServiceImpl(FaunaClient faunaClient, UserService userService, TierService tierService, VenueService venueService, CacheManager cacheManager, FirebaseService firebaseService) {
         this.faunaClient = faunaClient;
         this.userService = userService;
         this.tierService = tierService;
         this.venueService = venueService;
         this.cacheManager = cacheManager;
+        this.firebaseService = firebaseService;
     }
 
     @Override
-    public void addEvent(String name, String date, String description, String eventDuration, String venueName, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException {
+    public void addEvent(String name, String date, String description, String eventDuration, List<MultipartFile> images, String venueName, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException, IOException {
         System.out.println(eventDuration);
         String venueRef = venueService.getVenueByName(venueName).id();
         List<String> userRefs = userService.getUserIdsByUserName(userId);
         String eventId = getTiersAddedForEvent(tierList);
         List<String> tierIds = tierService.getTierByEventId(eventId);
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile file : images) {
+            String url = firebaseService.upload(file);
+            imageUrls.add(url);
+        }
+
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
         eventData.put("duration", eventDuration);
+        eventData.put("images", imageUrls);
         eventData.put("venueId", venueRef);
         eventData.put("userId", userRefs);
         eventData.put("tierId", tierIds);
@@ -70,15 +83,22 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent2(String name, String date, String description, String eventDuration, String venueId, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException {
+    public void addEvent2(String name, String date, String description, String eventDuration, List<MultipartFile> images, String venueId, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException, IOException {
         System.out.println(eventDuration);
         List<String> tierIds = tierService.addNewTiers(tierList);
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile file : images) {
+            String url = firebaseService.upload(file);
+            imageUrls.add(url);
+        }
+
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("dateAndTime", date);
         eventData.put("description", description);
         eventData.put("duration", eventDuration);
+        eventData.put("images", imageUrls);
         eventData.put("venueId", venueId);
         eventData.put("userId", userId);
         eventData.put("tierId", tierIds);
@@ -110,15 +130,17 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
-    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException {
+    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException {
         CompletableFuture<Value> res = faunaClient.query(Get(Ref(Collection("Event"), id)));
         Value val = res.join();
 
         List<String> artists = val.at("data", "userId").collect(String.class).stream().toList();
         List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
+        List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
 
         List<User> artistObjList = userService.getUserListById(artists);
         List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+
 
         return new EventResponse(
                 id,
@@ -126,6 +148,7 @@ public class EventServiceImpl implements EventService{
                 val.at("data", "dateAndTime").to(String.class).get(),
                 val.at("data", "description").to(String.class).get(),
                 val.at("data", "duration").to(String.class).get(),
+                imageUrls,
                 val.at("data", "venueId").to(String.class).get(),
                 artistObjList,
                 tierObjList
@@ -133,7 +156,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
+    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException, IOException {
         List<Value> res = (List<Value>) faunaClient.query(
                 Map(
                         Paginate(Documents(Collection("Event"))),
@@ -167,6 +190,8 @@ public class EventServiceImpl implements EventService{
                                 stringV -> stringV.to(String.class).get())
                         .collect(Collectors.toList());
 
+                List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
+
 
                 EventResponse event = new EventResponse(
                         val.at("ref").to(Value.RefV.class).get().getId(),
@@ -174,6 +199,7 @@ public class EventServiceImpl implements EventService{
                         val.at("data", "dateAndTime").to(String.class).get(),
                         val.at("data", "description").to(String.class).get(),
                         val.at("data", "description").to(String.class).get(),
+                        imageUrls,
                         val.at("data", "venueId").to(String.class).get(),
                         userService.getUserListById(artistList),
                         tierService.getTierListByIds(tiersList)
@@ -186,13 +212,13 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#place")
-    public ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException {
+    public ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException, IOException {
         List<EventResponse> res = getEventByPlace(place);
         return new ListWrapper(res);
     }
 
     @Override
-    public List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException {
         List<String> venueIds = venueService.getVenueIdsByPlaceName(place);
         List<String> eventIds = new ArrayList<>();
         for(String id:venueIds){
@@ -209,13 +235,13 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#artist")
-    public ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException {
+    public ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException, IOException {
         List<EventResponse> res = getEventByArtist(artist);
         return new ListWrapper(res);
     }
 
     @Override
-    public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException {
         String userRef = userService.getIdByUserName(artist);
         Value res = faunaClient.query(
                 Map(
@@ -230,9 +256,11 @@ public class EventServiceImpl implements EventService{
         for(Value event : events){
             List<String> artists = event.at("data", "userId").collect(String.class).stream().toList();
             List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
+            List<String> imageUrls= event.at("data", "images").collect(String.class).stream().toList();
 
             List<User> artistObjList = userService.getUserListById(artists);
             List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+
 
             EventResponse eventByArt = new EventResponse(
                     event.at("ref").to(Value.RefV.class).get().getId(),
@@ -240,6 +268,7 @@ public class EventServiceImpl implements EventService{
                     event.at("data", "dateAndTime").to(String.class).get(),
                     event.at("data", "description").to(String.class).get(),
                     event.at("data", "duration").to(String.class).get(),
+                    imageUrls,
                     event.at("data", "venueId").to(String.class).get(),
                     artistObjList,
                     tierObjList
@@ -251,12 +280,12 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#venue")
-    public ListWrapper getEventByVenueName(String venue) throws ExecutionException, InterruptedException {
+    public ListWrapper getEventByVenueName(String venue) throws ExecutionException, InterruptedException, IOException {
         List<EventResponse> res = getEventByVenue(venue);
         return new ListWrapper(res);
     }
     @Override
-    public List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException {
+    public List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException, IOException {
         String venueRef = venueService.getVenueIdByVenueName(venue);
         List<String> eventIds = getEventIdsByVenueId(venueRef);
         List<EventResponse> events = new ArrayList<>();

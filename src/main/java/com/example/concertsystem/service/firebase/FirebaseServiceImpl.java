@@ -50,10 +50,10 @@ public class FirebaseServiceImpl implements FirebaseService {
     @Override
     public ResponseEntity<byte[]> getImage(String fileName) throws IOException {
         String destFileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
-        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
-        Credentials credentials = GoogleCredentials.fromStream(inputStream);
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        Blob blob = storage.get(BlobId.of("concert-ticketing-system-67922.appspot.com", fileName));
+//        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
+//        Credentials credentials = GoogleCredentials.fromStream(inputStream);
+//        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        Blob blob = getBlobForImage(fileName);
         byte[] content= blob.getContent();
 
         HttpHeaders headers = new HttpHeaders();
@@ -63,19 +63,39 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
+    public String getImageUrl(String fileName) throws IOException {
+        String bucketName = "concert-ticketing-system-67922.appspot.com";
+        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
+        Credentials credentials = GoogleCredentials.fromStream(inputStream);
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        Blob blob = storage.get(BlobId.of(bucketName, fileName));
+        System.out.println(blob.getMediaLink());
+        return blob.getMediaLink();
+    }
+
+    @Override
     public String download(String fileName) throws IOException {
         String destFileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
         String destFilePath = "D:\\" + destFileName;
 
-        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
-        Credentials credentials = GoogleCredentials.fromStream(inputStream);
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        Blob blob = storage.get(BlobId.of("concert-ticketing-system-67922.appspot.com", fileName));
+        Blob blob = getBlobForImage(fileName);
+//        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
+//        Credentials credentials = GoogleCredentials.fromStream(inputStream);
+//        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+//        Blob blob = storage.get(BlobId.of("concert-ticketing-system-67922.appspot.com", fileName));
         blob.downloadTo(Paths.get(destFilePath));
 
         return "Image downloaded successfully : " + fileName;
     }
 
+    private Blob getBlobForImage(String fileName) throws IOException {
+        String bucketName = "concert-ticketing-system-67922.appspot.com";
+        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
+        Credentials credentials = GoogleCredentials.fromStream(inputStream);
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        Blob blob = storage.get(BlobId.of(bucketName, fileName));
+        return blob;
+    }
 
     private String uploadFile(File file, String fileName) throws IOException {
         BlobId blobId = BlobId.of("concert-ticketing-system-67922.appspot.com", fileName); // Replace with your bucker name

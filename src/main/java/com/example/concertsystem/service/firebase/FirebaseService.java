@@ -13,6 +13,7 @@ public interface FirebaseService {
     String upload(MultipartFile multipartFile) throws IOException;
 
     ResponseEntity<byte[]> getImage(String fileName) throws IOException;
+    String getImageUrl(String fileName) throws IOException;
 
     String download(String fileName) throws IOException;
 }

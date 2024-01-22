@@ -21,6 +21,11 @@ public class ImageController {
     public String downloadImage(@RequestParam("fileName") String fileName) throws IOException {
         return firebaseService.download(fileName);
     }
+
+    @GetMapping("/getUrl")
+    public String getImageUrl(@RequestParam("fileName") String fileName) throws IOException {
+        return firebaseService.getImageUrl(fileName);
+    }
     @GetMapping("/get")
     public ResponseEntity<byte[]> getImage(@RequestParam("fileName") String fileName) throws IOException {
         return firebaseService.getImage(fileName);
