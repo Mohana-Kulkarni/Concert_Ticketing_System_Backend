@@ -28,18 +28,18 @@ public class UserController {
 
     @PostMapping("/")
     public void addUser(@RequestBody User user) {
-        userService.addUser(user.name(), user.typeOfUser(), user.userName(), user.profileImg());
+        userService.addUser(user.name(), user.userName(), user.walletId(), user.userEmail(), user.profileImg());
     }
 
     @PutMapping("/id")
     public void updateUserById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
-        userService.updateUserInfo(id, user.name(),user.typeOfUser());
+        userService.updateUserInfo(id, user.name(), user.userName(), user.walletId(), user.userEmail(), user.profileImg());
     }
 
-    @PutMapping("/update/id")
-    public void updateUserRoleById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
-        userService.updateUserRole(id, user.name(), user.typeOfUser());
-    }
+//    @PutMapping("/update/id")
+//    public void updateUserRoleById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
+//        userService.updateUserRole(id, user.name(), user.typeOfUser());
+//    }
 
     @DeleteMapping("/delete/id")
     public void deletePlaceById(@RequestParam("id") String id) {

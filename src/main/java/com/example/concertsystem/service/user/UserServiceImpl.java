@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addUser(String name, String role, String userName, String profileImg) {
+    public void addUser(String name, String userName, String walletId, String userEmail, String profileImg) {
         faunaClient.query(
                 Create(
                         Collection("User"),
@@ -33,8 +33,9 @@ public class UserServiceImpl implements UserService{
                                 "data",
                                 Obj(
                                         "name", Value(name),
-                                        "type", Value(role),
                                         "userName", Value(userName),
+                                        "walletId", Value(walletId),
+                                        "userEmail", Value(userEmail),
                                         "profileImg",Value(profileImg)
                                 )
                         )
@@ -49,8 +50,9 @@ public class UserServiceImpl implements UserService{
        return new User(
                res.at("ref").to(Value.RefV.class).get().getId(),
                res.at("data", "name").to(String.class).get(),
-               res.at("data", "type").to(String.class).get(),
                res.at("data", "userName").to(String.class).get(),
+               res.at("data","walletId").to(String.class).get(),
+               res.at("data", "userEmail").to(String.class).get(),
                res.at("data", "profileImg").to(String.class).get()
        );
     }
@@ -68,35 +70,35 @@ public class UserServiceImpl implements UserService{
         return parseUserResult(result);
     }
 
-    private List<User> parseUserResult(CompletableFuture<Value> result) {
-        try {
-            Value res = result.join();
-            List<Value> userData = res.at("data").to(List.class).get();
-            System.out.println(userData.size());
-
-            List<User> userList = new ArrayList<>();
-            for (Value userValue : userData) {
-                Value.RefV ref = userValue.at("ref").get(Value.RefV.class);
-                String id = ref.getId();
-                String name = userValue.at("data", "name").get(String.class);
-                String type = userValue.at("data", "type").get(String.class);
-                String userName = userValue.at("data", "userName").to(String.class).get();
-                String profileImg =userValue.at("data", "profileImg").to(String.class).get();
-
-                User user = new User(id, name, type, userName, profileImg);
-                userList.add(user);
-
-            }
-            return userList;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-
+    @Override
+    public void updateUserInfo(String id,String name, String userName, String walletId, String userEmail, String profileImg) throws ExecutionException, InterruptedException {
+        faunaClient.query(
+                Update(Ref(Collection("User"), id),
+                        Obj(
+                                "data", Obj(
+                                        "name", Value(name),
+                                        "userName", Value(userName),
+                                        "walletId", Value(walletId),
+                                        "userEmail", Value(userEmail),
+                                        "profileImg",Value(profileImg)
+                                )
+                        )
+                )
+        ).get();
     }
 
     @Override
-    public void updateUserInfo(String id, String name, String role) throws ExecutionException, InterruptedException {
+    public List<User> getUserListById(List<String> userId) throws ExecutionException, InterruptedException {
+        List<User> userList = new ArrayList<>();
+        for(String id : userId) {
+            User user = getUserById(id);
+            userList.add(user);
+        }
+        return userList;
+    }
+
+
+    public void updateUserRole(String id, String name, String role) throws ExecutionException, InterruptedException {
         faunaClient.query(
                 Update(Ref(Collection("User"), id),
                         Obj(
@@ -108,6 +110,12 @@ public class UserServiceImpl implements UserService{
                 )
         ).get();
     }
+
+    @Override
+    public void deleteUser(String id) {
+        faunaClient.query(Delete(Ref(Collection("User"), id)));
+    }
+
 
     public List<String> getUserIdsByUserName(List<String> userName){
         List<String> userRefs = new ArrayList<>();
@@ -129,33 +137,32 @@ public class UserServiceImpl implements UserService{
 
     }
 
-    @Override
-    public List<User> getUserListById(List<String> userId) throws ExecutionException, InterruptedException {
-        List<User> userList = new ArrayList<>();
-        for(String id : userId) {
-            User user = getUserById(id);
-            userList.add(user);
+    private List<User> parseUserResult(CompletableFuture<Value> result) {
+        try {
+            Value res = result.join();
+            List<Value> userData = res.at("data").to(List.class).get();
+            System.out.println(userData.size());
+
+            List<User> userList = new ArrayList<>();
+            for (Value userValue : userData) {
+                Value.RefV ref = userValue.at("ref").get(Value.RefV.class);
+                String id = ref.getId();
+                String name = userValue.at("data", "name").get(String.class);
+                String userName = userValue.at("data", "userName").to(String.class).get();
+                String walletId = userValue.at("data", "walletId").to(String.class).get();
+                String userEmail = userValue.at("data", "userEmail").to(String.class).get();
+                String profileImg =userValue.at("data", "profileImg").to(String.class).get();
+
+                User user = new User(id, name, userName, walletId, userEmail, profileImg);
+                userList.add(user);
+
+            }
+            return userList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
-        return userList;
+
     }
 
-
-    @Override
-    public void updateUserRole(String id, String name, String role) throws ExecutionException, InterruptedException {
-        faunaClient.query(
-                Update(Ref(Collection("User"), id),
-                        Obj(
-                                "data", Obj(
-                                        "name", Value(name),
-                                        "type", Value(role)
-                                )
-                        )
-                )
-        ).get();
-    }
-
-    @Override
-    public void deleteUser(String id) {
-        faunaClient.query(Delete(Ref(Collection("User"), id)));
-    }
 }

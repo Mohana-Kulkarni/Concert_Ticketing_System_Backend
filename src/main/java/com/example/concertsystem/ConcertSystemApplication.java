@@ -300,11 +300,11 @@ public class ConcertSystemApplication {
 		System.out.println(userList);
 	}
 
-	private void updateUserRoleById(UserService userService) throws ExecutionException, InterruptedException {
-		String userId = "386814883372466242";
-		userService.updateUserRole(userId, "abc","artist");
-		System.out.println("User updated successfully!!");
-	}
+//	private void updateUserRoleById(UserService userService) throws ExecutionException, InterruptedException {
+//		String userId = "386814883372466242";
+//		userService.updateUserRole(userId, "abc","artist");
+//		System.out.println("User updated successfully!!");
+//	}
 
 	private void userByUserId(UserService userService){
 		List<String> list = new ArrayList<>();
@@ -313,12 +313,12 @@ public class ConcertSystemApplication {
 		System.out.println(userService.getUserIdsByUserName(list));
 	}
 
-	private void updateUserInfoById(UserService userService) throws ExecutionException, InterruptedException {
-		String userId = "386521241440223298";
-		userService.updateUserInfo(userId, "xyz", "role");
-		System.out.println("User updated successfully!!");
-
-	}
+//	private void updateUserInfoById(UserService userService) throws ExecutionException, InterruptedException {
+//		String userId = "386521241440223298";
+//		userService.updateUserInfo(userId, "xyz", "role");
+//		System.out.println("User updated successfully!!");
+//
+//	}
 
 	private void deleteUserById(UserService userService) {
 		String userId = "386517276693626946";
@@ -332,13 +332,13 @@ public class ConcertSystemApplication {
 		System.out.println(user);
 	}
 
-	private void createNewUser(UserService userService) {
-		String name = "abc";
-		String role = "user";
-		String userName = "user@321";
-		String profileImg = "user@gmail.com";
-		userService.addUser(name, role, userName, profileImg);
-		System.out.println("User added successfully!!");
-	}
+//	private void createNewUser(UserService userService) {
+//		String name = "abc";
+//		String role = "user";
+//		String userName = "user@321";
+//		String profileImg = "user@gmail.com";
+//		userService.addUser(name, role, userName, profileImg);
+//		System.out.println("User added successfully!!");
+//	}
 
 }
