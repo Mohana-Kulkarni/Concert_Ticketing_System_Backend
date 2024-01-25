@@ -294,11 +294,11 @@ public class ConcertSystemApplication {
 //		System.out.println("Place added successfully!!!");
 //	}
 
-	private void getUsersByRole(UserService userService) {
-		String role = "user";
-		List<User> userList = userService.getUsersByType(role);
-		System.out.println(userList);
-	}
+//	private void getUsersByRole(UserService userService) {
+//		String role = "user";
+//		List<User> userList = userService.getUsersByType(role);
+//		System.out.println(userList);
+//	}
 
 //	private void updateUserRoleById(UserService userService) throws ExecutionException, InterruptedException {
 //		String userId = "386814883372466242";
@@ -326,11 +326,11 @@ public class ConcertSystemApplication {
 		System.out.println("User deleted successfully!!");
 	}
 
-	private void getUserByUserId(UserService userService) throws ExecutionException, InterruptedException {
-		String userId = "386517276693626946";
-		User user = userService.getUserById(userId);
-		System.out.println(user);
-	}
+//	private void getUserByUserId(UserService userService) throws ExecutionException, InterruptedException {
+//		String userId = "386517276693626946";
+//		User user = userService.getUserById(userId);
+//		System.out.println(user);
+//	}
 
 //	private void createNewUser(UserService userService) {
 //		String name = "abc";

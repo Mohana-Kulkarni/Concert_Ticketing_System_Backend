@@ -9,7 +9,7 @@ public record TicketResponse(
         String id,
         int count,
         float cost,
-        User user,
+        UserResponse user,
         Tier tier,
         EventResponse eventId
 ) implements Serializable {

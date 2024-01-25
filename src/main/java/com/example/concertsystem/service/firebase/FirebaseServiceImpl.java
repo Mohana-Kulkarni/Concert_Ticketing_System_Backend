@@ -4,6 +4,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
+import jakarta.servlet.annotation.MultipartConfig;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,12 +62,10 @@ public class FirebaseServiceImpl implements FirebaseService {
     @Override
     public String getImageUrl(String fileName) throws IOException {
         String bucketName = "concert-ticketing-system-67922.appspot.com";
-        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
-        Credentials credentials = GoogleCredentials.fromStream(inputStream);
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        Blob blob = storage.get(BlobId.of(bucketName, fileName));
-        System.out.println(blob.getMediaLink());
-        return blob.getMediaLink();
+        String encodedBucketName = URLEncoder.encode(bucketName, StandardCharsets.UTF_8);
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+
+        return String.format("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", encodedBucketName, encodedFileName);
     }
 
     @Override

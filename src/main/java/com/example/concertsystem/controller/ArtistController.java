@@ -5,6 +5,7 @@ import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.service.artist.ArtistService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -21,8 +22,12 @@ public class ArtistController {
         return artistService.getArtistById(id);
     }
 
+    @GetMapping("/")
+    public List<Artist> getArtist() throws ExecutionException, InterruptedException {
+        return artistService.getAllArtist();
+    }
     @PostMapping("/")
-    public void addNewArtist(@RequestBody Artist artist) {
+    public void addNewArtist(@RequestBody Artist artist) throws ExecutionException, InterruptedException {
         artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), artist.profileImg());
     }
 

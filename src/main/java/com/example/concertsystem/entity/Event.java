@@ -11,9 +11,8 @@ public record Event(
         String dateAndTime,
         String description,
         String eventDuration,
-        List<MultipartFile> images,
         String venueId,
-        List<String> userId,
-        List<Tier> tierId
+        List<Artist> artistList,
+        List<Tier> tierList
 ) implements Serializable {
 }

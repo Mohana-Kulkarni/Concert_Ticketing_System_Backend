@@ -1,5 +1,6 @@
 package com.example.concertsystem.dto;
 
+import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.User;
 
@@ -14,8 +15,8 @@ public record EventResponse (
         String eventDuration,
         List<String> imageUrls,
         String venueId,
-        List<User> userId,
-        List<Tier> tierId
+        List<Artist> artists,
+        List<Tier> tiers
 
 ) implements Serializable {
     public String getId() {

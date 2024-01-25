@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.event;
 
 import com.example.concertsystem.dto.EventResponse;
+import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.Wrapper.ListWrapper;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,9 +12,9 @@ import java.util.concurrent.ExecutionException;
 
 public interface EventService {
 
-    void addEvent(String name, String date, String description, String eventDuration, List<MultipartFile> images, String venueId, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException, IOException;
-    void addEvent2(String name, String date, String description, String eventDuration, List<MultipartFile> images, String venueId, List<String> userId, List<Tier> tierList) throws ExecutionException, InterruptedException, IOException;
-    void updateEvent(String id, String name, String date, String description,  String eventDuration, String venueName, List<String> userId, List<String> tierId) throws ExecutionException, InterruptedException;
+    void addEvent(String name, String date, String description, String eventDuration, String venueId, List<Artist> artistId, List<Tier> tierList, List<MultipartFile> images) throws ExecutionException, InterruptedException, IOException;
+    void addEvent2(String name, String date, String description, String eventDuration, String venueId, List<Artist> artistId, List<Tier> tierList, List<MultipartFile> images) throws ExecutionException, InterruptedException, IOException;
+//    void updateEvent(String id, String name, String date, String description,  String eventDuration, String venueName, List<Artist> artistId, List<Tier> tierId) throws ExecutionException, InterruptedException;
     List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException;
     List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException;
     EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException;
