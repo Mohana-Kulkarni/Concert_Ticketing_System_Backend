@@ -31,11 +31,11 @@ public class FirebaseServiceImpl implements FirebaseService {
     @Override
     public String upload(MultipartFile multipartFile) {
         try {
-            String fileName = multipartFile.getOriginalFilename();                        // to get original file name
-            fileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));  // to generated random string values for file name.
+            String fileName = multipartFile.getOriginalFilename();
+            fileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
 
-            File file = this.convertToFile(multipartFile, fileName);                      // to convert multipartFile to File
-            String URL = this.uploadFile(file, fileName);                                   // to get uploaded file link
+            File file = this.convertToFile(multipartFile, fileName);
+            String URL = this.uploadFile(file, fileName);
             file.delete();
             return URL;
         } catch (Exception e) {

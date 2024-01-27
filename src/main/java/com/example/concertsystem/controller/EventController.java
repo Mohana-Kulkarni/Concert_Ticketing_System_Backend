@@ -1,5 +1,6 @@
 package com.example.concertsystem.controller;
 
+import com.example.concertsystem.dto.EventImageResponse;
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Event;
@@ -20,6 +21,7 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
+
     @GetMapping("/id")
     public EventResponse getEventById(@RequestParam("id") String id) throws ExecutionException, InterruptedException, IOException {
         return eventService.getEventById(id);
@@ -27,7 +29,6 @@ public class EventController {
 
     @GetMapping("/city")
     public List<EventResponse> getEventByName(@RequestParam("city") String  city) throws ExecutionException, InterruptedException, IOException {
-        eventService.getEventByPlaceName(city);
         return eventService.getEventByPlaceName(city).getList();
 
     }
@@ -40,15 +41,15 @@ public class EventController {
         return eventService.getEventByArtistName(artist).getList();
     }
     @PostMapping("/")
-    public void addEvent(@ModelAttribute Event event) throws ExecutionException, InterruptedException, IOException {
+    public void addEvent(@RequestBody EventImageResponse eventImageResponse) throws ExecutionException, InterruptedException, IOException {
 //        System.out.println(artistList);
 //        System.out.println(tierList);
 //        System.out.println(images);
-        eventService.addEvent2(event);
+        eventService.addEvent2(eventImageResponse.getEventResponse(),eventImageResponse.getImgUrls());
     }
 
     @PostMapping("/new/")
-    public void addNewEvent(@ModelAttribute Event event) throws ExecutionException, InterruptedException, IOException {
+    public void addNewEvent(@ModelAttribute Event event,List<String> urls) throws ExecutionException, InterruptedException, IOException {
         eventService.addEvent(event);
     }
 

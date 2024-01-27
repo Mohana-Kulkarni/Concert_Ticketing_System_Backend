@@ -87,15 +87,11 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent2(Event event) throws ExecutionException, InterruptedException, IOException {
-        List<String> tierIds = tierService.addNewTiers(event.tierList());
-        List<String> imageUrls = new ArrayList<>();
-        List<String> artistIds = artistService.addArtistList(event.artistList(), event.profileImages());
-        for (MultipartFile file : event.images()) {
-            String url = firebaseService.upload(file);
-            imageUrls.add(url);
-        }
+    public void addEvent2(EventResponse event, List<String> imageUrls) throws ExecutionException, InterruptedException, IOException {
+        Event eventTemp = new Event(event.id(),event.name(),event.dateAndTime(),event.description(),event.eventDuration(),event.venueId(),null,null,null,event.tiers());
 
+        List<String> tierIds = tierService.addNewTiers(eventTemp.tierList());
+        List<String> artistIds = artistService.addArtistList(eventTemp.artistList(), eventTemp.profileImages());
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", event.name());
@@ -113,10 +109,14 @@ public class EventServiceImpl implements EventService{
                         Obj("data", Value(eventData))
                 )
         ).join().at("ref").get(Value.RefV.class).getId();
-        EventResponse eventResponse = getEventById(id);
-        addEventToCachedList(getPlaceByEventId(id),eventResponse);
+
+
+//        EventResponse eventResponse = getEventById(id);
+//        addEventToCachedList(getPlaceByEventId(id),eventResponse);
 
     }
+
+
 
     public void addEventToCachedList(String key, EventResponse newEvent) {
         Cache cache = cacheManager.getCache("eventCacheStore1");
