@@ -1,11 +1,15 @@
 package com.example.concertsystem.service.artist;
 
+import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Organiser;
+import com.example.concertsystem.service.firebase.FirebaseService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -17,12 +21,20 @@ import static com.faunadb.client.query.Language.Value;
 @Service
 public class ArtistServiceImpl implements ArtistService{
     private FaunaClient faunaClient;
+    private FirebaseService firebaseService;
 
-    public ArtistServiceImpl(FaunaClient faunaClient) {
+    public ArtistServiceImpl(FaunaClient faunaClient, FirebaseService firebaseService) {
         this.faunaClient= faunaClient;
+        this.firebaseService = firebaseService;
     }
     @Override
-    public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException {
+    public String addArtist(String name, String userName, String email, String govId, MultipartFile profileImg) throws ExecutionException, InterruptedException, IOException {
+        String profileUrl = firebaseService.upload(profileImg);
+        Value val = faunaClient.query(Get(Match(Index("artist_by_userName"), Value(userName)))).get();
+        if(val != null) {
+            return val.at("ref").to(Value.RefV.class).get().getId();
+        }
+
         Value res = faunaClient.query(
                 Create(
                         Collection("Artist"),
@@ -42,20 +54,22 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public List<String> addArtistList(List<Artist> artistList) throws ExecutionException, InterruptedException {
+    public List<String> addArtistList(List<Artist> artistList, List<MultipartFile> profileImages) throws ExecutionException, InterruptedException, IOException {
         List<String> artistIds = new ArrayList<>();
+        int i = 0;
         for (Artist artist : artistList) {
-            String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), artist.profileImg());
+            String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImages.get(i));
+            i++;
             artistIds.add(id);
         }
         return artistIds;
     }
 
     @Override
-    public Artist getArtistById(String id) throws ExecutionException, InterruptedException {
+    public ArtistResponse getArtistById(String id) throws ExecutionException, InterruptedException {
         Value res = faunaClient.query(Get(Ref(Collection("Artist"), id))).get();
 
-        return new Artist(
+        return new ArtistResponse(
                 res.at("ref").to(Value.RefV.class).get().getId(),
                 res.at("data", "name").to(String.class).get(),
                 res.at("data", "userName").to(String.class).get(),
@@ -76,7 +90,7 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public List<Artist> getAllArtist() throws ExecutionException, InterruptedException {
+    public List<ArtistResponse> getAllArtist() throws ExecutionException, InterruptedException {
         List<Value> res = (List<Value>) faunaClient.query(
                 Map(
                         Paginate(Documents(Collection("Artist"))),
@@ -84,9 +98,9 @@ public class ArtistServiceImpl implements ArtistService{
                 )
         ).get();
 
-        List<Artist> artistList = new ArrayList<>();
+        List<ArtistResponse> artistList = new ArrayList<>();
         for (Value val : res) {
-            Artist artist = new Artist(
+            ArtistResponse artist = new ArtistResponse(
                     val.at("ref").to(Value.RefV.class).get().getId(),
                     val.at("data", "name").to(String.class).get(),
                     val.at("data", "userName").to(String.class).get(),
@@ -100,17 +114,18 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public List<Artist> getArtistsByIds(List<String> artistIds) throws ExecutionException, InterruptedException {
-        List<Artist> artistList = new ArrayList<>();
+    public List<ArtistResponse> getArtistsByIds(List<String> artistIds) throws ExecutionException, InterruptedException {
+        List<ArtistResponse> artistList = new ArrayList<>();
         for (String id : artistIds) {
-            Artist artist = getArtistById(id);
+            ArtistResponse artist = getArtistById(id);
             artistList.add(artist);
         }
         return artistList;
     }
 
     @Override
-    public void updateArtist(String id, String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException {
+    public void updateArtist(String id, String name, String userName, String email, String govId, MultipartFile profileImg) throws ExecutionException, InterruptedException {
+
         faunaClient.query(
                 Update(Ref(Collection("Artist"), id),
                         Obj(

@@ -7,7 +7,6 @@ public record Artist(
         String name,
         String userName,
         String email,
-        String govId,
-        String profileImg
+        String govId
 ) implements Serializable {
 }

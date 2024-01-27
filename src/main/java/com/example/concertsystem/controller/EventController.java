@@ -40,30 +40,16 @@ public class EventController {
         return eventService.getEventByArtistName(artist).getList();
     }
     @PostMapping("/")
-    public void addEvent(@RequestParam("name") String name,
-                         @RequestParam("dateAndTime") String dateAndTime,
-                         @RequestParam("description") String description,
-                         @RequestParam("eventDuration") String eventDuration,
-                         @RequestParam("images") List<MultipartFile> images,
-                         @RequestParam("venueId") String venueId,
-                         @RequestParam("artistList") List<Artist> artistList,
-                         @RequestParam("tierList") List<Tier> tierList) throws ExecutionException, InterruptedException, IOException {
-        System.out.println(artistList);
-        System.out.println(tierList);
-        System.out.println(images);
-//        eventService.addEvent2(name, dateAndTime, description, eventDuration, venueId, artistList, tierList, images);
+    public void addEvent(@ModelAttribute Event event) throws ExecutionException, InterruptedException, IOException {
+//        System.out.println(artistList);
+//        System.out.println(tierList);
+//        System.out.println(images);
+        eventService.addEvent2(event);
     }
 
     @PostMapping("/new/")
-    public void addNewEvent(@RequestParam("name") String name,
-                            @RequestParam("dateAndTime") String dateAndTime,
-                            @RequestParam("description") String description,
-                            @RequestParam("eventDuration") String eventDuration,
-                            @RequestParam("images") List<MultipartFile> images,
-                            @RequestParam("venueId") String venueId,
-                            @RequestParam("artistList") List<Artist> artistList,
-                            @RequestParam("tierList") List<Tier> tierList) throws ExecutionException, InterruptedException, IOException {
-        eventService.addEvent(name, dateAndTime, description, eventDuration, venueId, artistList, tierList, images);
+    public void addNewEvent(@ModelAttribute Event event) throws ExecutionException, InterruptedException, IOException {
+        eventService.addEvent(event);
     }
 
     @PutMapping("/update/id")
