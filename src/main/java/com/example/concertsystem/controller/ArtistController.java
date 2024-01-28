@@ -30,7 +30,7 @@ public class ArtistController {
         return artistService.getAllArtist();
     }
     @PostMapping("/")
-    public void addNewArtist(@RequestBody Artist artist, @RequestParam("profileImg")MultipartFile profileImg) throws ExecutionException, InterruptedException, IOException {
+    public void addNewArtist(@RequestBody Artist artist, @RequestParam("profileImg")String profileImg) throws ExecutionException, InterruptedException, IOException {
         artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg);
     }
 

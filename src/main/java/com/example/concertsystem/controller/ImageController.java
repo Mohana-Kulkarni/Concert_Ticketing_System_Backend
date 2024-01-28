@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/img")
@@ -33,6 +34,10 @@ public class ImageController {
     @PostMapping("/")
     public String upload(@RequestParam("file")MultipartFile multipartFile) throws IOException {
         return firebaseService.upload(multipartFile);
+    }
+    @PostMapping("/urls")
+    public List<String> getImageUrls(@RequestParam("images") List<MultipartFile> images) throws IOException {
+        return firebaseService.addAllImages(images);
     }
 }
 

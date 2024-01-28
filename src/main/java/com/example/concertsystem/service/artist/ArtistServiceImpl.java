@@ -2,8 +2,6 @@ package com.example.concertsystem.service.artist;
 
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
-import com.example.concertsystem.entity.Organiser;
-import com.example.concertsystem.service.firebase.FirebaseService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
@@ -12,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
@@ -21,15 +18,12 @@ import static com.faunadb.client.query.Language.Value;
 @Service
 public class ArtistServiceImpl implements ArtistService{
     private FaunaClient faunaClient;
-    private FirebaseService firebaseService;
 
-    public ArtistServiceImpl(FaunaClient faunaClient, FirebaseService firebaseService) {
+    public ArtistServiceImpl(FaunaClient faunaClient) {
         this.faunaClient= faunaClient;
-        this.firebaseService = firebaseService;
     }
     @Override
-    public String addArtist(String name, String userName, String email, String govId, MultipartFile profileImg) throws ExecutionException, InterruptedException, IOException {
-        String profileUrl = firebaseService.upload(profileImg);
+    public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException, IOException {
         Value val = faunaClient.query(Get(Match(Index("artist_by_userName"), Value(userName)))).get();
         if(val != null) {
             return val.at("ref").to(Value.RefV.class).get().getId();
@@ -54,7 +48,7 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public List<String> addArtistList(List<Artist> artistList, List<MultipartFile> profileImages) throws ExecutionException, InterruptedException, IOException {
+    public List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException, IOException {
         List<String> artistIds = new ArrayList<>();
         int i = 0;
         for (Artist artist : artistList) {

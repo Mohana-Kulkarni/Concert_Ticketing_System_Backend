@@ -16,6 +16,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -37,7 +39,7 @@ public class FirebaseServiceImpl implements FirebaseService {
             File file = this.convertToFile(multipartFile, fileName);
             String URL = this.uploadFile(file, fileName);
             file.delete();
-            return URL;
+            return fileName;
         } catch (Exception e) {
             e.printStackTrace();
             return "Image couldn't upload, Something went wrong";
@@ -69,6 +71,16 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
+    public List<String> addAllImages(List<MultipartFile> images) {
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile file : images) {
+            String url = upload(file);
+            imageUrls.add(url);
+        }
+        return imageUrls;
+    }
+
+    @Override
     public String download(String fileName) throws IOException {
         String destFileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
         String destFilePath = "D:\\" + destFileName;
@@ -93,7 +105,7 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     private String uploadFile(File file, String fileName) throws IOException {
-        BlobId blobId = BlobId.of("concert-ticketing-system-67922.appspot.com", fileName); // Replace with your bucker name
+        BlobId blobId = BlobId.of("concert-ticketing-system-67922.appspot.com", fileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
         InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
         Credentials credentials = GoogleCredentials.fromStream(inputStream);
