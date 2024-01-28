@@ -22,9 +22,10 @@ public class ArtistServiceImpl implements ArtistService{
     public ArtistServiceImpl(FaunaClient faunaClient) {
         this.faunaClient= faunaClient;
     }
+
     @Override
     public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException {
-        Value val = faunaClient.query(Get(Match(Index("artist_by_userName"), Value(userName)))).get();
+        Value val = retrieveValue(userName);
         if(val != null) {
             return val.at("ref").to(Value.RefV.class).get().getId();
         }
@@ -138,5 +139,21 @@ public class ArtistServiceImpl implements ArtistService{
     @Override
     public void deleteArtist(String id) {
         faunaClient.query(Delete(Ref(Collection("Artist"), id)));
+    }
+
+    public Value retrieveValue(String userName) {
+        try {
+            Value val = faunaClient.query(
+                    Get(
+                            Match(
+                                    Index("artist_by_userName"),
+                                    Value(userName)
+                            )
+                    )
+            ).get();
+            return val;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

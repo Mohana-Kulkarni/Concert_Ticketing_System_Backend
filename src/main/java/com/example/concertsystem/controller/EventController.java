@@ -42,7 +42,7 @@ public class EventController {
         return eventService.getEventByArtistName(artist).getList();
     }
     @PostMapping(value = "/")
-    public void addEvent(@ModelAttribute EventImageResponse eventImageResponse) throws ExecutionException, InterruptedException {
+    public void addEvent(@RequestBody EventImageResponse eventImageResponse) throws ExecutionException, InterruptedException {
 //        System.out.println(artistList);
 //        System.out.println(tierList);
 //        System.out.println(images);
