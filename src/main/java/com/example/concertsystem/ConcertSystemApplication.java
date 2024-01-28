@@ -9,6 +9,8 @@ import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.types.Value;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.models.annotations.OpenAPI30;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 @EnableCaching
+@OpenAPI30
 public class ConcertSystemApplication {
 
 	public static void main(String[] args) {
