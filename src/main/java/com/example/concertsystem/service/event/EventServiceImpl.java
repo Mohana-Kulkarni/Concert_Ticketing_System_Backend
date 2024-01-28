@@ -56,37 +56,6 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent(Event event) throws ExecutionException, InterruptedException, IOException {
-//        String venueRef = venueService.getVenueByName(event.venueId()).id();
-//        List<String> artistIds = artistService.addArtistList(event.artistList(), event.profileImages());
-//        String eventId = getTiersAddedForEvent(event.tierList());
-//        List<String> tierIds = tierService.getTierByEventId(eventId);
-//        List<String> imageUrls = new ArrayList<>();
-//        for (MultipartFile file : event.images()) {
-//            String url = firebaseService.upload(file);
-//            imageUrls.add(url);
-//        }
-//
-//
-//        Map<String, Object> eventData = new HashMap<>();
-//        eventData.put("name", event.name());
-//        eventData.put("dateAndTime", event.dateAndTime());
-//        eventData.put("description", event.description());
-//        eventData.put("duration", event.eventDuration());
-//        eventData.put("images", imageUrls);
-//        eventData.put("venueId", venueRef);
-//        eventData.put("artistId", artistIds);
-//        eventData.put("tierId", tierIds);
-//
-//        faunaClient.query(
-//                Create(
-//                        Collection("Event"),
-//                        Obj("data", Value(eventData))
-//                )
-//        );
-    }
-
-    @Override
     public void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
         List<String> tierIds = tierService.addNewTiers(event.tierList());
         List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
@@ -131,7 +100,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-//    @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
+    @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
     public EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException {
         Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
 
@@ -298,28 +267,29 @@ public class EventServiceImpl implements EventService{
         return events;
     }
 
-//    @Override
-//    @CachePut(cacheNames = "eventCacheStore2",key = "#id")
-//    public void updateEvent(String id, String name, String date, String description, String eventDuration, String venueName, List<Artist> artistList, List<Tier> tierList) throws ExecutionException, InterruptedException {
-//        String venueRef = venueService.getVenueByName(venueName).id();
-//        List<String> userRefs = userService.getUserIdsByUserName(userId);
-//        List<String> tierRefs = tierService.getIdByTierName(tierId);
-//        Map<String, Object> eventData = new HashMap<>();
-//        eventData.put("name", name);
-//        eventData.put("dateAndTime", date);
-//        eventData.put("description", description);
-//        eventData.put("duration", eventDuration);
-//        eventData.put("venueId", venueRef);
-//        eventData.put("userId", userRefs);
-//        eventData.put("tierId", tierRefs);
-//        faunaClient.query(
-//                Update(
-//                        Ref(Collection("Event"), id),
-//                        Obj("data", Value(eventData))
-//                )
-//        );
-//
-//    }
+    @Override
+    @CachePut(cacheNames = "eventCacheStore2",key = "#id")
+    public void updateEvent(String id, Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
+        List<String> tierIds = tierService.addNewTiers(event.tierList());
+        List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
+
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("name", event.name());
+        eventData.put("dateAndTime", event.dateAndTime());
+        eventData.put("description", event.description());
+        eventData.put("duration", event.eventDuration());
+        eventData.put("images", imageUrls);
+        eventData.put("venueId", event.venueId());
+        eventData.put("artistId", artistIds);
+        eventData.put("tierId", tierIds);
+        faunaClient.query(
+                Update(
+                        Ref(Collection("Event"), id),
+                        Obj("data", Value(eventData))
+                )
+        ).join();
+
+    }
 
     public void updateEventCache(String place, String id) throws ExecutionException, InterruptedException {
         Cache cache = cacheManager.getCache("eventCacheStore1");

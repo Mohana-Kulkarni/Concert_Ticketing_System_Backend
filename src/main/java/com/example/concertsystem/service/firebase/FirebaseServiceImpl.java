@@ -39,7 +39,7 @@ public class FirebaseServiceImpl implements FirebaseService {
             File file = this.convertToFile(multipartFile, fileName);
             String URL = this.uploadFile(file, fileName);
             file.delete();
-            return fileName;
+            return getImageUrl(fileName);
         } catch (Exception e) {
             e.printStackTrace();
             return "Image couldn't upload, Something went wrong";
@@ -49,9 +49,6 @@ public class FirebaseServiceImpl implements FirebaseService {
     @Override
     public ResponseEntity<byte[]> getImage(String fileName) throws IOException {
         String destFileName = UUID.randomUUID().toString().concat(this.getExtension(fileName));
-//        InputStream inputStream = FirebaseService.class.getClassLoader().getResourceAsStream("concert-ticketing-system-67922-firebase-adminsdk-66i0l-ab05e09b6c.json");
-//        Credentials credentials = GoogleCredentials.fromStream(inputStream);
-//        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
         Blob blob = getBlobForImage(fileName);
         byte[] content= blob.getContent();
 

@@ -31,7 +31,7 @@ public class ImageController {
     public ResponseEntity<byte[]> getImage(@RequestParam("fileName") String fileName) throws IOException {
         return firebaseService.getImage(fileName);
     }
-    @PostMapping("/")
+    @PostMapping("/upload")
     public String upload(@RequestParam("file")MultipartFile multipartFile) throws IOException {
         return firebaseService.upload(multipartFile);
     }
