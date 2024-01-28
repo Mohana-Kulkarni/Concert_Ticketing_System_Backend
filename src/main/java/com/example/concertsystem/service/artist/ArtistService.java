@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface ArtistService {
-    String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException, IOException;
-    List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException, IOException;
+    String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException;
+    List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException;
     ArtistResponse getArtistById(String id) throws ExecutionException, InterruptedException;
     String getArtistIdByName(String artist) throws ExecutionException, InterruptedException;
     List<ArtistResponse> getAllArtist() throws ExecutionException, InterruptedException;

@@ -87,7 +87,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException, IOException {
+    public void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
         List<String> tierIds = tierService.addNewTiers(event.tierList());
         List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
 

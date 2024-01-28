@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 public interface EventService {
 
     void addEvent(Event event) throws ExecutionException, InterruptedException, IOException;
-    void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException, IOException;
+    void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException;
 //    void updateEvent(String id, String name, String date, String description,  String eventDuration, String venueName, List<Artist> artistId, List<Tier> tierId) throws ExecutionException, InterruptedException;
     List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException;
     List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException;

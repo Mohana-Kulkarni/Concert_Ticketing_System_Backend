@@ -23,7 +23,7 @@ public class ArtistServiceImpl implements ArtistService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException, IOException {
+    public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException {
         Value val = faunaClient.query(Get(Match(Index("artist_by_userName"), Value(userName)))).get();
         if(val != null) {
             return val.at("ref").to(Value.RefV.class).get().getId();
@@ -48,7 +48,7 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException, IOException {
+    public List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException {
         List<String> artistIds = new ArrayList<>();
         int i = 0;
         for (Artist artist : artistList) {
