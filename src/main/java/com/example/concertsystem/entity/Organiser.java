@@ -8,6 +8,7 @@ public record Organiser(
         String userName,
         String email,
         String govId,
-        String walletId
+        String walletId,
+        String transactionId
 ) implements Serializable {
 }

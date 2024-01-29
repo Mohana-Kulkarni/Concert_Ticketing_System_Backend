@@ -3,6 +3,7 @@ package com.example.concertsystem.service.user;
 import com.example.concertsystem.dto.UserResponse;
 import com.example.concertsystem.service.firebase.FirebaseService;
 import com.faunadb.client.FaunaClient;
+import com.faunadb.client.HttpResponses;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,13 +11,12 @@ import static com.faunadb.client.query.Language.*;
 import static com.faunadb.client.query.Language.Value;
 
 import com.example.concertsystem.entity.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -31,23 +31,46 @@ public class UserServiceImpl implements UserService{
         this.firebaseService = firebaseService;
     }
     @Override
-    public void addUser(String name, String userName, String walletId, String userEmail, MultipartFile profileImg) throws IOException {
-        String profile = firebaseService.upload(profileImg);
+    public void addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws IOException {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("name", name);
+        userData.put("userName", userName);
+        userData.put("email" , userEmail);
+        userData.put("govId", profileImg);
+        userData.put("walletId", walletId);
+        userData.put("transactionId", transactionId);
         faunaClient.query(
                 Create(
                         Collection("User"),
                         Obj(
                                 "data",
-                                Obj(
-                                        "name", Value(name),
-                                        "userName", Value(userName),
-                                        "walletId", Value(walletId),
-                                        "userEmail", Value(userEmail),
-                                        "profileImg",Value(profile)
-                                )
+                                Value(userData)
                         )
                 )
         );
+    }
+
+    @Override
+    public UserResponse isUserRegistered(String walletId) throws ExecutionException, InterruptedException {
+        try {
+            Value val = faunaClient.query(
+                    Get(
+                            Match(Index("user_by_walletId"), Value(walletId))
+                    )
+            ).get();
+            return new UserResponse(
+                    val.at("ref").to(Value.RefV.class).get().getId(),
+                    val.at("data", "name").to(String.class).get(),
+                    val.at("data", "userName").to(String.class).get(),
+                    val.at("data","walletId").to(String.class).get(),
+                    val.at("data", "userEmail").to(String.class).get(),
+                    val.at("data", "profileImg").to(String.class).get()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     @Override
@@ -78,18 +101,19 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void updateUserInfo(String id,String name, String userName, String walletId, String userEmail, MultipartFile profileImg) throws ExecutionException, InterruptedException, IOException {
-        String profile = firebaseService.upload(profileImg);
+    public void updateUserInfo(String id, String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("name", name);
+        userData.put("userName", userName);
+        userData.put("email" , userEmail);
+        userData.put("govId", profileImg);
+        userData.put("walletId", walletId);
+        userData.put("transactionId", transactionId);
         faunaClient.query(
                 Update(Ref(Collection("User"), id),
                         Obj(
-                                "data", Obj(
-                                        "name", Value(name),
-                                        "userName", Value(userName),
-                                        "walletId", Value(walletId),
-                                        "userEmail", Value(userEmail),
-                                        "profileImg",Value(profileImg)
-                                )
+                                "data",
+                                Value(userData)
                         )
                 )
         ).get();

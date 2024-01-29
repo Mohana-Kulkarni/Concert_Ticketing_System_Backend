@@ -29,12 +29,12 @@ public class TicketController {
 
     @PostMapping("/")
     public void bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId());
+        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId());
     }
 
     @PutMapping("/id")
     public void updateTicketById(@RequestParam("id") String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId());
+        ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId());
     }
 
     @DeleteMapping("/id")

@@ -9,6 +9,7 @@ public record Ticket(
         String id,
         int count,
         float cost,
+        String transactionId,
         String userId,
         String tierId,
         String eventId

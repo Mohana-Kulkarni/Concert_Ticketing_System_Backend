@@ -10,7 +10,8 @@ public record User(
         String name,
         String userName,
         String walletId,
+        String transactionId,
         String userEmail,
-        MultipartFile profileImg
+        String profileImg
 ) implements Serializable {
 }

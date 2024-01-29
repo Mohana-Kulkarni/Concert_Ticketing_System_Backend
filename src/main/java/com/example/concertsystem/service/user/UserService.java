@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface UserService {
-    void addUser(String name, String userName, String walletId, String userEMail, MultipartFile profileImg) throws IOException;
+    void addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws IOException;
+    UserResponse isUserRegistered(String walletId) throws ExecutionException, InterruptedException;
     UserResponse getUserById(String id) throws ExecutionException, InterruptedException;
     List<UserResponse> getUsersByType(String role);
-    void updateUserInfo(String id, String name, String userName, String walletId, String userEMail, MultipartFile profileImg) throws ExecutionException, InterruptedException, IOException;
+    void updateUserInfo(String id, String name, String userName, String userEMail, String profileImg, String walletId,String transactionId) throws ExecutionException, InterruptedException, IOException;
 //    void updateUserRole(String id, String name) throws ExecutionException, InterruptedException;
     void deleteUser(String id);
     List<String> getUserIdsByUserName(List<String> userName);

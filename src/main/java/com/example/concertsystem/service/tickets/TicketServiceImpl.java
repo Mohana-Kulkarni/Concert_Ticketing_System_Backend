@@ -15,7 +15,9 @@ import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
@@ -36,60 +38,54 @@ public class TicketServiceImpl implements TicketService{
         this.eventService = eventService;
     }
     @Override
-    public void generateTicket(int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException, IOException {
-        String userId = userService.getIdByUserName(userName);
-        String eventId = eventService.getEventIdByName(eventName);
-        List<Tier> tierList = eventService.getEventById(eventId).tiers();
-        Tier newTier = null;
-        for(Tier tier : tierList) {
-            if((tier.name()).equals(tierName)) {
-                newTier = tier;
-                faunaClient.query(
-                        Create(
-                                Collection("Ticket"),
-                                Obj(
-                                        "data",
-                                        Obj(
-                                                "count", Value(count),
-                                                "cost", Value((long) count * tier.price()),
-                                                "userId", Value(userId),
-                                                "tierId", Value(tier.id()),
-                                                "eventId", Value(eventId)
-                                        )
-                                )
+    public void generateTicket(int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+        Tier tier = tierService.getTierById(tierId);
+        Map<String, Object> ticketData = new HashMap<>();
+        ticketData.put("count", count);
+        ticketData.put("cost", (tier.price() * count));
+        ticketData.put("userId", userId);
+        ticketData.put("tierId", tierId);
+        ticketData.put("eventId", eventId);
+        ticketData.put("transactionId", transactionId);
+
+        faunaClient.query(
+                Create(
+                        Collection("Ticket"),
+                        Obj(
+                                "data",
+                                Value(ticketData)
                         )
-                );
-                break;
-            }
-        }
-        int updatedCapacity = newTier.capacity() - count;
-        tierService.updateTier(newTier.id(), tierName, updatedCapacity, newTier.price());
+                )
+        );
+
+        int updatedCapacity = tier.capacity() - count;
+        tierService.updateTier(tierId, tier.name(), updatedCapacity, tier.price());
 
     }
 
     @Override
-    public void updateTicket(String id, int count, String userName, String tierName, String eventName) throws ExecutionException, InterruptedException, IOException {
-        String userId = userService.getIdByUserName(userName);
-        String eventId = eventService.getEventIdByName(eventName);
-        List<Tier> tierList = eventService.getEventById(eventId).tiers();
-        for (Tier tier : tierList) {
-            if((tier.name()).equals(tierName)) {
-                faunaClient.query(
-                        Update(Ref(Collection("Ticket"), id),
-                                Obj(
-                                        "data", Obj(
-                                                "count", Value(count),
-                                                "cost", Value((long) count * tier.price()),
-                                                "userId", Value(userId),
-                                                "tierId", Value(tier.id()),
-                                                "eventId", Value(eventId)
-                                        )
-                                )
+    public void updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+        Tier tier = tierService.getTierById(tierId);
+        Map<String, Object> ticketData = new HashMap<>();
+        ticketData.put("count", count);
+        ticketData.put("cost", (tier.price() * count));
+        ticketData.put("userId", userId);
+        ticketData.put("tierId", tierId);
+        ticketData.put("eventId", eventId);
+        ticketData.put("transactionId", transactionId);
+
+        faunaClient.query(
+                Create(
+                        Collection("Ticket"),
+                        Obj(
+                                "data",
+                                Value(ticketData)
                         )
-                ).get();
-                break;
-            }
-        }
+                )
+        );
+
+        int updatedCapacity = tier.capacity() - count;
+        tierService.updateTier(tierId, tier.name(), updatedCapacity, tier.price());
 
     }
 

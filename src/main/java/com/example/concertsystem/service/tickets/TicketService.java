@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface TicketService {
-    void generateTicket(int count, String userId, String tierId, String eventId) throws ExecutionException, InterruptedException, IOException;
-    void updateTicket(String id, int count, String userId, String tierId, String eventId) throws ExecutionException, InterruptedException, IOException;
+    void generateTicket(int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException;
+    void updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException;
     TicketResponse getTicketById(String id) throws ExecutionException, InterruptedException, IOException;
     TicketResponse getTicketByUserName(String userName) throws ExecutionException, InterruptedException, IOException;
     void deleteTicketById(String id);

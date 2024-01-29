@@ -22,12 +22,12 @@ public class OrganiserController {
 
     @PostMapping("/")
     public void addNewOrganiser(@RequestBody Organiser organiser) {
-        organiserService.addOrganiser(organiser.name(), organiser.userName(), organiser.email(), organiser.govId(), organiser.walletId());
+        organiserService.addOrganiser(organiser.name(), organiser.userName(), organiser.email(), organiser.govId(), organiser.walletId(), organiser.transactionId());
     }
 
     @PutMapping("/update/id")
     public void updateOrganiser(@RequestParam("id") String id, @RequestBody Organiser organiser) throws ExecutionException, InterruptedException {
-        organiserService.updateOrganiser(id, organiser.name(), organiser.userName(), organiser.email(), organiser.govId(), organiser.walletId());
+        organiserService.updateOrganiser(id, organiser.name(), organiser.userName(), organiser.email(), organiser.govId(), organiser.walletId(), organiser.transactionId());
     }
 
     @DeleteMapping("/delete/id")

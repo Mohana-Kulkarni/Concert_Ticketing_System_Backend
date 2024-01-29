@@ -29,24 +29,20 @@ public class UserController {
         return userService.getUsersByType(role);
     }
 
+    @GetMapping("/registration")
+    public UserResponse checkUserRegistration(@RequestParam("walletId") String walletId) throws ExecutionException, InterruptedException {
+        return userService.isUserRegistered(walletId);
+    }
+
     @PostMapping("/")
-    public void addUser(@RequestParam("name") String name,
-                        @RequestParam("userName") String userName,
-                        @RequestParam("walletId") String walletId,
-                        @RequestParam("userEmail") String userEmail,
-                        @RequestPart("profileImg") MultipartFile profileImg) throws IOException {
-        userService.addUser(name, userName, walletId, userEmail, profileImg);
+    public void addUser(@RequestBody User user) throws IOException {
+        userService.addUser(user.name(), user.userName(), user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
     }
 
     @PutMapping("/id")
     public void updateUserById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException, IOException {
-        userService.updateUserInfo(id, user.name(), user.userName(), user.walletId(), user.userEmail(), user.profileImg());
+        userService.updateUserInfo(id, user.name(), user.userName(), user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
     }
-
-//    @PutMapping("/update/id")
-//    public void updateUserRoleById(@RequestParam("id") String id, @RequestBody User user) throws ExecutionException, InterruptedException {
-//        userService.updateUserRole(id, user.name(), user.typeOfUser());
-//    }
 
     @DeleteMapping("/delete/id")
     public void deletePlaceById(@RequestParam("id") String id) {
