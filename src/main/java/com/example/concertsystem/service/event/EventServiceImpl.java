@@ -250,10 +250,7 @@ public class EventServiceImpl implements EventService{
     @Override
     public List<EventResponse> getSimilarEvents(String eventId) throws  ExecutionException, InterruptedException {
         EventResponse eventResponse = getEventById(eventId);
-        List<String> categoryList = new ArrayList<>();
-        for(String category : eventResponse.categoryList()) {
-            categoryList.add(category);
-        }
+        List<String> categoryList = eventResponse.categoryList();
 
         List<EventResponse> events = getAllEvents();
         List<EventResponse> relatedPosts = new ArrayList<>();
@@ -271,7 +268,6 @@ public class EventServiceImpl implements EventService{
             EventResponse response = getEventById(id);
             relatedPosts.add(response);
         }
-//        System.out.println(relatedPosts.size());
         return relatedPosts;
     }
 
