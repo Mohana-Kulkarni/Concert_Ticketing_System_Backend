@@ -36,6 +36,16 @@ public class EventController {
     public List<EventResponse> getEventByArtist(@RequestParam("artist") String artist) throws ExecutionException, InterruptedException, IOException {
         return eventService.getEventByArtistName(artist).getList();
     }
+
+    @GetMapping("/all")
+    public List<EventResponse> getAllEvents() throws IOException, ExecutionException, InterruptedException {
+        return eventService.getAllEvents();
+    }
+
+    @GetMapping("/relatedPosts")
+    public List<EventResponse> getRelatedPosts(@RequestParam("id") String id) throws IOException, ExecutionException, InterruptedException {
+        return eventService.getSimilarEvents(id);
+    }
     @PostMapping(value = "/")
     public void addEvent(@RequestBody EventImageResponse eventImageResponse) throws ExecutionException, InterruptedException {
         eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls(), eventImageResponse.getProfileImgUrls());

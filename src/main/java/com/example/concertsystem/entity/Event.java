@@ -11,6 +11,7 @@ public record Event(
         String dateAndTime,
         String description,
         String eventDuration,
+        List<String> categoryList,
         String venueId,
         List<Artist> artistList,
         List<Tier> tierList

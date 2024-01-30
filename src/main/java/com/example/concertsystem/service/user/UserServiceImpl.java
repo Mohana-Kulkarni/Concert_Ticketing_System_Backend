@@ -108,6 +108,7 @@ public class UserServiceImpl implements UserService{
         userData.put("email" , userEmail);
         userData.put("govId", profileImg);
         userData.put("walletId", walletId);
+        userData.put("profileImg", profileImg);
         userData.put("transactionId", transactionId);
         faunaClient.query(
                 Update(Ref(Collection("User"), id),

@@ -13,6 +13,7 @@ import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.FaunaClient;
+import com.faunadb.client.query.Expr;
 import com.faunadb.client.types.Value;
 
 import org.springframework.cache.Cache;
@@ -66,6 +67,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("description", event.description());
         eventData.put("duration", event.eventDuration());
         eventData.put("images", imageUrls);
+        eventData.put("categories", event.categoryList());
         eventData.put("venueId", event.venueId());
         eventData.put("artistId", artistIds);
         eventData.put("tierId", tierIds);
@@ -101,16 +103,16 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
-    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException {
+    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException {
         Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
 
         List<String> artists = val.at("data", "artistId").collect(String.class).stream().toList();
         List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
         List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
+        List<String> categoryList= val.at("data", "categories").collect(String.class).stream().toList();
 
         List<ArtistResponse> artistList = artistService.getArtistsByIds(artists);
         List<Tier> tierObjList = tierService.getTierListByIds(tiers);
-
         return new EventResponse(
                 id,
                 val.at("data", "name").to(String.class).get(),
@@ -118,6 +120,7 @@ public class EventServiceImpl implements EventService{
                 val.at("data", "description").to(String.class).get(),
                 val.at("data", "duration").to(String.class).get(),
                 imageUrls,
+                categoryList,
                 val.at("data", "venueId").to(String.class).get(),
                 artistList,
                 tierObjList
@@ -125,13 +128,11 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException, IOException {
-        List<Value> res = (List<Value>) faunaClient.query(
-                Map(
-                        Paginate(Documents(Collection("Event"))),
-                        Lambda("eventRef", Get(Var("eventRef")))
-                )
+    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
+        Value value = faunaClient.query(
+                        Paginate(Documents(Collection("Event")))
         ).get();
+        List<Value> res = value.at("data").collect(Value.class).stream().toList();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
@@ -140,41 +141,18 @@ public class EventServiceImpl implements EventService{
         System.out.println(dateString);
 
         LocalDate date1 = LocalDate.parse(dateString, formatter);
-
         List<EventResponse> eventList = new ArrayList<>();
+        System.out.println(res);
         for(Value val : res) {
-            String eventDate = val.at("data", "dateAndTime").to(String.class).get();
+            String eventId = val.get(Value.RefV.class).getId();
+            EventResponse event = getEventById(eventId);
+            String eventDate = event.dateAndTime();
             LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
             String date = dateTime.format(formatter);
 
             LocalDate date2 = LocalDate.parse(dateString, formatter);
 
             if(date1.isBefore(date2) || date1.equals(date2)) {
-//                List<Value.StringV> artists = val.at("data", "artistId").to(List.class).get();
-//                List<String> artistList = artists.stream().map(
-//                                stringV -> stringV.to(String.class).get())
-//                        .collect(Collectors.toList());
-//                List<Value.StringV> tiers = val.at("data", "tierId").to(List.class).get();
-//                List<String> tiersList = tiers.stream().map(
-//                                stringV -> stringV.to(String.class).get())
-//                        .collect(Collectors.toList());
-
-                List<String> artists = val.at("data", "artistId").collect(String.class).stream().toList();
-                List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
-                List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
-
-
-                EventResponse event = new EventResponse(
-                        val.at("ref").to(Value.RefV.class).get().getId(),
-                        val.at("data", "name").to(String.class).get(),
-                        val.at("data", "dateAndTime").to(String.class).get(),
-                        val.at("data", "description").to(String.class).get(),
-                        val.at("data", "description").to(String.class).get(),
-                        imageUrls,
-                        val.at("data", "venueId").to(String.class).get(),
-                        artistService.getArtistsByIds(artists),
-                        tierService.getTierListByIds(tiers)
-                );
                 eventList.add(event);
             }
 
@@ -229,6 +207,7 @@ public class EventServiceImpl implements EventService{
             List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
             List<String> imageUrls= event.at("data", "images").collect(String.class).stream().toList();
 
+
             List<ArtistResponse> artistObjList = artistService.getArtistsByIds(artists);
             List<Tier> tierObjList = tierService.getTierListByIds(tiers);
 
@@ -240,6 +219,7 @@ public class EventServiceImpl implements EventService{
                     event.at("data", "description").to(String.class).get(),
                     event.at("data", "duration").to(String.class).get(),
                     imageUrls,
+                    event.at("data", "categories").collect(String.class).stream().toList(),
                     event.at("data", "venueId").to(String.class).get(),
                     artistObjList,
                     tierObjList
@@ -268,6 +248,36 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
+    public List<EventResponse> getSimilarEvents(String eventId) throws  ExecutionException, InterruptedException {
+        EventResponse eventResponse = getEventById(eventId);
+        List<String> categoryList = new ArrayList<>();
+        for(String category : eventResponse.categoryList()) {
+            categoryList.add(category);
+        }
+
+        List<EventResponse> events = getAllEvents();
+        List<EventResponse> relatedPosts = new ArrayList<>();
+        Map<String, Double> map = new HashMap<>();
+        System.out.println(events.size());
+
+        for(EventResponse event : events) {
+            if(!event.id().equals(eventId)) {
+                double similarityScore = calculateCategorySimlarity(categoryList, event.categoryList());
+                map.put(event.id(), similarityScore);
+            }
+        }
+        Map<String, Double> finalMap = sortByScore(map);
+        for (String id : finalMap.keySet()) {
+            EventResponse response = getEventById(id);
+            relatedPosts.add(response);
+        }
+//        System.out.println(relatedPosts.size());
+        return relatedPosts;
+    }
+
+
+
+    @Override
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
     public void updateEvent(String id, Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
         List<String> tierIds = tierService.addNewTiers(event.tierList());
@@ -279,6 +289,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("description", event.description());
         eventData.put("duration", event.eventDuration());
         eventData.put("images", imageUrls);
+        eventData.put("categories", event.categoryList());
         eventData.put("venueId", event.venueId());
         eventData.put("artistId", artistIds);
         eventData.put("tierId", tierIds);
@@ -289,6 +300,20 @@ public class EventServiceImpl implements EventService{
                 )
         ).join();
 
+    }
+
+    @Override
+    public void updateEventScore(String eventId, double similarityScore) {
+        try {
+            faunaClient.query(
+                    Update(
+                            Ref(Collection("Event"), eventId),
+                            Obj("data", Obj("similarityScore", Value(similarityScore)))
+                    )
+                );
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateEventCache(String place, String id) throws ExecutionException, InterruptedException {
@@ -371,6 +396,36 @@ public class EventServiceImpl implements EventService{
         }
         return null;
     }
+
+    private double calculateCategorySimlarity(List<String> categories1, List<String> categories2) {
+        Set<String> set1 = new HashSet<>(categories1);
+        Set<String> set2 = new HashSet<>(categories2);
+
+        Set<String> intersection = new HashSet<>(set1);
+        intersection.retainAll(set2);
+        Set<String> union = new HashSet<>(set1);
+        union.addAll(set2);
+        return (double) intersection.size()/ union.size();
+    }
+
+    private static Map<String, Double> sortByScore(Map<String, Double> unsortedMap) {
+        List<Map.Entry<String, Double>> list = new LinkedList<>(unsortedMap.entrySet());
+
+        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                return o2.getValue().compareTo(o1.getValue()); // Reversed comparison
+            }
+        });
+
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Double> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
+    }
+
 
 
 }

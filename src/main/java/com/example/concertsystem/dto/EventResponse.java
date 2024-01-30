@@ -12,6 +12,7 @@ public record EventResponse (
         String description,
         String eventDuration,
         List<String> imageUrls,
+        List<String> categoryList,
         String venueId,
         List<ArtistResponse> artists,
         List<Tier> tiers
