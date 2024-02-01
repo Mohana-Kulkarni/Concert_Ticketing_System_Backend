@@ -3,17 +3,12 @@ package com.example.concertsystem.service.user;
 import com.example.concertsystem.dto.UserResponse;
 import com.example.concertsystem.service.firebase.FirebaseService;
 import com.faunadb.client.FaunaClient;
-import com.faunadb.client.HttpResponses;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.faunadb.client.query.Language.*;
 import static com.faunadb.client.query.Language.Value;
-
-import com.example.concertsystem.entity.User;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -35,10 +30,10 @@ public class UserServiceImpl implements UserService{
         Map<String, Object> userData = new HashMap<>();
         userData.put("name", name);
         userData.put("userName", userName);
-        userData.put("email" , userEmail);
-        userData.put("govId", profileImg);
+        userData.put("userEmail" , userEmail);
         userData.put("walletId", walletId);
         userData.put("transactionId", transactionId);
+        userData.put("profileImg", profileImg);
         faunaClient.query(
                 Create(
                         Collection("User"),
@@ -62,8 +57,9 @@ public class UserServiceImpl implements UserService{
                     val.at("ref").to(Value.RefV.class).get().getId(),
                     val.at("data", "name").to(String.class).get(),
                     val.at("data", "userName").to(String.class).get(),
-                    val.at("data","walletId").to(String.class).get(),
                     val.at("data", "userEmail").to(String.class).get(),
+                    val.at("data","walletId").to(String.class).get(),
+                    val.at("data", "transactionId").to(String.class).get(),
                     val.at("data", "profileImg").to(String.class).get()
             );
         } catch (Exception e) {
@@ -81,8 +77,9 @@ public class UserServiceImpl implements UserService{
                res.at("ref").to(Value.RefV.class).get().getId(),
                res.at("data", "name").to(String.class).get(),
                res.at("data", "userName").to(String.class).get(),
-               res.at("data","walletId").to(String.class).get(),
                res.at("data", "userEmail").to(String.class).get(),
+               res.at("data", "walletId").to(String.class).get(),
+               res.at("data", "transactionId").to(String.class).get(),
                res.at("data", "profileImg").to(String.class).get()
        );
     }
@@ -105,11 +102,10 @@ public class UserServiceImpl implements UserService{
         Map<String, Object> userData = new HashMap<>();
         userData.put("name", name);
         userData.put("userName", userName);
-        userData.put("email" , userEmail);
-        userData.put("govId", profileImg);
+        userData.put("userEmail" , userEmail);
         userData.put("walletId", walletId);
-        userData.put("profileImg", profileImg);
         userData.put("transactionId", transactionId);
+        userData.put("profileImg", profileImg);
         faunaClient.query(
                 Update(Ref(Collection("User"), id),
                         Obj(
@@ -185,8 +181,9 @@ public class UserServiceImpl implements UserService{
                 String walletId = userValue.at("data", "walletId").to(String.class).get();
                 String userEmail = userValue.at("data", "userEmail").to(String.class).get();
                 String profileImg =userValue.at("data", "profileImg").to(String.class).get();
+                String transactionId = userValue.at("data", "transactionId").to(String.class).get();
 
-                UserResponse user = new UserResponse(id, name, userName, walletId, userEmail, profileImg);
+                UserResponse user = new UserResponse(id, name, userName, userEmail, walletId, transactionId, profileImg);
                 userList.add(user);
 
             }

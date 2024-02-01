@@ -8,8 +8,9 @@ public record UserResponse(
         String id,
         String name,
         String userName,
-        String walletId,
         String userEmail,
+        String walletId,
+        String transactionId,
         String profileImg
 ) implements Serializable {
 }

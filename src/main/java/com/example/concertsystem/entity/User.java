@@ -9,9 +9,9 @@ public record User(
         String id,
         String name,
         String userName,
+        String userEmail,
         String walletId,
         String transactionId,
-        String userEmail,
         String profileImg
 ) implements Serializable {
 }
