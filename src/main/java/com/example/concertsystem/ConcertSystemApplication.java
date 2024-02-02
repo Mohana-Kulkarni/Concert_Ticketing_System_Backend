@@ -26,9 +26,9 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-@SpringBootApplication
 @EnableCaching
 @OpenAPI30
+@SpringBootApplication(scanBasePackages = "com.example.concertsystem")
 public class ConcertSystemApplication {
 
 	public static void main(String[] args) {
@@ -323,11 +323,11 @@ public class ConcertSystemApplication {
 //
 //	}
 
-	private void deleteUserById(UserService userService) {
-		String userId = "386517276693626946";
-		userService.deleteUser(userId);
-		System.out.println("User deleted successfully!!");
-	}
+//	private void deleteUserById(UserService userService) {
+//		String userId = "386517276693626946";
+//		userService.deleteUser(userId);
+//		System.out.println("User deleted successfully!!");
+//	}
 
 //	private void getUserByUserId(UserService userService) throws ExecutionException, InterruptedException {
 //		String userId = "386517276693626946";

@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.place;
 
 import com.example.concertsystem.entity.Place;
+import com.example.concertsystem.exception.classes.PlaceNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,21 +41,29 @@ public class PlaceServiceImpl implements PlaceService{
 
     @Override
     public Place getPlaceById(String id) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(Get(Ref(Collection("Place"), id))).get();
+        try {
+            Value res = faunaClient.query(Get(Ref(Collection("Place"), id))).get();
 
-        return new Place(
-                res.at("ref").to(Value.RefV.class).get().getId(),
-                res.at("data", "name").to(String.class).get()
-        );
+            return new Place(
+                    res.at("ref").to(Value.RefV.class).get().getId(),
+                    res.at("data", "name").to(String.class).get()
+            );
+        } catch (Exception e) {
+            throw new PlaceNotFoundException("Place id not found - " + id);
+        }
     }
 
     @Override
     public Place getPlaceByName(String name) throws ExecutionException, InterruptedException {
-        CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name))));
-        return new Place(
-                res.get().at("ref").to(Value.RefV.class).get().getId(),
-                res.get().at("data", "name").to(String.class).get()
-        );
+       try {
+           CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name))));
+           return new Place(
+                   res.get().at("ref").to(Value.RefV.class).get().getId(),
+                   res.get().at("data", "name").to(String.class).get()
+           );
+       } catch (Exception e) {
+           throw new PlaceNotFoundException("Place name not found - " + name);
+       }
     }
 
     @Override
@@ -79,26 +88,38 @@ public class PlaceServiceImpl implements PlaceService{
 
     @Override
     public void updatePlaceById(String id, String name) throws ExecutionException, InterruptedException {
-        faunaClient.query(
-                Update(Ref(Collection("Place"), id),
-                        Obj(
-                                "data", Obj(
-                                        "name", Value(name))
-                        )
-                )
-        ).get();
+        try {
+            faunaClient.query(
+                    Update(Ref(Collection("Place"), id),
+                            Obj(
+                                    "data", Obj(
+                                            "name", Value(name))
+                            )
+                    )
+            ).get();
+        } catch (Exception e) {
+            throw new PlaceNotFoundException("Place id not found - " + id);
+        }
     }
 
 
     @Override
     public void deletePlaceById(String id) {
-        faunaClient.query(Delete(Ref(Collection("Place"), id)));
+        try{
+            faunaClient.query(Delete(Ref(Collection("Place"), id)));
+        } catch (Exception e) {
+            throw new PlaceNotFoundException("Place id not found - " + id);
+        }
     }
 
     @Override
     public String getPlaceIdByPlaceName(String placeName) {
-        String value = faunaClient.query(Get(Match(Index("place_by_placeName"),
-                Value(placeName)))).join().at("ref").get(Value.RefV.class).getId();
-        return value;
+        try {
+            return faunaClient.query(Get(Match(Index("place_by_placeName"),
+                    Value(placeName)))).join().at("ref").get(Value.RefV.class).getId();
+        } catch (Exception e) {
+            throw new PlaceNotFoundException("Place name not found - " + placeName);
+        }
+
     }
 }

@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/id")
-    public void deletePlaceById(@RequestParam("id") String id) {
+    public void deletePlaceById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
         userService.deleteUser(id);
     }
 }

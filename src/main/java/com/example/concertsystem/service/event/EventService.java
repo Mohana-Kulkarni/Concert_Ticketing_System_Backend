@@ -15,7 +15,6 @@ public interface EventService {
 
     void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException;
     void updateEvent(String id, Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException;
-    void updateEventScore(String eventId, double similarityScore);
     List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException;
     List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException;
     EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException;

@@ -7,6 +7,7 @@ import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.entity.User;
 import com.example.concertsystem.Wrapper.ListWrapper;
+import com.example.concertsystem.exception.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
 import com.example.concertsystem.service.firebase.FirebaseService;
 import com.example.concertsystem.service.tier.TierService;
@@ -104,27 +105,31 @@ public class EventServiceImpl implements EventService{
     @Override
     @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
     public EventResponse getEventById(String id) throws ExecutionException, InterruptedException {
-        Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
+        try{
+            Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
 
-        List<String> artists = val.at("data", "artistId").collect(String.class).stream().toList();
-        List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
-        List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
-        List<String> categoryList= val.at("data", "categories").collect(String.class).stream().toList();
+            List<String> artists = val.at("data", "artistId").collect(String.class).stream().toList();
+            List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
+            List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
+            List<String> categoryList= val.at("data", "categories").collect(String.class).stream().toList();
 
-        List<ArtistResponse> artistList = artistService.getArtistsByIds(artists);
-        List<Tier> tierObjList = tierService.getTierListByIds(tiers);
-        return new EventResponse(
-                id,
-                val.at("data", "name").to(String.class).get(),
-                val.at("data", "dateAndTime").to(String.class).get(),
-                val.at("data", "description").to(String.class).get(),
-                val.at("data", "duration").to(String.class).get(),
-                imageUrls,
-                categoryList,
-                val.at("data", "venueId").to(String.class).get(),
-                artistList,
-                tierObjList
-        );
+            List<ArtistResponse> artistList = artistService.getArtistsByIds(artists);
+            List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+            return new EventResponse(
+                    id,
+                    val.at("data", "name").to(String.class).get(),
+                    val.at("data", "dateAndTime").to(String.class).get(),
+                    val.at("data", "description").to(String.class).get(),
+                    val.at("data", "duration").to(String.class).get(),
+                    imageUrls,
+                    categoryList,
+                    val.at("data", "venueId").to(String.class).get(),
+                    artistList,
+                    tierObjList
+            );
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event id not found - " + id);
+        }
     }
 
     @Override
@@ -161,25 +166,30 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#place")
-    public ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException, IOException {
+    public ListWrapper getEventByPlaceName(String place) {
         List<EventResponse> res = getEventByPlace(place);
         return new ListWrapper(res);
+
     }
 
     @Override
-    public List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException {
-        List<String> venueIds = venueService.getVenueIdsByPlaceName(place);
-        List<String> eventIds = new ArrayList<>();
-        for(String id:venueIds){
-            eventIds.addAll(getEventIdsByVenueId(id));
+    public List<EventResponse> getEventByPlace(String place) throws EventNotFoundException {
+        try {
+            List<String> venueIds = venueService.getVenueIdsByPlaceName(place);
+            List<String> eventIds = new ArrayList<>();
+            for(String id:venueIds){
+                eventIds.addAll(getEventIdsByVenueId(id));
+            }
+            List<EventResponse> events = new ArrayList<>();
+            for(String id : eventIds){
+                EventResponse event = getEventById(id);
+                events.add(event);
+            }
+            logger.info("GetMethod");
+            return events;
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with place not found - " + place);
         }
-        List<EventResponse> events = new ArrayList<>();
-        for(String id : eventIds){
-            EventResponse event = getEventById(id);
-            events.add(event);
-        }
-        logger.info("GetMethod");
-        return events;
 
     }
 
@@ -191,43 +201,47 @@ public class EventServiceImpl implements EventService{
 
     @Override
     public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException {
-        String artistRef = artistService.getArtistIdByName(artist);
-        Value res = faunaClient.query(
-                Map(
-                        Paginate(
-                                Match(Index("event_by_userId"), Value(artistRef))
-                        ),
-                        Lambda("eventRef", Get(Var("eventRef")))
-                )
-        ).get();
-        List<Value> events = res.at("data").to(List.class).get();
-        List<EventResponse> eventList = new ArrayList<>();
-        for(Value event : events){
-            List<String> artists = event.at("data", "artistId").collect(String.class).stream().toList();
-            List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
-            List<String> imageUrls= event.at("data", "images").collect(String.class).stream().toList();
+        try {
+            String artistRef = artistService.getArtistIdByName(artist);
+            Value res = faunaClient.query(
+                    Map(
+                            Paginate(
+                                    Match(Index("event_by_userId"), Value(artistRef))
+                            ),
+                            Lambda("eventRef", Get(Var("eventRef")))
+                    )
+            ).get();
+            List<Value> events = res.at("data").to(List.class).get();
+            List<EventResponse> eventList = new ArrayList<>();
+            for(Value event : events){
+                List<String> artists = event.at("data", "artistId").collect(String.class).stream().toList();
+                List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
+                List<String> imageUrls= event.at("data", "images").collect(String.class).stream().toList();
 
 
-            List<ArtistResponse> artistObjList = artistService.getArtistsByIds(artists);
-            List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+                List<ArtistResponse> artistObjList = artistService.getArtistsByIds(artists);
+                List<Tier> tierObjList = tierService.getTierListByIds(tiers);
 
 
-            EventResponse eventByArt = new EventResponse(
-                    event.at("ref").to(Value.RefV.class).get().getId(),
-                    event.at("data", "name").to(String.class).get(),
-                    event.at("data", "dateAndTime").to(String.class).get(),
-                    event.at("data", "description").to(String.class).get(),
-                    event.at("data", "duration").to(String.class).get(),
-                    imageUrls,
-                    event.at("data", "categories").collect(String.class).stream().toList(),
-                    event.at("data", "venueId").to(String.class).get(),
-                    artistObjList,
-                    tierObjList
-            );
-            eventList.add(eventByArt);
+                EventResponse eventByArt = new EventResponse(
+                        event.at("ref").to(Value.RefV.class).get().getId(),
+                        event.at("data", "name").to(String.class).get(),
+                        event.at("data", "dateAndTime").to(String.class).get(),
+                        event.at("data", "description").to(String.class).get(),
+                        event.at("data", "duration").to(String.class).get(),
+                        imageUrls,
+                        event.at("data", "categories").collect(String.class).stream().toList(),
+                        event.at("data", "venueId").to(String.class).get(),
+                        artistObjList,
+                        tierObjList
+                );
+                eventList.add(eventByArt);
+            }
+
+            return eventList;
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with artist not found - " + artist);
         }
-
-        return eventList;
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#venue")
@@ -237,38 +251,46 @@ public class EventServiceImpl implements EventService{
     }
     @Override
     public List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException, IOException {
-        String venueRef = venueService.getVenueIdByVenueName(venue);
-        List<String> eventIds = getEventIdsByVenueId(venueRef);
-        List<EventResponse> events = new ArrayList<>();
-        for(String id : eventIds){
-            EventResponse event = getEventById(id);
-            events.add(event);
+        try {
+            String venueRef = venueService.getVenueIdByVenueName(venue);
+            List<String> eventIds = getEventIdsByVenueId(venueRef);
+            List<EventResponse> events = new ArrayList<>();
+            for(String id : eventIds){
+                EventResponse event = getEventById(id);
+                events.add(event);
+            }
+            return events;
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with venue not found - " + venue);
         }
-        return events;
     }
 
     @Override
     public List<EventResponse> getSimilarEvents(String eventId) throws  ExecutionException, InterruptedException {
-        EventResponse eventResponse = getEventById(eventId);
-        List<String> categoryList = eventResponse.categoryList();
+        try {
+            EventResponse eventResponse = getEventById(eventId);
+            List<String> categoryList = eventResponse.categoryList();
 
-        List<EventResponse> events = getAllEvents();
-        List<EventResponse> relatedPosts = new ArrayList<>();
-        Map<String, Double> map = new HashMap<>();
-        System.out.println(events.size());
+            List<EventResponse> events = getAllEvents();
+            List<EventResponse> relatedPosts = new ArrayList<>();
+            Map<String, Double> map = new HashMap<>();
+            System.out.println(events.size());
 
-        for(EventResponse event : events) {
-            if(!event.id().equals(eventId)) {
-                double similarityScore = calculateCategorySimlarity(categoryList, event.categoryList());
-                map.put(event.id(), similarityScore);
+            for(EventResponse event : events) {
+                if(!event.id().equals(eventId)) {
+                    double similarityScore = calculateCategorySimlarity(categoryList, event.categoryList());
+                    map.put(event.id(), similarityScore);
+                }
             }
+            Map<String, Double> finalMap = sortByScore(map);
+            for (String id : finalMap.keySet()) {
+                EventResponse response = getEventById(id);
+                relatedPosts.add(response);
+            }
+            return relatedPosts;
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event id not found - "+ eventId);
         }
-        Map<String, Double> finalMap = sortByScore(map);
-        for (String id : finalMap.keySet()) {
-            EventResponse response = getEventById(id);
-            relatedPosts.add(response);
-        }
-        return relatedPosts;
     }
 
 
@@ -276,39 +298,29 @@ public class EventServiceImpl implements EventService{
     @Override
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
     public void updateEvent(String id, Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
-        List<String> tierIds = tierService.addNewTiers(event.tierList());
-        List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
-
-        Map<String, Object> eventData = new HashMap<>();
-        eventData.put("name", event.name());
-        eventData.put("dateAndTime", event.dateAndTime());
-        eventData.put("description", event.description());
-        eventData.put("duration", event.eventDuration());
-        eventData.put("images", imageUrls);
-        eventData.put("categories", event.categoryList());
-        eventData.put("venueId", event.venueId());
-        eventData.put("artistId", artistIds);
-        eventData.put("tierId", tierIds);
-        faunaClient.query(
-                Update(
-                        Ref(Collection("Event"), id),
-                        Obj("data", Value(eventData))
-                )
-        ).join();
-
-    }
-
-    @Override
-    public void updateEventScore(String eventId, double similarityScore) {
         try {
+            List<String> tierIds = tierService.addNewTiers(event.tierList());
+            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
+
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("name", event.name());
+            eventData.put("dateAndTime", event.dateAndTime());
+            eventData.put("description", event.description());
+            eventData.put("duration", event.eventDuration());
+            eventData.put("images", imageUrls);
+            eventData.put("categories", event.categoryList());
+            eventData.put("venueId", event.venueId());
+            eventData.put("artistId", artistIds);
+            eventData.put("tierId", tierIds);
             faunaClient.query(
                     Update(
-                            Ref(Collection("Event"), eventId),
-                            Obj("data", Obj("similarityScore", Value(similarityScore)))
+                            Ref(Collection("Event"), id),
+                            Obj("data", Value(eventData))
                     )
-                );
-        }catch (Exception e) {
-            e.printStackTrace();
+            ).join();
+
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event id not found - "+ id);
         }
     }
 
@@ -340,33 +352,34 @@ public class EventServiceImpl implements EventService{
     @Override
     @CacheEvict(cacheNames = "eventCacheStore2", key = "#id")
     public void deleteEventById(String id) throws ExecutionException, InterruptedException {
-        String place = getPlaceByEventId(id);
-        faunaClient.query(Delete(Ref(Collection("Event"), id)));
-        deleteEventPlaceCache(place,id);
+        try {
+            String place = getPlaceByEventId(id);
+            faunaClient.query(Delete(Ref(Collection("Event"), id)));
+            deleteEventPlaceCache(place,id);
 
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event id not found - "+ id);
+        }
     }
 
     @Override
-    public String getPlaceByEventId(String EventId){
-        String venueId = faunaClient.query(Get(Ref(Collection("Event"), Value(EventId)))).join().at("data").at("venueId").get(String.class);
-        String placeId = faunaClient.query(Get(Ref(Collection("Venue"), Value(venueId)))).join().at("data").at("placeId").get(String.class);
-        return faunaClient.query(Get(Ref(Collection("Place"), Value(placeId)))).join().at("data").at("name").get(String.class);
+    public String getPlaceByEventId(String eventId){
+        try {
+            String venueId = faunaClient.query(Get(Ref(Collection("Event"), Value(eventId)))).join().at("data").at("venueId").get(String.class);
+            String placeId = faunaClient.query(Get(Ref(Collection("Venue"), Value(venueId)))).join().at("data").at("placeId").get(String.class);
+            return faunaClient.query(Get(Ref(Collection("Place"), Value(placeId)))).join().at("data").at("name").get(String.class);
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event id not found - "+ eventId);
+        }
     }
 
     @Override
     public String getEventIdByName(String eventName) throws ExecutionException, InterruptedException {
-        return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
-    }
-
-    private String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException {
-        Random random = new Random();
-        int n = random.nextInt(9000) + 1000;
-        String eventId = "event" + n;
-        System.out.println(eventId);
-        for (Tier tier : tierList) {
-            tierService.addTier(tier.name(), tier.capacity(), tier.price());
+        try {
+            return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with name not found - "+ eventName);
         }
-        return eventId;
     }
 
     private List<String> getEventIdsByVenueId(String id) throws ExecutionException, InterruptedException {

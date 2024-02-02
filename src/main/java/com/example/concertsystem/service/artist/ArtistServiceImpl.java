@@ -2,6 +2,7 @@ package com.example.concertsystem.service.artist;
 
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
+import com.example.concertsystem.exception.classes.ArtistNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
@@ -59,17 +60,21 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public ArtistResponse getArtistById(String id) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(Get(Ref(Collection("Artist"), id))).get();
+    public ArtistResponse getArtistById(String id) throws ArtistNotFoundException {
+        try {
+            Value res = faunaClient.query(Get(Ref(Collection("Artist"), id))).get();
 
-        return new ArtistResponse(
-                res.at("ref").to(Value.RefV.class).get().getId(),
-                res.at("data", "name").to(String.class).get(),
-                res.at("data", "userName").to(String.class).get(),
-                res.at("data", "email").to(String.class).get(),
-                res.at("data", "govId").to(String.class).get(),
-                res.at("data", "profileImg").to(String.class).get()
-        );
+            return new ArtistResponse(
+                    res.at("ref").to(Value.RefV.class).get().getId(),
+                    res.at("data", "name").to(String.class).get(),
+                    res.at("data", "userName").to(String.class).get(),
+                    res.at("data", "email").to(String.class).get(),
+                    res.at("data", "govId").to(String.class).get(),
+                    res.at("data", "profileImg").to(String.class).get()
+            );
+        }catch (Exception e) {
+            throw new ArtistNotFoundException("Artist id not found - " + id);
+        }
     }
 
     @Override
@@ -118,25 +123,33 @@ public class ArtistServiceImpl implements ArtistService{
 
     @Override
     public void updateArtist(String id, String name, String userName, String email, String govId, MultipartFile profileImg) throws ExecutionException, InterruptedException {
+        try {
+            faunaClient.query(
+                    Update(Ref(Collection("Artist"), id),
+                            Obj(
+                                    "data", Obj(
+                                            "name", Value(name),
+                                            "userName", Value(userName),
+                                            "email", Value(email),
+                                            "govId", Value(govId),
+                                            "profileImg", Value(profileImg)
+                                    )
+                            )
+                    )
+            ).get();
+        } catch (Exception e) {
+            throw new ArtistNotFoundException("Artist id not found - " + id);
+        }
 
-        faunaClient.query(
-                Update(Ref(Collection("Artist"), id),
-                        Obj(
-                                "data", Obj(
-                                        "name", Value(name),
-                                        "userName", Value(userName),
-                                        "email", Value(email),
-                                        "govId", Value(govId),
-                                        "profileImg", Value(profileImg)
-                                )
-                        )
-                )
-        ).get();
     }
 
     @Override
     public void deleteArtist(String id) {
-        faunaClient.query(Delete(Ref(Collection("Artist"), id)));
+        try {
+            faunaClient.query(Delete(Ref(Collection("Artist"), id)));
+        }catch (Exception e) {
+            throw new ArtistNotFoundException("Artist id not found - " + id);
+        }
     }
 
     public Value retrieveValue(String userName) {

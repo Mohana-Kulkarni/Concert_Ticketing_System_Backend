@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.user;
 
 import com.example.concertsystem.dto.UserResponse;
+import com.example.concertsystem.exception.classes.UserNotFoundException;
 import com.example.concertsystem.service.firebase.FirebaseService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -18,12 +19,10 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class UserServiceImpl implements UserService{
     private FaunaClient faunaClient;
-    private FirebaseService firebaseService;
 
     @Autowired
-    public UserServiceImpl(FaunaClient faunaClient, FirebaseService firebaseService) {
+    public UserServiceImpl(FaunaClient faunaClient) {
         this.faunaClient= faunaClient;
-        this.firebaseService = firebaseService;
     }
     @Override
     public void addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws IOException {
@@ -70,18 +69,22 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserResponse getUserById(String id) throws ExecutionException, InterruptedException {
-       Value res = faunaClient.query(Get(Ref(Collection("User"), id))).get();
+    public UserResponse getUserById(String id) throws UserNotFoundException{
+        try {
+            Value res = faunaClient.query(Get(Ref(Collection("User"), id))).get();
 
-       return new UserResponse(
-               res.at("ref").to(Value.RefV.class).get().getId(),
-               res.at("data", "name").to(String.class).get(),
-               res.at("data", "userName").to(String.class).get(),
-               res.at("data", "userEmail").to(String.class).get(),
-               res.at("data", "walletId").to(String.class).get(),
-               res.at("data", "transactionId").to(String.class).get(),
-               res.at("data", "profileImg").to(String.class).get()
-       );
+            return new UserResponse(
+                    res.at("ref").to(Value.RefV.class).get().getId(),
+                    res.at("data", "name").to(String.class).get(),
+                    res.at("data", "userName").to(String.class).get(),
+                    res.at("data", "userEmail").to(String.class).get(),
+                    res.at("data", "walletId").to(String.class).get(),
+                    res.at("data", "transactionId").to(String.class).get(),
+                    res.at("data", "profileImg").to(String.class).get()
+            );
+        } catch (Exception e) {
+            throw new UserNotFoundException("User id not found - " + id);
+        }
     }
 
     @Override
@@ -128,21 +131,30 @@ public class UserServiceImpl implements UserService{
 
 
     public void updateUserRole(String id, String name, String role) throws ExecutionException, InterruptedException {
-        faunaClient.query(
-                Update(Ref(Collection("User"), id),
-                        Obj(
-                                "data", Obj(
-                                        "name", Value(name),
-                                        "type", Value(role)
-                                )
-                        )
-                )
-        ).get();
+        try {
+            faunaClient.query(
+                    Update(Ref(Collection("User"), id),
+                            Obj(
+                                    "data", Obj(
+                                            "name", Value(name),
+                                            "type", Value(role)
+                                    )
+                            )
+                    )
+            ).get();
+        } catch (Exception e) {
+            throw new UserNotFoundException("User id not found - " + id);
+        }
     }
 
     @Override
-    public void deleteUser(String id) {
-        faunaClient.query(Delete(Ref(Collection("User"), id)));
+    public void deleteUser(String id) throws UserNotFoundException {
+       try {
+           faunaClient.query(Delete(Ref(Collection("User"), id)));
+
+       } catch (Exception e) {
+           throw new UserNotFoundException("User id not found - " + id);
+       }
     }
 
 

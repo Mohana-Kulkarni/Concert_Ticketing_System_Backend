@@ -2,8 +2,10 @@ package com.example.concertsystem.service.venue;
 
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Venue;
+import com.example.concertsystem.exception.classes.VenueNotFoundException;
 import com.example.concertsystem.service.place.PlaceService;
 import com.faunadb.client.FaunaClient;
+import com.faunadb.client.errors.NotFoundException;
 import com.faunadb.client.query.Language;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,39 +64,51 @@ public class VenueServiceImpl implements VenueService{
     }
 
     @Override
-    public Venue getVenueById(String id) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(Get(Ref(Collection("Venue"), id))).get();
+    public Venue getVenueById(String id) throws VenueNotFoundException {
+        try {
+            Value res = faunaClient.query(Get(Ref(Collection("Venue"), id))).get();
 
-        return new Venue(
-                res.at("ref").to(Value.RefV.class).get().getId(),
-                res.at("data", "name").to(String.class).get(),
-                res.at("data", "address").to(String.class).get(),
-                res.at("data", "capacity").to(Integer.class).get(),
-                res.at("data","placeId").to(String.class).get()
-        );
+            return new Venue(
+                    res.at("ref").to(Value.RefV.class).get().getId(),
+                    res.at("data", "name").to(String.class).get(),
+                    res.at("data", "address").to(String.class).get(),
+                    res.at("data", "capacity").to(Integer.class).get(),
+                    res.at("data","placeId").to(String.class).get()
+            );
+        } catch (Exception e) {
+            throw new VenueNotFoundException("Venue id not found - " + id);
+        }
     }
 
     @Override
     public Venue getVenueByName(String name) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(Get(Match(Index("venues_by_name"), Value(name)))).join();
-        return new Venue(
-                res.at("ref").to(Value.RefV.class).get().getId(),
-                res.at("data", "name").to(String.class).get(),
-                res.at("data", "address").to(String.class).get(),
-                res.at("data", "capacity").to(Integer.class).get(),
-                String.valueOf(res.at("data", "placeId").to(String.class).get())
-        );
+        try {
+            Value res = faunaClient.query(Get(Match(Index("venues_by_name"), Value(name)))).join();
+            return new Venue(
+                    res.at("ref").to(Value.RefV.class).get().getId(),
+                    res.at("data", "name").to(String.class).get(),
+                    res.at("data", "address").to(String.class).get(),
+                    res.at("data", "capacity").to(Integer.class).get(),
+                    String.valueOf(res.at("data", "placeId").to(String.class).get())
+            );
+        }catch (Exception e) {
+            throw new VenueNotFoundException("Venue name not found - " + name);
+        }
     }
 
     @Override
     public List<Venue> getVenueByPlace(String place) throws ExecutionException, InterruptedException {
-        List<String> venueIds = getVenueIdsByPlaceName(place);
-        List<Venue> venues = new ArrayList<>();
-        for(String id : venueIds){
-            Venue venue = getVenueById(id);
-            venues.add(venue);
+        try {
+            List<String> venueIds = getVenueIdsByPlaceName(place);
+            List<Venue> venues = new ArrayList<>();
+            for(String id : venueIds){
+                Venue venue = getVenueById(id);
+                venues.add(venue);
+            }
+            return venues;
+        } catch (Exception e) {
+            throw new VenueNotFoundException("Venue with place not found - " + place);
         }
-        return venues;
     }
 
 
@@ -118,104 +132,35 @@ public class VenueServiceImpl implements VenueService{
                 Value(venueName)))).join().at("ref").get(Value.RefV.class).getId();
         return value;
     }
-//
-//    private List<Venue> parseVenueResult(CompletableFuture<List<Value>> result) {
-//        try {
-//            Value res = (Value) result.join();
-//            List<Value> venueData = res.at("data").to(List.class).get();
-//            System.out.println(res.at("ref").to(String.class).get());
-//            List<Venue> venueList = new ArrayList<>();
-//            for (Value venueValue : venueData) {
-//                String id = venueValue.at("ref").to(Value.RefV.class).get().getId();
-//                String name = venueValue.at("data", "name").get(String.class);
-//                String address = venueValue.at("data", "address").get(String.class);
-//                int capacity = venueValue.at("data", "capacity").get(Integer.class);
-//                String placeId = venueValue.at("data", "placeId").to(Value.RefV.class).get().getId();
-//
-//                Venue venue = new Venue(id, name, address, capacity, placeId);
-//                venueList.add(venue);
-//            }
-//            return venueList;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Collections.emptyList();
-//        }
-//    }
-//    @Override
-//    public List<Venue> getVenuesByPlace(String place) throws ExecutionException, InterruptedException {
-//        Value.RefV placeRef = getPlaceRefByName(place);
-//        System.out.println(placeRef.getId());
-//        CompletableFuture<Value> result = faunaClient.query(
-//                Paginate(
-//                    Join(
-//                            Match(Index("place_by_name"), Value(place)),
-//                            Index("venues_by_place_ref")
-//                    )
-//            )
-//        );
-//        CompletableFuture<Value> result = new CompletableFuture<>();
-//        CompletableFuture<Value> result = faunaClient.query(
-//                Language.Let(
-//                        Language.ToObject(
-//                                Value("placeRef"), Language.Get(Language.Match(Language.Index("place_by_name"), Value("your_place"))),
-//                                "venues", Language.Paginate(Language.Match(Language.Index("venues_by_place_ref_2"), Language.Select(Value("ref"), Language.Var("placeRef"))))
-//                        ),
-//                        Language.Map(Language.Var("venues"), Language.Lambda("venueRef", Language.Get(Language.Var("venueRef"))))
-//                )
-//        );
-//
-//        return parseVenueResult(result);
-//    }
-
-//    private Value.RefV getPlaceRefByName(String place) throws ExecutionException, InterruptedException {
-//        return faunaClient.query(Match(Index("places_by_name"), Value(place)))
-//                .get().at("ref").to(Value.RefV.class).get();
-//    }
-
-//    private List<Venue> parseVenueResult(CompletableFuture<Value> result) {
-//        try {
-//            Value res = result.join();
-//            List<Venue> venueData = res.at("data").to(List.class).get();
-////            System.out.println(res.at("ref").to(String.class).get());
-////            int i = 0;
-////            List<Venue> venueList = new ArrayList<>();
-////            for (Value venueValue : venueData) {
-////                String id = venueValue.at("data", "id").to(Value.RefV.class).get().getId();
-////                String name = venueValue.at("data", "name").get(String.class);
-////                String address = venueValue.at("data", "address").get(String.class);
-////                int capacity = venueValue.at("data", "capacity").get(Integer.class);
-////                String placeId = venueValue.at("data", "placeId").to(Value.RefV.class).get().getId();
-//
-////                Venue venue = new Venue(id, name, address, capacity, placeId);
-////                venueList.add(venue);
-////            }
-//            return venueData;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Collections.emptyList();
-//        }
-//    }
 
 
     @Override
     public void updateVenueById(String id, String name, String address, int capacity, String placeId) throws ExecutionException, InterruptedException {
 
-        faunaClient.query(
-                Update(Ref(Collection("Venue"), id),
-                        Obj(
-                                "data", Obj(
-                                        "name", Value(name),
-                                        "address", Value(address),
-                                        "capacity", Value(capacity),
-                                        "placeId", Value(placeId)
-                                )
-                        )
-                )
-        ).get();
+        try {
+            faunaClient.query(
+                    Update(Ref(Collection("Venue"), id),
+                            Obj(
+                                    "data", Obj(
+                                            "name", Value(name),
+                                            "address", Value(address),
+                                            "capacity", Value(capacity),
+                                            "placeId", Value(placeId)
+                                    )
+                            )
+                    )
+            ).get();
+        } catch (Exception e) {
+            throw new VenueNotFoundException("Venue id not found - " + id);
+        }
     }
 
     @Override
     public void deleteVenueById(String id) {
-        faunaClient.query(Delete(Ref(Collection("Venue"), id)));
+        try {
+            faunaClient.query(Delete(Ref(Collection("Venue"), id)));
+        } catch (Exception e) {
+            throw new VenueNotFoundException("Venue id not found - " + id);
+        }
     }
 }
