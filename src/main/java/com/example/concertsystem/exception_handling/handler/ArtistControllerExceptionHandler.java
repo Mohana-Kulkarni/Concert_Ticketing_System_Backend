@@ -1,19 +1,18 @@
-package com.example.concertsystem.exception.handler;
+package com.example.concertsystem.exception_handling.handler;
 
-import com.example.concertsystem.exception.classes.PlaceNotFoundException;
-import com.example.concertsystem.exception.classes.UserNotFoundException;
-import com.example.concertsystem.exception.response.ArtistErrorResponse;
-import com.example.concertsystem.exception.response.PlaceErrorResponse;
+
+import com.example.concertsystem.exception_handling.classes.ArtistNotFoundException;
+import com.example.concertsystem.exception_handling.response.ArtistErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class PlaceControllerExceptionHandler {
+public class ArtistControllerExceptionHandler {
     @ExceptionHandler
-    public ResponseEntity<PlaceErrorResponse> handleException(PlaceNotFoundException exception) {
-        PlaceErrorResponse response = new PlaceErrorResponse();
+    public ResponseEntity<ArtistErrorResponse> handleException(ArtistNotFoundException exception) {
+        ArtistErrorResponse response = new ArtistErrorResponse();
         response.setStatus(HttpStatus.NOT_FOUND.value());
         response.setMessage(exception.getMessage());
         response.setTimeStamp(System.currentTimeMillis());
@@ -22,8 +21,8 @@ public class PlaceControllerExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<PlaceErrorResponse> handleExceptions(Exception e) {
-        PlaceErrorResponse response = new PlaceErrorResponse();
+    public ResponseEntity<ArtistErrorResponse> handleExceptions(Exception e) {
+        ArtistErrorResponse response = new ArtistErrorResponse();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setMessage(e.getMessage());
         response.setTimeStamp(System.currentTimeMillis());

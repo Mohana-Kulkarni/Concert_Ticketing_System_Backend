@@ -1,17 +1,18 @@
-package com.example.concertsystem.exception.handler;
+package com.example.concertsystem.exception_handling.handler;
 
-import com.example.concertsystem.exception.classes.VenueNotFoundException;
-import com.example.concertsystem.exception.response.VenueErrorResponse;
+import com.example.concertsystem.exception_handling.classes.UserNotFoundException;
+import com.example.concertsystem.exception_handling.response.UserErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class VenueControllerExceptionHandler {
+public class UserControllerExceptionHandler {
+
     @ExceptionHandler
-    public ResponseEntity<VenueErrorResponse> handleException(VenueNotFoundException exception) {
-        VenueErrorResponse response = new VenueErrorResponse();
+    public ResponseEntity<UserErrorResponse> handleException(UserNotFoundException exception) {
+        UserErrorResponse response = new UserErrorResponse();
         response.setStatus(HttpStatus.NOT_FOUND.value());
         response.setMessage(exception.getMessage());
         response.setTimeStamp(System.currentTimeMillis());
@@ -20,8 +21,8 @@ public class VenueControllerExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<VenueErrorResponse> handleExceptions(Exception e) {
-        VenueErrorResponse response = new VenueErrorResponse();
+    public ResponseEntity<UserErrorResponse> handleExceptions(Exception e) {
+        UserErrorResponse response = new UserErrorResponse();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setMessage(e.getMessage());
         response.setTimeStamp(System.currentTimeMillis());

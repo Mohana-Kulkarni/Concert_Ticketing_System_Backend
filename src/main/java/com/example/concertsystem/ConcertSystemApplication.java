@@ -309,12 +309,12 @@ public class ConcertSystemApplication {
 //		System.out.println("User updated successfully!!");
 //	}
 
-	private void userByUserId(UserService userService){
-		List<String> list = new ArrayList<>();
-		list.add("user@123");
-		list.add("user@321");
-		System.out.println(userService.getUserIdsByUserName(list));
-	}
+//	private void userByUserId(UserService userService){
+//		List<String> list = new ArrayList<>();
+//		list.add("user@123");
+//		list.add("user@321");
+//		System.out.println(userService.getUserIdsByUserName(list));
+//	}
 
 //	private void updateUserInfoById(UserService userService) throws ExecutionException, InterruptedException {
 //		String userId = "386521241440223298";

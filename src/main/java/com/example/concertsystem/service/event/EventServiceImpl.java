@@ -1,20 +1,15 @@
 package com.example.concertsystem.service.event;
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.dto.EventResponse;
-import com.example.concertsystem.dto.UserResponse;
-import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
-import com.example.concertsystem.entity.User;
 import com.example.concertsystem.Wrapper.ListWrapper;
-import com.example.concertsystem.exception.classes.EventNotFoundException;
+import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
 import com.example.concertsystem.service.firebase.FirebaseService;
 import com.example.concertsystem.service.tier.TierService;
-import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.FaunaClient;
-import com.faunadb.client.query.Expr;
 import com.faunadb.client.types.Value;
 
 import org.springframework.cache.Cache;
@@ -22,19 +17,15 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.faunadb.client.query.Language.*;
 import static com.faunadb.client.query.Language.Obj;
@@ -58,9 +49,8 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent2(Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
+    public void addEvent2(Event event, List<String> imageUrls) throws ExecutionException, InterruptedException {
         List<String> tierIds = tierService.addNewTiers(event.tierList());
-        List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", event.name());
@@ -70,7 +60,7 @@ public class EventServiceImpl implements EventService{
         eventData.put("images", imageUrls);
         eventData.put("categories", event.categoryList());
         eventData.put("venueId", event.venueId());
-        eventData.put("artistId", artistIds);
+        eventData.put("artistId", event.artistList());
         eventData.put("tierId", tierIds);
 
         String id = faunaClient.query(
@@ -143,11 +133,9 @@ public class EventServiceImpl implements EventService{
         DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
         LocalDateTime now = LocalDateTime.now();
         String dateString = now.format(formatter);
-        System.out.println(dateString);
 
         LocalDate date1 = LocalDate.parse(dateString, formatter);
         List<EventResponse> eventList = new ArrayList<>();
-        System.out.println(res);
         for(Value val : res) {
             String eventId = val.get(Value.RefV.class).getId();
             EventResponse event = getEventById(eventId);
@@ -297,10 +285,10 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
-    public void updateEvent(String id, Event event, List<String> imageUrls, List<String> profileImgUrls) throws ExecutionException, InterruptedException {
+    public void updateEvent(String id, Event event, List<String> imageUrls) throws ExecutionException, InterruptedException {
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
-            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
+//            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
 
             Map<String, Object> eventData = new HashMap<>();
             eventData.put("name", event.name());
@@ -310,7 +298,7 @@ public class EventServiceImpl implements EventService{
             eventData.put("images", imageUrls);
             eventData.put("categories", event.categoryList());
             eventData.put("venueId", event.venueId());
-            eventData.put("artistId", artistIds);
+            eventData.put("artistId",event.artistList());
             eventData.put("tierId", tierIds);
             faunaClient.query(
                     Update(

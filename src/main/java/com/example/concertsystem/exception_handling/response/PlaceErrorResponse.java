@@ -1,4 +1,4 @@
-package com.example.concertsystem.exception.response;
+package com.example.concertsystem.exception_handling.response;
 
 public class PlaceErrorResponse {
     private int status;

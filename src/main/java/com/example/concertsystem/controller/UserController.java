@@ -23,11 +23,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/role")
-    public List<UserResponse> getUserByRole(@RequestParam("role") String role) throws ExecutionException, InterruptedException {
-        return userService.getUsersByType(role);
-    }
-
     @GetMapping("/registration")
     public UserResponse checkUserRegistration(@RequestParam("walletId") String walletId) throws ExecutionException, InterruptedException {
         return userService.isUserRegistered(walletId);

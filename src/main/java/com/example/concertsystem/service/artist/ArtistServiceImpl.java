@@ -2,7 +2,7 @@ package com.example.concertsystem.service.artist;
 
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
-import com.example.concertsystem.exception.classes.ArtistNotFoundException;
+import com.example.concertsystem.exception_handling.classes.ArtistNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
@@ -72,7 +72,7 @@ public class ArtistServiceImpl implements ArtistService{
                     res.at("data", "govId").to(String.class).get(),
                     res.at("data", "profileImg").to(String.class).get()
             );
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new ArtistNotFoundException("Artist id not found - " + id);
         }
     }
@@ -89,26 +89,30 @@ public class ArtistServiceImpl implements ArtistService{
 
     @Override
     public List<ArtistResponse> getAllArtist() throws ExecutionException, InterruptedException {
-        List<Value> res = (List<Value>) faunaClient.query(
-                Map(
-                        Paginate(Documents(Collection("Artist"))),
-                        Lambda("artistRef", Get(Var("artistRef")))
-                )
-        ).get();
+        try {
+            List<Value> res = (List<Value>) faunaClient.query(
+                    Map(
+                            Paginate(Documents(Collection("Artist"))),
+                            Lambda("artistRef", Get(Var("artistRef")))
+                    )
+            ).get();
 
-        List<ArtistResponse> artistList = new ArrayList<>();
-        for (Value val : res) {
-            ArtistResponse artist = new ArtistResponse(
-                    val.at("ref").to(Value.RefV.class).get().getId(),
-                    val.at("data", "name").to(String.class).get(),
-                    val.at("data", "userName").to(String.class).get(),
-                    val.at("data", "email").to(String.class).get(),
-                    val.at("data", "govId").to(String.class).get(),
-                    val.at("data", "profileImg").to(String.class).get()
-            );
-            artistList.add(artist);
+            List<ArtistResponse> artistList = new ArrayList<>();
+            for (Value val : res) {
+                ArtistResponse artist = new ArtistResponse(
+                        val.at("ref").to(Value.RefV.class).get().getId(),
+                        val.at("data", "name").to(String.class).get(),
+                        val.at("data", "userName").to(String.class).get(),
+                        val.at("data", "email").to(String.class).get(),
+                        val.at("data", "govId").to(String.class).get(),
+                        val.at("data", "profileImg").to(String.class).get()
+                );
+                artistList.add(artist);
+            }
+            return artistList;
+        } catch (Exception e) {
+            throw new ArtistNotFoundException("Artist collection is empty!!!");
         }
-        return artistList;
     }
 
     @Override

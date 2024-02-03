@@ -13,7 +13,7 @@ public record Event(
         String eventDuration,
         List<String> categoryList,
         String venueId,
-        List<Artist> artistList,
+        List<String> artistList,
         List<Tier> tierList
 ) implements Serializable {
 }

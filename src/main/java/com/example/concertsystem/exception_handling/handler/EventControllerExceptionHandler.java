@@ -1,19 +1,17 @@
-package com.example.concertsystem.exception.handler;
+package com.example.concertsystem.exception_handling.handler;
 
-import com.example.concertsystem.exception.classes.ArtistNotFoundException;
-import com.example.concertsystem.exception.classes.OrganiserNotFoundException;
-import com.example.concertsystem.exception.response.ArtistErrorResponse;
-import com.example.concertsystem.exception.response.OrganiserErrorResponse;
+import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
+import com.example.concertsystem.exception_handling.response.EventErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class OrganiserControllerExceptionHandler {
+public class EventControllerExceptionHandler {
     @ExceptionHandler
-    public ResponseEntity<OrganiserErrorResponse> handleException(OrganiserNotFoundException exception) {
-        OrganiserErrorResponse response = new OrganiserErrorResponse();
+    public ResponseEntity<EventErrorResponse> handleException(EventNotFoundException exception) {
+        EventErrorResponse response = new EventErrorResponse();
         response.setStatus(HttpStatus.NOT_FOUND.value());
         response.setMessage(exception.getMessage());
         response.setTimeStamp(System.currentTimeMillis());
@@ -22,8 +20,8 @@ public class OrganiserControllerExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<OrganiserErrorResponse> handleExceptions(Exception e) {
-        OrganiserErrorResponse response = new OrganiserErrorResponse();
+    public ResponseEntity<EventErrorResponse> handleExceptions(Exception e) {
+        EventErrorResponse response = new EventErrorResponse();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setMessage(e.getMessage());
         response.setTimeStamp(System.currentTimeMillis());

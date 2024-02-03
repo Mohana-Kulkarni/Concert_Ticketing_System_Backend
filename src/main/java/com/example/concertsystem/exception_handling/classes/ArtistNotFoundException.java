@@ -1,4 +1,4 @@
-package com.example.concertsystem.exception.classes;
+package com.example.concertsystem.exception_handling.classes;
 
 public class ArtistNotFoundException extends RuntimeException{
     public ArtistNotFoundException(String message) {

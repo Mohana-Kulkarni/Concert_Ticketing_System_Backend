@@ -38,7 +38,7 @@ public class TicketServiceImpl implements TicketService{
         this.eventService = eventService;
     }
     @Override
-    public void generateTicket(int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+    public void generateTicket(int count, String userId, String tierId, String eventId, String transactionId, String nftToken) throws ExecutionException, InterruptedException, IOException {
         Tier tier = tierService.getTierById(tierId);
         Map<String, Object> ticketData = new HashMap<>();
         ticketData.put("count", count);
@@ -47,6 +47,7 @@ public class TicketServiceImpl implements TicketService{
         ticketData.put("tierId", tierId);
         ticketData.put("eventId", eventId);
         ticketData.put("transactionId", transactionId);
+        ticketData.put("nftToken", nftToken);
 
         faunaClient.query(
                 Create(
@@ -64,7 +65,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public void updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+    public void updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, String nftToken) throws ExecutionException, InterruptedException, IOException {
         Tier tier = tierService.getTierById(tierId);
         Map<String, Object> ticketData = new HashMap<>();
         ticketData.put("count", count);
@@ -73,6 +74,7 @@ public class TicketServiceImpl implements TicketService{
         ticketData.put("tierId", tierId);
         ticketData.put("eventId", eventId);
         ticketData.put("transactionId", transactionId);
+        ticketData.put("nftToken", nftToken);
 
         faunaClient.query(
                 Create(
@@ -107,8 +109,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public TicketResponse getTicketByUserName(String userName) throws ExecutionException, InterruptedException, IOException {
-        String userId = userService.getIdByUserName(userName);
+    public TicketResponse getTicketByUserId(String userId) throws ExecutionException, InterruptedException, IOException {
         Value res = faunaClient.query(Get(Match(Index("ticket_by_userId"), Value(userId)))).get();
         UserResponse user = userService.getUserById(res.at("data", "userId").to(String.class).get());
         Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());

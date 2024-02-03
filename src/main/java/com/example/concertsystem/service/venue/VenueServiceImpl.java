@@ -1,19 +1,14 @@
 package com.example.concertsystem.service.venue;
 
-import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Venue;
-import com.example.concertsystem.exception.classes.VenueNotFoundException;
+import com.example.concertsystem.exception_handling.classes.VenueNotFoundException;
 import com.example.concertsystem.service.place.PlaceService;
 import com.faunadb.client.FaunaClient;
-import com.faunadb.client.errors.NotFoundException;
-import com.faunadb.client.query.Language;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -50,18 +45,6 @@ public class VenueServiceImpl implements VenueService{
         );
     }
 
-    private Value.RefV getPlaceRef(String placeId) {
-        CompletableFuture<Value> result = faunaClient.query(Get(Ref(Collection("Place"), placeId)));
-        try {
-            Value res = result.join();
-            Value.RefV documentId = res.at("ref").to(Value.RefV.class).get();
-            System.out.println("The ref is : "  + documentId);
-            return documentId;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     @Override
     public Venue getVenueById(String id) throws VenueNotFoundException {
@@ -112,17 +95,20 @@ public class VenueServiceImpl implements VenueService{
     }
 
 
-    public List<String> getVenueIdsByPlaceName(String placeName) throws ExecutionException, InterruptedException {
-        String placeRef = placeService.getPlaceIdByPlaceName(placeName);
-        ArrayList<Value> res = faunaClient.query(
-                Paginate(Match(Index("venue_by_placeId"), Value(placeRef)))
-        ).get().at("data").get(ArrayList.class);
-        List<String> venueIds = new ArrayList<>();
-        for(int i=0;i<res.size();i++){
-            String venueId = res.get(i).get(Value.RefV.class).getId();
-            venueIds.add(venueId);
+    public List<String> getVenueIdsByPlaceName(String placeId) throws ExecutionException, InterruptedException {
+        try {
+            ArrayList<Value> res = faunaClient.query(
+                    Paginate(Match(Index("venue_by_placeId"), Value(placeId)))
+            ).get().at("data").get(ArrayList.class);
+            List<String> venueIds = new ArrayList<>();
+            for(int i=0;i<res.size();i++){
+                String venueId = res.get(i).get(Value.RefV.class).getId();
+                venueIds.add(venueId);
+            }
+            return venueIds;
+        } catch (Exception e) {
+            throw new VenueNotFoundException("Venue with place not found - " + placeId);
         }
-        return venueIds;
     }
 
 
@@ -163,4 +149,18 @@ public class VenueServiceImpl implements VenueService{
             throw new VenueNotFoundException("Venue id not found - " + id);
         }
     }
+
+    private Value.RefV getPlaceRef(String placeId) {
+        CompletableFuture<Value> result = faunaClient.query(Get(Ref(Collection("Place"), placeId)));
+        try {
+            Value res = result.join();
+            Value.RefV documentId = res.at("ref").to(Value.RefV.class).get();
+            System.out.println("The ref is : "  + documentId);
+            return documentId;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

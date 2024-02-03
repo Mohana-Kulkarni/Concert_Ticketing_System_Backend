@@ -1,7 +1,7 @@
 package com.example.concertsystem.service.tier;
 
 import com.example.concertsystem.entity.Tier;
-import com.example.concertsystem.exception.classes.TierNotFoundException;
+import com.example.concertsystem.exception_handling.classes.TierNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -49,7 +48,6 @@ public class TierServiceImpl implements TierService{
         List<String> tierIds = new ArrayList<>();
         for (Tier tier : tierList) {
            String tierId = addTier(tier.name(), tier.capacity(), tier.price());
-           System.out.println(tierId);
            tierIds.add(tierId);
         }
         return tierIds;

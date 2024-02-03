@@ -1,15 +1,16 @@
-package com.example.concertsystem.exception.response;
+package com.example.concertsystem.exception_handling.response;
 
-public class TierErrorResponse {
+public class UserErrorResponse {
+
     private int status;
     private String message;
     private long timeStamp;
 
-    public TierErrorResponse() {
+    public UserErrorResponse() {
 
     }
 
-    public TierErrorResponse(int status, String message, long timeStamp) {
+    public UserErrorResponse(int status, String message, long timeStamp) {
         this.status = status;
         this.message = message;
         this.timeStamp = timeStamp;

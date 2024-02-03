@@ -24,17 +24,17 @@ public class TicketController {
 
     @GetMapping("/user")
     public TicketResponse getTicketByName(@RequestParam("user") String user) throws ExecutionException, InterruptedException, IOException {
-        return ticketService.getTicketByUserName(user);
+        return ticketService.getTicketByUserId(user);
     }
 
     @PostMapping("/")
     public void bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId());
+        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
     }
 
     @PutMapping("/id")
     public void updateTicketById(@RequestParam("id") String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId());
+        ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
     }
 
     @DeleteMapping("/id")

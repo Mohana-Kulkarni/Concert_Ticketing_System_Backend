@@ -1,4 +1,4 @@
-package com.example.concertsystem.exception.classes;
+package com.example.concertsystem.exception_handling.classes;
 
 public class TierNotFoundException extends RuntimeException{
     public TierNotFoundException(String message) {

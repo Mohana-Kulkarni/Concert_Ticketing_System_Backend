@@ -48,12 +48,12 @@ public class EventController {
     }
     @PostMapping(value = "/")
     public void addEvent(@RequestBody EventImageResponse eventImageResponse) throws ExecutionException, InterruptedException {
-        eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls(), eventImageResponse.getProfileImgUrls());
+        eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls());
     }
 
     @PutMapping("/update/id")
     public void updateEventById(@RequestParam("id") String id, @RequestBody EventImageResponse event) throws ExecutionException, InterruptedException {
-        eventService.updateEvent(id, event.getEvent(), event.getImgUrls(), event.getProfileImgUrls());
+        eventService.updateEvent(id, event.getEvent(), event.getImgUrls());
     }
 
     @DeleteMapping("/delete/id")

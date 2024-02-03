@@ -1,11 +1,9 @@
 package com.example.concertsystem.service.organiser;
 
 import com.example.concertsystem.entity.Organiser;
-import com.example.concertsystem.exception.classes.OrganiserNotFoundException;
+import com.example.concertsystem.exception_handling.classes.OrganiserNotFoundException;
 import com.faunadb.client.FaunaClient;
-import com.faunadb.client.query.Expr;
 import com.faunadb.client.types.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

@@ -12,6 +12,7 @@ public record Ticket(
         String transactionId,
         String userId,
         String tierId,
-        String eventId
+        String eventId,
+        String nftToken
 ) implements Serializable  {
 }

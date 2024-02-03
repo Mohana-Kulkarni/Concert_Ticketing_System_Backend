@@ -1,15 +1,15 @@
-package com.example.concertsystem.exception.response;
+package com.example.concertsystem.exception_handling.response;
 
-public class EventErrorResponse {
+public class OrganiserErrorResponse {
     private int status;
     private String message;
     private long timeStamp;
 
-    public EventErrorResponse() {
+    public OrganiserErrorResponse() {
 
     }
 
-    public EventErrorResponse(int status, String message, long timeStamp) {
+    public OrganiserErrorResponse(int status, String message, long timeStamp) {
         this.status = status;
         this.message = message;
         this.timeStamp = timeStamp;

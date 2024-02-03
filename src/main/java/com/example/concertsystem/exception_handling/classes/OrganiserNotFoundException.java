@@ -1,4 +1,4 @@
-package com.example.concertsystem.exception.classes;
+package com.example.concertsystem.exception_handling.classes;
 
 public class OrganiserNotFoundException extends RuntimeException{
     public OrganiserNotFoundException(String message) {
