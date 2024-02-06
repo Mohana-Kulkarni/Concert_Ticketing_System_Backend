@@ -1,9 +1,13 @@
 package com.example.concertsystem.controller;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.dto.EventImageResponse;
 import com.example.concertsystem.dto.EventResponse;
+import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -57,7 +61,16 @@ public class EventController {
     }
 
     @DeleteMapping("/delete/id")
-    public void deleteEventById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
-        eventService.deleteEventById(id);
+    public ResponseEntity<SuccessResponse> deleteEventById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
+        boolean isDeleted = eventService.deleteEventById(id);
+        if(isDeleted) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 }

@@ -6,22 +6,28 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.authorizeHttpRequests(configurer ->
                 configurer
-                        .requestMatchers("/artists/*").permitAll()
-                        .requestMatchers("/events/*").permitAll()
-                        .requestMatchers("/img/*").permitAll()
-                        .requestMatchers("/organisers/*").permitAll()
-                        .requestMatchers("/places/*").permitAll()
-                        .requestMatchers("/tickets/*").permitAll()
-                        .requestMatchers("/tiers/*").permitAll()
-                        .requestMatchers("/users/*").permitAll()
-                        .requestMatchers("/venues/*").permitAll()
+                        .requestMatchers("/artists/**").permitAll()
+                        .requestMatchers("/events/**").permitAll()
+                        .requestMatchers("/img/**").permitAll()
+                        .requestMatchers("/organisers/**").permitAll()
+                        .requestMatchers("/places/**").permitAll()
+                        .requestMatchers("/tickets/**").permitAll()
+                        .requestMatchers("/tiers/**").permitAll()
+                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/venues/**").permitAll()
+                        .requestMatchers("/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/v3/api-docs/**").permitAll()
+
                 );
 
                 http.httpBasic(Customizer.withDefaults());

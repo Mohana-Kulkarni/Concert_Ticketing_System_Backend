@@ -4,6 +4,7 @@ import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.Wrapper.ListWrapper;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
 import com.example.concertsystem.service.firebase.FirebaseService;
@@ -94,7 +95,7 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
-    public EventResponse getEventById(String id) throws ExecutionException, InterruptedException {
+    public EventResponse getEventById(String id){
         try{
             Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
 
@@ -118,7 +119,7 @@ public class EventServiceImpl implements EventService{
                     tierObjList
             );
         } catch (Exception e) {
-            throw new EventNotFoundException("Event id not found - " + id);
+            throw new ResourceNotFoundException("Event","Id",id);
         }
     }
 
@@ -161,7 +162,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<EventResponse> getEventByPlace(String place) throws EventNotFoundException {
+    public List<EventResponse> getEventByPlace(String place){
         try {
             List<String> venueIds = venueService.getVenueIdsByPlaceName(place);
             List<String> eventIds = new ArrayList<>();
@@ -176,7 +177,7 @@ public class EventServiceImpl implements EventService{
             logger.info("GetMethod");
             return events;
         } catch (Exception e) {
-            throw new EventNotFoundException("Event with place not found - " + place);
+            throw new ResourceNotFoundException("Event","Place",place);
         }
 
     }
@@ -228,7 +229,7 @@ public class EventServiceImpl implements EventService{
 
             return eventList;
         } catch (Exception e) {
-            throw new EventNotFoundException("Event with artist not found - " + artist);
+            throw new ResourceNotFoundException("Event","Artist",artist);
         }
     }
 
@@ -249,7 +250,7 @@ public class EventServiceImpl implements EventService{
             }
             return events;
         } catch (Exception e) {
-            throw new EventNotFoundException("Event with venue not found - " + venue);
+            throw new ResourceNotFoundException("Event","Venue",venue);
         }
     }
 
@@ -277,7 +278,7 @@ public class EventServiceImpl implements EventService{
             }
             return relatedPosts;
         } catch (Exception e) {
-            throw new EventNotFoundException("Event id not found - "+ eventId);
+            throw new ResourceNotFoundException("EventId","Id",eventId);
         }
     }
 
@@ -308,7 +309,7 @@ public class EventServiceImpl implements EventService{
             ).join();
 
         } catch (Exception e) {
-            throw new EventNotFoundException("Event id not found - "+ id);
+            throw new ResourceNotFoundException("Event","Id",id);
         }
     }
 
@@ -339,14 +340,20 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @CacheEvict(cacheNames = "eventCacheStore2", key = "#id")
-    public void deleteEventById(String id) throws ExecutionException, InterruptedException {
+    public boolean deleteEventById(String id) throws ExecutionException, InterruptedException {
         try {
-            String place = getPlaceByEventId(id);
-            faunaClient.query(Delete(Ref(Collection("Event"), id)));
-            deleteEventPlaceCache(place,id);
+            getEventById(id);
+            try{
+                String place = getPlaceByEventId(id);
+                faunaClient.query(Delete(Ref(Collection("Event"), id))).join();
+                deleteEventPlaceCache(place,id);
+                return true;
+            } catch (Exception e){
+                return false;
+            }
 
         } catch (Exception e) {
-            throw new EventNotFoundException("Event id not found - "+ id);
+            throw new ResourceNotFoundException("Event","Id",id);
         }
     }
 

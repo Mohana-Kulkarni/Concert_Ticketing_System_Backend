@@ -24,7 +24,7 @@ public interface EventService {
 //    String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException;
 
     List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException, IOException;
-    void deleteEventById(String id) throws ExecutionException, InterruptedException;
+    boolean deleteEventById(String id) throws ExecutionException, InterruptedException;
     String getPlaceByEventId(String EventId);
     ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException, IOException;
     ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException, IOException;

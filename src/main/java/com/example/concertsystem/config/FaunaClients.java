@@ -1,4 +1,4 @@
-package com.example.concertsystem;
+package com.example.concertsystem.config;
 
 import com.faunadb.client.FaunaClient;
 import org.springframework.beans.factory.annotation.Value;
