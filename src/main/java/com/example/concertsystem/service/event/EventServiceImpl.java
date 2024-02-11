@@ -271,7 +271,7 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
-    public void updateEvent(String id, Event event, List<String> imageUrls){
+    public boolean updateEvent(String id, Event event, List<String> imageUrls){
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
 //            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
@@ -292,9 +292,9 @@ public class EventServiceImpl implements EventService{
                             Obj("data", Value(eventData))
                     )
             ).join();
-
+            return true;
         } catch (Exception e) {
-            throw new ResourceNotFoundException("Event","Id",id);
+            return false;
         }
     }
 

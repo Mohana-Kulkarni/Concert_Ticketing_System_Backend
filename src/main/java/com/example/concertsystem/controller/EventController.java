@@ -71,8 +71,17 @@ public class EventController {
     }
 
     @PutMapping("/update/id")
-    public void updateEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id, @Valid @RequestBody EventImageResponse event){
-        eventService.updateEvent(id, event.getEvent(), event.getImgUrls());
+    public ResponseEntity<SuccessResponse> updateEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id, @Valid @RequestBody EventImageResponse event){
+        boolean result = eventService.updateEvent(id, event.getEvent(), event.getImgUrls());
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
     }
 
     @DeleteMapping("/delete/id")
