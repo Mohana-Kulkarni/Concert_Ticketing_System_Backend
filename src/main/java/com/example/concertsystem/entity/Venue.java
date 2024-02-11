@@ -14,7 +14,7 @@ public record Venue(
         @NotEmpty(message = "address cannot be null or empty")
         String address,
         @NotNull(message = "capacity cannot be null or empty")
-        @Min(value = 0, message = "Value must be greater than or equal to 1")
+        @Min(value = 0, message = "Value must be greater than or equal to 0")
         int capacity,
         @NotEmpty(message = "placeId cannot be null or empty")
         String placeId

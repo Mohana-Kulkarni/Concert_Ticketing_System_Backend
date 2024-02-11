@@ -15,7 +15,7 @@ public record Ticket(
         @Min(value = 1, message = "Value must be greater than or equal to 1")
         int count,
         @NotNull(message = "Cost cannot be null or empty")
-        @DecimalMin(value = "0.0",inclusive = true, message = "Value must be greater than or equal to 1")
+        @DecimalMin(value = "0.0",inclusive = true, message = "Value must be greater than or equal to 0.0")
         float cost,
         @NotEmpty(message = "transactionId cannot be null or empty")
         String transactionId,

@@ -12,10 +12,10 @@ public record Tier(
         @NotEmpty(message = "Name cannot be null or empty")
         String name,
         @NotNull(message = "Capacity cannot be null or empty")
-        @Min(value = 1, message = "Value must be greater than or equal to 1")
+        @Min(value = 0, message = "Value must be greater than or equal to 0")
         int capacity,
         @NotNull(message = "Price cannot be null or empty")
-        @Min(value = 0, message = "Value must be greater than or equal to 1")
+        @Min(value = 0, message = "Value must be greater than or equal to 0")
         int price
 
 
