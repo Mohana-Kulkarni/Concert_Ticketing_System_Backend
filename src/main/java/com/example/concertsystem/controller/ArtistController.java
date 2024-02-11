@@ -1,9 +1,16 @@
 package com.example.concertsystem.controller;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.dto.ArtistResponse;
+import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.service.artist.ArtistService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/artists")
+@Validated
 public class ArtistController {
 
     private ArtistService artistService;
@@ -21,26 +29,45 @@ public class ArtistController {
     }
 
     @GetMapping("/id")
-    public ArtistResponse getArtist(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
-        return artistService.getArtistById(id);
+    public ResponseEntity<ArtistResponse> getArtist(@RequestParam("id") String id){
+        return ResponseEntity.status(HttpStatus.OK).body(artistService.getArtistById(id));
     }
 
     @GetMapping("/")
-    public List<ArtistResponse> getArtist() throws ExecutionException, InterruptedException {
-        return artistService.getAllArtist();
+    public ResponseEntity<List<ArtistResponse>> getArtist(){
+        return ResponseEntity.status(HttpStatus.OK).body(artistService.getAllArtist());
+
     }
     @PostMapping("/")
-    public void addNewArtist(@RequestBody Artist artist, @RequestParam("profileImg")String profileImg) throws ExecutionException, InterruptedException, IOException {
-        artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg);
+    public ResponseEntity<String> addNewArtist(@Valid @RequestBody Artist artist,@RequestParam("profileImg")String profileImg){
+        return ResponseEntity.status(HttpStatus.OK).body(artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg));
     }
 
     @PutMapping("/update/id")
-    public void updateArtist(@RequestParam("id") String id, @RequestBody Artist artist, @RequestParam("profileImg") MultipartFile profileImg) throws ExecutionException, InterruptedException {
-        artistService.updateArtist(id, artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg);
+    public ResponseEntity<SuccessResponse> updateArtist(@RequestParam("id") String id,@Valid @RequestBody Artist artist, @RequestParam("profileImg") String profileImg) throws ExecutionException, InterruptedException {
+        boolean result = artistService.updateArtist(id, artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg);
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
     }
 
     @DeleteMapping("/delete/id")
-    public void deleteArtist(@RequestParam("id") String id) {
-        artistService.deleteArtist(id);
+    public ResponseEntity<SuccessResponse> deleteArtist(@RequestParam("id") String id) {
+        boolean result = artistService.deleteArtist(id);
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.artist;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
 import com.example.concertsystem.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
@@ -24,40 +26,48 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public String addArtist(String name, String userName, String email, String govId, String profileImg) throws ExecutionException, InterruptedException {
-        Value val = retrieveValue(userName);
-        if(val != null) {
-            return val.at("ref").to(Value.RefV.class).get().getId();
-        }
+    public String addArtist(String name, String userName, String email, String govId, String profileImg) {
+        try {
+            Value val = retrieveValue(userName);
+            if (val != null) {
+                return val.at("ref").to(Value.RefV.class).get().getId();
+            }
 
-        Value res = faunaClient.query(
-                Create(
-                        Collection("Artist"),
-                        Obj(
-                                "data",
-                                Obj(
-                                        "name", Value(name),
-                                        "userName", Value(userName),
-                                        "email", Value(email),
-                                        "govId", Value(govId),
-                                        "profileImg", Value(profileImg)
-                                )
-                        )
-                )
-        ).get();
-        return res.at("ref").to(Value.RefV.class).get().getId();
+            Value res = faunaClient.query(
+                    Create(
+                            Collection("Artist"),
+                            Obj(
+                                    "data",
+                                    Obj(
+                                            "name", Value(name),
+                                            "userName", Value(userName),
+                                            "email", Value(email),
+                                            "govId", Value(govId),
+                                            "profileImg", Value(profileImg)
+                                    )
+                            )
+                    )
+            ).get();
+            return res.at("ref").to(Value.RefV.class).get().getId();
+        }catch(Exception e){
+            throw new RuntimeException(GlobalConstants.MESSAGE_417_POST);
+        }
     }
 
     @Override
-    public List<String> addArtistList(List<Artist> artistList, List<String> profileImages) throws ExecutionException, InterruptedException {
-        List<String> artistIds = new ArrayList<>();
-        int i = 0;
-        for (Artist artist : artistList) {
-            String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImages.get(i));
-            i++;
-            artistIds.add(id);
+    public List<String> addArtistList(List<Artist> artistList, List<String> profileImages){
+        try {
+            List<String> artistIds = new ArrayList<>();
+            int i = 0;
+            for (Artist artist : artistList) {
+                String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImages.get(i));
+                i++;
+                artistIds.add(id);
+            }
+            return artistIds;
+        }catch (Exception e){
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
         }
-        return artistIds;
     }
 
     @Override
@@ -74,29 +84,33 @@ public class ArtistServiceImpl implements ArtistService{
                     res.at("data", "profileImg").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new ArtistNotFoundException("Artist id not found - " + id);
+            throw new ResourceNotFoundException("Artist","Id",id);
         }
     }
 
     @Override
-    public String getArtistIdByName(String artist) throws ExecutionException, InterruptedException {
-        Value res = faunaClient.query(
-                Get(
-                        Match(Index("artist_by_userName"), Value(artist))
-                )
-        ).get();
-        return res.at("ref").to(Value.RefV.class).get().getId();
+    public String getArtistIdByName(String artist){
+        try {
+            Value res = faunaClient.query(
+                    Get(
+                            Match(Index("artist_by_userName"), Value(artist))
+                    )
+            ).get();
+            return res.at("ref").to(Value.RefV.class).get().getId();
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Artist","ArtistName",artist);
+        }
     }
 
     @Override
-    public List<ArtistResponse> getAllArtist() throws ExecutionException, InterruptedException {
+    public List<ArtistResponse> getAllArtist(){
         try {
             List<Value> res = (List<Value>) faunaClient.query(
                     Map(
                             Paginate(Documents(Collection("Artist"))),
                             Lambda("artistRef", Get(Var("artistRef")))
                     )
-            ).get();
+            ).join();
 
             List<ArtistResponse> artistList = new ArrayList<>();
             for (Value val : res) {
@@ -112,50 +126,65 @@ public class ArtistServiceImpl implements ArtistService{
             }
             return artistList;
         } catch (Exception e) {
-            throw new ArtistNotFoundException("Artist collection is empty!!!");
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
         }
     }
 
     @Override
-    public List<ArtistResponse> getArtistsByIds(List<String> artistIds) throws ExecutionException, InterruptedException {
-        List<ArtistResponse> artistList = new ArrayList<>();
-        for (String id : artistIds) {
-            ArtistResponse artist = getArtistById(id);
-            artistList.add(artist);
-        }
-        return artistList;
-    }
-
-    @Override
-    public void updateArtist(String id, String name, String userName, String email, String govId, MultipartFile profileImg) throws ExecutionException, InterruptedException {
+    public List<ArtistResponse> getArtistsByIds(List<String> artistIds){
+        int i=0;
         try {
-            faunaClient.query(
-                    Update(Ref(Collection("Artist"), id),
-                            Obj(
-                                    "data", Obj(
-                                            "name", Value(name),
-                                            "userName", Value(userName),
-                                            "email", Value(email),
-                                            "govId", Value(govId),
-                                            "profileImg", Value(profileImg)
-                                    )
-                            )
-                    )
-            ).get();
-        } catch (Exception e) {
-            throw new ArtistNotFoundException("Artist id not found - " + id);
+            List<ArtistResponse> artistList = new ArrayList<>();
+            for (String id : artistIds) {
+                i++;
+                ArtistResponse artist = getArtistById(id);
+                artistList.add(artist);
+            }
+            return artistList;
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Artist","ArtistId",artistIds.get(i));
         }
-
     }
 
     @Override
-    public void deleteArtist(String id) {
+    public boolean updateArtist(String id, String name, String userName, String email, String govId, String profileImg){
         try {
             getArtistById(id);
             try {
-                faunaClient.query(Delete(Ref(Collection("Artist"), id)));
+                faunaClient.query(
+                        Update(Ref(Collection("Artist"), id),
+                                Obj(
+                                        "data", Obj(
+                                                "name", Value(name),
+                                                "userName", Value(userName),
+                                                "email", Value(email),
+                                                "govId", Value(govId),
+                                                "profileImg", Value(profileImg)
+                                        )
+                                )
+                        )
+                ).get();
+                return true;
             } catch (Exception e) {
-                throw new ArtistNotFoundException("Artist id not found - " + id);
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Artist","Id",id);
+        }
+
+    }
+
+    @Override
+    public boolean deleteArtist(String id) {
+        try {
+            getArtistById(id);
+            try {
+                Value val = faunaClient.query(Delete(Ref(Collection("Artist"), id))).get();
+                if(val==null)
+                    return false;
+                return true;
+            } catch (Exception e) {
+                return false;
             }
         }catch (Exception e){
             throw new ResourceNotFoundException("Artist","Id",id);
