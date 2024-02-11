@@ -5,6 +5,7 @@ import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.service.venue.VenueService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class VenueController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<SuccessResponse> addVenue(@RequestBody Venue venue) {
+    public ResponseEntity<SuccessResponse> addVenue(@Valid @RequestBody Venue venue) {
         boolean result = venueService.addVenue(venue);
         if(result){
             return ResponseEntity
@@ -51,7 +52,7 @@ public class VenueController {
     }
 
     @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updateVenueById(@RequestParam("id") String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
+    public ResponseEntity<SuccessResponse> updateVenueById(@RequestParam("id") String id, @Valid @RequestBody Venue venue) throws ExecutionException, InterruptedException {
         boolean result = venueService.updateVenueById(id, venue.name(), venue.address(), venue.capacity(), venue.placeId());
         if(result) {
             return ResponseEntity
