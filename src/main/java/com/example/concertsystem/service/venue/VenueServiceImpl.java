@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.venue;
 
 import com.example.concertsystem.entity.Venue;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.VenueNotFoundException;
 import com.example.concertsystem.service.place.PlaceService;
 import com.faunadb.client.FaunaClient;
@@ -27,22 +28,27 @@ public class VenueServiceImpl implements VenueService{
         this.placeService = placeService;
     }
     @Override
-    public void addVenue(Venue venue) {
-        Value.RefV placeRef = getPlaceRef(venue.placeId());
-        faunaClient.query(
-                Create(
-                        Collection("Venue"),
-                        Obj(
-                                "data",
-                                Obj(
-                                        "name", Value(venue.name()),
-                                        "address", Value(venue.address()),
-                                        "capacity", Value(venue.capacity()),
-                                        "placeId", placeRef
-                                )
-                        )
-                )
-        );
+    public boolean addVenue(Venue venue) {
+        try {
+            Value.RefV placeRef = getPlaceRef(venue.placeId());
+            faunaClient.query(
+                    Create(
+                            Collection("Venue"),
+                            Obj(
+                                    "data",
+                                    Obj(
+                                            "name", Value(venue.name()),
+                                            "address", Value(venue.address()),
+                                            "capacity", Value(venue.capacity()),
+                                            "placeId", placeRef
+                                    )
+                            )
+                    )
+            );
+            return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 
 
@@ -59,12 +65,12 @@ public class VenueServiceImpl implements VenueService{
                     res.at("data","placeId").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue id not found - " + id);
+            throw new ResourceNotFoundException("Venue","VenueId",id);
         }
     }
 
     @Override
-    public Venue getVenueByName(String name) throws ExecutionException, InterruptedException {
+    public Venue getVenueByName(String name){
         try {
             Value res = faunaClient.query(Get(Match(Index("venues_by_name"), Value(name)))).join();
             return new Venue(
@@ -75,12 +81,12 @@ public class VenueServiceImpl implements VenueService{
                     String.valueOf(res.at("data", "placeId").to(String.class).get())
             );
         }catch (Exception e) {
-            throw new VenueNotFoundException("Venue name not found - " + name);
+            throw new ResourceNotFoundException("Venue","VenueName",name);
         }
     }
 
     @Override
-    public List<Venue> getVenueByPlace(String place) throws ExecutionException, InterruptedException {
+    public List<Venue> getVenueByPlace(String place){
         try {
             List<String> venueIds = getVenueIdsByPlaceName(place);
             List<Venue> venues = new ArrayList<>();
@@ -90,12 +96,12 @@ public class VenueServiceImpl implements VenueService{
             }
             return venues;
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue with place not found - " + place);
+            throw new ResourceNotFoundException("Venue","Place",place);
         }
     }
 
 
-    public List<String> getVenueIdsByPlaceName(String place) throws ExecutionException, InterruptedException {
+    public List<String> getVenueIdsByPlaceName(String place){
         try {
             String placeId = placeService.getPlaceIdByPlaceName(place);
             ArrayList<Value> res = faunaClient.query(
@@ -108,7 +114,7 @@ public class VenueServiceImpl implements VenueService{
             }
             return venueIds;
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue with place not found - " + place);
+            throw new ResourceNotFoundException("Venue","Place",place);
         }
     }
 
@@ -122,7 +128,7 @@ public class VenueServiceImpl implements VenueService{
 
 
     @Override
-    public void updateVenueById(String id, String name, String address, int capacity, String placeId) throws ExecutionException, InterruptedException {
+    public boolean updateVenueById(String id, String name, String address, int capacity, String placeId){
 
         try {
             faunaClient.query(
@@ -137,17 +143,19 @@ public class VenueServiceImpl implements VenueService{
                             )
                     )
             ).get();
+            return true;
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue id not found - " + id);
+            return false;
         }
     }
 
     @Override
-    public void deleteVenueById(String id) {
+    public boolean deleteVenueById(String id) {
         try {
             faunaClient.query(Delete(Ref(Collection("Venue"), id)));
+            return true;
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue id not found - " + id);
+            return false;
         }
     }
 

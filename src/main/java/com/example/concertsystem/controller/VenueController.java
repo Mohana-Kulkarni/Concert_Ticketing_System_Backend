@@ -1,8 +1,13 @@
 package com.example.concertsystem.controller;
 
+import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.EventResponse;
+import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.service.venue.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,31 +21,60 @@ public class VenueController {
     private VenueService venueService;
 
     @GetMapping("/id")
-    public Venue getVenueById(@RequestParam("id") String id) throws ExecutionException, InterruptedException {
-        return venueService.getVenueById(id);
+    public ResponseEntity<Venue> getVenueById(@RequestParam("id") String id){
+        return ResponseEntity.status(HttpStatus.OK).body(venueService.getVenueById(id));
     }
 
     @GetMapping("/name")
-    public Venue getVenueByName(@RequestParam("name") String name) throws ExecutionException, InterruptedException {
-        return venueService.getVenueByName(name);
+    public ResponseEntity<Venue> getVenueByName(@RequestParam("name") String name) throws ExecutionException, InterruptedException {
+        return ResponseEntity.status(HttpStatus.OK).body(venueService.getVenueByName(name));
     }
     @GetMapping("/city")
-    public List<Venue> getVenueByCity(@RequestParam("city") String city) throws ExecutionException, InterruptedException {
-        return venueService.getVenueByPlace(city);
+    public ResponseEntity<List<Venue>> getVenueByCity(@RequestParam("city") String city) throws ExecutionException, InterruptedException {
+        return ResponseEntity.status(HttpStatus.OK).body(venueService.getVenueByPlace(city));
+
     }
 
     @PostMapping("/")
-    public void addVenue(@RequestBody Venue venue) {
-        venueService.addVenue(venue);
+    public ResponseEntity<SuccessResponse> addVenue(@RequestBody Venue venue) {
+        boolean result = venueService.addVenue(venue);
+        if(result){
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Venue));
+        }
+        else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 
     @PutMapping("/id")
-    public void updateVenueById(@RequestParam("id") String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
-        venueService.updateVenueById(id, venue.name(), venue.address(), venue.capacity(), venue.placeId());
+    public ResponseEntity<SuccessResponse> updateVenueById(@RequestParam("id") String id, @RequestBody Venue venue) throws ExecutionException, InterruptedException {
+        boolean result = venueService.updateVenueById(id, venue.name(), venue.address(), venue.capacity(), venue.placeId());
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
     }
 
     @DeleteMapping("/id")
-    public void deleteVenueById(@RequestParam("id") String id) {
-        venueService.deleteVenueById(id);
+    public ResponseEntity<SuccessResponse> deleteVenueById(@RequestParam("id") String id) {
+        boolean result = venueService.deleteVenueById(id);
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 }

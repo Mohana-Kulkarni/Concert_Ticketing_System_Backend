@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutionException;
 
 public interface VenueService {
 
-    void addVenue(Venue venue);
-    Venue getVenueById(String id) throws ExecutionException, InterruptedException;
-    Venue getVenueByName(String name) throws ExecutionException, InterruptedException;
-    List<String> getVenueIdsByPlaceName(String placeName) throws ExecutionException, InterruptedException;
+    boolean addVenue(Venue venue);
+    Venue getVenueById(String id);
+    Venue getVenueByName(String name);
+    List<String> getVenueIdsByPlaceName(String placeName);
     String getVenueIdByVenueName(String venueName);
-    List<Venue> getVenueByPlace(String place) throws ExecutionException, InterruptedException;
-    void updateVenueById(String id, String name, String address, int capacity, String placeId) throws ExecutionException, InterruptedException;
-    void deleteVenueById(String id);
+    List<Venue> getVenueByPlace(String place) ;
+    boolean updateVenueById(String id, String name, String address, int capacity, String placeId);
+    boolean deleteVenueById(String id);
 
 }
