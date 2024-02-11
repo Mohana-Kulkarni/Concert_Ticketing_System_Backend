@@ -1,6 +1,8 @@
 package com.example.concertsystem.service.place;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.entity.Place;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.PlaceNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -25,7 +27,8 @@ public class PlaceServiceImpl implements PlaceService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addPlace(String name) {
+    public boolean addPlace(String name) {
+        try{
         faunaClient.query(
                 Create(
                         Collection("Place"),
@@ -37,10 +40,14 @@ public class PlaceServiceImpl implements PlaceService{
                         )
                 )
         );
+        return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 
     @Override
-    public Place getPlaceById(String id) throws ExecutionException, InterruptedException {
+    public Place getPlaceById(String id){
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Place"), id))).get();
 
@@ -49,12 +56,12 @@ public class PlaceServiceImpl implements PlaceService{
                     res.at("data", "name").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new PlaceNotFoundException("Place id not found - " + id);
+            throw new ResourceNotFoundException("Place","PlaceId",id);
         }
     }
 
     @Override
-    public Place getPlaceByName(String name) throws ExecutionException, InterruptedException {
+    public Place getPlaceByName(String name){
        try {
            CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name))));
            return new Place(
@@ -62,12 +69,12 @@ public class PlaceServiceImpl implements PlaceService{
                    res.get().at("data", "name").to(String.class).get()
            );
        } catch (Exception e) {
-           throw new PlaceNotFoundException("Place name not found - " + name);
+           throw new ResourceNotFoundException("Place","PlaceName",name);
        }
     }
 
     @Override
-    public List<Place> getAllPlaces() throws ExecutionException, InterruptedException {
+    public List<Place> getAllPlaces(){
         try {
             List<Value> res = (List<Value>) faunaClient.query(
                     Map(
@@ -86,12 +93,12 @@ public class PlaceServiceImpl implements PlaceService{
             }
             return places;
         } catch (Exception e) {
-            throw new PlaceNotFoundException("Place collection is empty!!");
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
         }
     }
 
     @Override
-    public void updatePlaceById(String id, String name) throws ExecutionException, InterruptedException {
+    public boolean updatePlaceById(String id, String name){
         try {
             faunaClient.query(
                     Update(Ref(Collection("Place"), id),
@@ -101,18 +108,20 @@ public class PlaceServiceImpl implements PlaceService{
                             )
                     )
             ).get();
+            return true;
         } catch (Exception e) {
-            throw new PlaceNotFoundException("Place id not found - " + id);
+            return false;
         }
     }
 
 
     @Override
-    public void deletePlaceById(String id) {
+    public boolean deletePlaceById(String id) {
         try{
             faunaClient.query(Delete(Ref(Collection("Place"), id)));
+            return true;
         } catch (Exception e) {
-            throw new PlaceNotFoundException("Place id not found - " + id);
+            return false;
         }
     }
 
@@ -122,7 +131,7 @@ public class PlaceServiceImpl implements PlaceService{
             return faunaClient.query(Get(Match(Index("place_by_placeName"),
                     Value(placeName)))).join().at("ref").get(Value.RefV.class).getId();
         } catch (Exception e) {
-            throw new PlaceNotFoundException("Place name not found - " + placeName);
+            throw new ResourceNotFoundException("Place","PlaceName",placeName);
         }
 
     }

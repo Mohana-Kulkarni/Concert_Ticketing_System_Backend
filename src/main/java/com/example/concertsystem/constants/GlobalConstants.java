@@ -11,6 +11,7 @@ public final class GlobalConstants {
     public static final String  MESSAGE_201_Event = "Event Created successfully";
     public static final String  MESSAGE_201_User = "User Created successfully";
     public static final String  MESSAGE_201_Venue = "Venue Created successfully";
+    public static final String  MESSAGE_201_Place = "Place Created successfully";
     public static final String  STATUS_200 = "200";
     public static final String  MESSAGE_200 = "Request processed successfully";
     public static final String  STATUS_417 = "417";
