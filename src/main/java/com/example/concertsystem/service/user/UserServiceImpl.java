@@ -122,16 +122,21 @@ public class UserServiceImpl implements UserService{
        try {
            getUserById(id);
            try {
-               Value val = faunaClient.query(Delete(Ref(Collection("User"), id))).get();
-               if(val==null)
+               getUserById(id);
+               try {
+                   Value val = faunaClient.query(Delete(Ref(Collection("User"), id))).get();
+                   if (val == null)
+                       return false;
+                   return true;
+               } catch (Exception e) {
                    return false;
-               return true;
-           }catch(Exception e){
-               return false;
-           }
+               }
 
-       } catch (Exception e) {
-           throw new ResourceNotFoundException("User","id",id);
+           } catch (Exception e) {
+               throw new ResourceNotFoundException("User", "id", id);
+           }
+       }catch (Exception e){
+           throw new ResourceNotFoundException("User","Id",id);
        }
     }
 

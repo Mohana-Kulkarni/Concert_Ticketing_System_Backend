@@ -117,13 +117,18 @@ public class PlaceServiceImpl implements PlaceService{
 
     @Override
     public boolean deletePlaceById(String id) {
-        try{
-            Value val  = faunaClient.query(Delete(Ref(Collection("Place"), id))).get();
-            if(val==null)
+        try {
+            getPlaceById(id);
+            try {
+                Value val = faunaClient.query(Delete(Ref(Collection("Place"), id))).get();
+                if (val == null)
+                    return false;
+                return true;
+            } catch (Exception e) {
                 return false;
-            return true;
-        } catch (Exception e) {
-            return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Place","Id",id);
         }
     }
 

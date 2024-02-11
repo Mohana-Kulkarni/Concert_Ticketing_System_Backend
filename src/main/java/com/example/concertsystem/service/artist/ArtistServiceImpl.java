@@ -2,6 +2,7 @@ package com.example.concertsystem.service.artist;
 
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.entity.Artist;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.ArtistNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -150,9 +151,14 @@ public class ArtistServiceImpl implements ArtistService{
     @Override
     public void deleteArtist(String id) {
         try {
-            faunaClient.query(Delete(Ref(Collection("Artist"), id)));
-        }catch (Exception e) {
-            throw new ArtistNotFoundException("Artist id not found - " + id);
+            getArtistById(id);
+            try {
+                faunaClient.query(Delete(Ref(Collection("Artist"), id)));
+            } catch (Exception e) {
+                throw new ArtistNotFoundException("Artist id not found - " + id);
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Artist","Id",id);
         }
     }
 
