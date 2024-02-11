@@ -1,6 +1,8 @@
 package com.example.concertsystem.service.tier;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.entity.Tier;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.TierNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -25,36 +27,44 @@ public class TierServiceImpl implements TierService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public String addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException {
-        CompletableFuture<Value> res = faunaClient.query(
-                Create(
-                        Collection("Tier"),
-                        Obj(
-                                "data",
-                                Obj(
-                                        "name", Value(name),
-                                        "capacity", Value(capacity),
-                                        "price", Value(price)
-                                )
-                        )
-                )
-        );
-        Value value = res.join();
-        return value.at("ref").to(Value.RefV.class).get().getId();
-    }
-
-    @Override
-    public List<String> addNewTiers(List<Tier> tierList) throws ExecutionException, InterruptedException {
-        List<String> tierIds = new ArrayList<>();
-        for (Tier tier : tierList) {
-           String tierId = addTier(tier.name(), tier.capacity(), tier.price());
-           tierIds.add(tierId);
+    public String addTier(String name, int capacity, int price){
+        try {
+            CompletableFuture<Value> res = faunaClient.query(
+                    Create(
+                            Collection("Tier"),
+                            Obj(
+                                    "data",
+                                    Obj(
+                                            "name", Value(name),
+                                            "capacity", Value(capacity),
+                                            "price", Value(price)
+                                    )
+                            )
+                    )
+            );
+            Value value = res.join();
+            return value.at("ref").to(Value.RefV.class).get().getId();
+        }catch(Exception e){
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
         }
-        return tierIds;
     }
 
     @Override
-    public Tier getTierById(String id) throws ExecutionException, InterruptedException {
+    public List<String> addNewTiers(List<Tier> tierList){
+        try {
+            List<String> tierIds = new ArrayList<>();
+            for (Tier tier : tierList) {
+                String tierId = addTier(tier.name(), tier.capacity(), tier.price());
+                tierIds.add(tierId);
+            }
+            return tierIds;
+        }catch(Exception e){
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
+        }
+    }
+
+    @Override
+    public Tier getTierById(String id){
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Tier"), id))).get();
 
@@ -65,7 +75,7 @@ public class TierServiceImpl implements TierService{
                     res.at("data","price").to(Integer.class).get()
             );
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier id not found - " + id);
+            throw new ResourceNotFoundException("Tier","id",id);
         }
     }
 
@@ -81,7 +91,7 @@ public class TierServiceImpl implements TierService{
             }
             return tierRefs;
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier with name not found - " + tierName.get(i));
+            throw new ResourceNotFoundException("Tier","TierName",tierName.get(i));
         }
     }
 
@@ -92,13 +102,13 @@ public class TierServiceImpl implements TierService{
             return faunaClient.query(Get(Match(Index("tier_by_name"),
                     Value(tierName)))).join().at("ref").get(Value.RefV.class).getId();
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier with name not found - " + tierName);
+            throw new ResourceNotFoundException("Tier","TierName",tierName);
         }
 
     }
 
     @Override
-    public List<Tier> getTierListByIds(List<String> tierId) throws ExecutionException, InterruptedException {
+    public List<Tier> getTierListByIds(List<String> tierId){
         int i = 0;
         try {
             List<Tier> tierList = new ArrayList<>();
@@ -108,12 +118,12 @@ public class TierServiceImpl implements TierService{
             }
             return tierList;
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier id not found - " + tierId);
+            throw new ResourceNotFoundException("Tier","TierId",tierId.get(i));
         }
     }
 
     @Override
-    public Tier getTierByName(String name) throws ExecutionException, InterruptedException {
+    public Tier getTierByName(String name){
         try {
             CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("tier_by_name"), Value(name))));
             return new Tier(
@@ -123,12 +133,12 @@ public class TierServiceImpl implements TierService{
                     res.get().at("data", "price").to(Integer.class).get()
             );
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier with name not found - " + name);
+            throw new ResourceNotFoundException("Tier","TierName",name);
         }
     }
 
     @Override
-    public void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException {
+    public boolean updateTier(String id, String name, int capacity, int price){
         try {
             Value res = faunaClient.query(
                     Update(
@@ -142,18 +152,20 @@ public class TierServiceImpl implements TierService{
                             )
                     )
             ).get();
+            return true;
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier id not found - " + id);
+            return false;
         }
 
     }
 
     @Override
-    public void deleteTierById(String id) {
+    public boolean deleteTierById(String id) {
         try {
             faunaClient.query(Delete(Ref(Collection("Tier"), id)));
+            return true;
         } catch (Exception e) {
-            throw new TierNotFoundException("Tier id not found - " + id);
+            return false;
         }
     }
 }
