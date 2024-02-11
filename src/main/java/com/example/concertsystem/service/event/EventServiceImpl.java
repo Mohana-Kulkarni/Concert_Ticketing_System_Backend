@@ -1,4 +1,5 @@
 package com.example.concertsystem.service.event;
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.Event;
@@ -50,30 +51,35 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public void addEvent2(Event event, List<String> imageUrls) throws ExecutionException, InterruptedException {
-        List<String> tierIds = tierService.addNewTiers(event.tierList());
+    public boolean addEvent2(Event event, List<String> imageUrls){
+        try {
+            List<String> tierIds = tierService.addNewTiers(event.tierList());
 
-        Map<String, Object> eventData = new HashMap<>();
-        eventData.put("name", event.name());
-        eventData.put("dateAndTime", event.dateAndTime());
-        eventData.put("description", event.description());
-        eventData.put("duration", event.eventDuration());
-        eventData.put("images", imageUrls);
-        eventData.put("categories", event.categoryList());
-        eventData.put("venueId", event.venueId());
-        eventData.put("artistId", event.artistList());
-        eventData.put("tierId", tierIds);
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("name", event.name());
+            eventData.put("dateAndTime", event.dateAndTime());
+            eventData.put("description", event.description());
+            eventData.put("duration", event.eventDuration());
+            eventData.put("images", imageUrls);
+            eventData.put("categories", event.categoryList());
+            eventData.put("venueId", event.venueId());
+            eventData.put("artistId", event.artistList());
+            eventData.put("tierId", tierIds);
 
-        String id = faunaClient.query(
-                Create(
-                        Collection("Event"),
-                        Obj("data", Value(eventData))
-                )
-        ).join().at("ref").get(Value.RefV.class).getId();
+            String id = faunaClient.query(
+                    Create(
+                            Collection("Event"),
+                            Obj("data", Value(eventData))
+                    )
+            ).join().at("ref").get(Value.RefV.class).getId();
 
 
-//        EventResponse eventResponse = getEventById(id);
-//        addEventToCachedList(getPlaceByEventId(id),eventResponse);
+            EventResponse eventResponse = getEventById(id);
+            addEventToCachedList(getPlaceByEventId(id), eventResponse);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
 
     }
 
@@ -125,33 +131,37 @@ public class EventServiceImpl implements EventService{
 
     @Override
     public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
-        Value value = faunaClient.query(
-                        Paginate(Documents(Collection("Event")))
-        ).get();
-        List<Value> res = value.at("data").collect(Value.class).stream().toList();
+        try {
+            Value value = faunaClient.query(
+                    Paginate(Documents(Collection("Event")))
+            ).get();
+            List<Value> res = value.at("data").collect(Value.class).stream().toList();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
-        LocalDateTime now = LocalDateTime.now();
-        String dateString = now.format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
+            LocalDateTime now = LocalDateTime.now();
+            String dateString = now.format(formatter);
 
-        LocalDate date1 = LocalDate.parse(dateString, formatter);
-        List<EventResponse> eventList = new ArrayList<>();
-        for(Value val : res) {
-            String eventId = val.get(Value.RefV.class).getId();
-            EventResponse event = getEventById(eventId);
-            String eventDate = event.dateAndTime();
-            LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
-            String date = dateTime.format(formatter);
+            LocalDate date1 = LocalDate.parse(dateString, formatter);
+            List<EventResponse> eventList = new ArrayList<>();
+            for (Value val : res) {
+                String eventId = val.get(Value.RefV.class).getId();
+                EventResponse event = getEventById(eventId);
+                String eventDate = event.dateAndTime();
+                LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
+                String date = dateTime.format(formatter);
 
-            LocalDate date2 = LocalDate.parse(dateString, formatter);
+                LocalDate date2 = LocalDate.parse(date, formatter);
 
-            if(date1.isBefore(date2) || date1.equals(date2)) {
-                eventList.add(event);
+                if (date1.isBefore(date2) || date1.equals(date2)) {
+                    eventList.add(event);
+                }
+
             }
-
+            return eventList;
+        }catch(Exception e){
+            throw new RuntimeException(GlobalConstants.MESSAGE_500);
         }
-        return eventList;
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#place")
@@ -192,42 +202,17 @@ public class EventServiceImpl implements EventService{
     public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException {
         try {
             String artistRef = artistService.getArtistIdByName(artist);
-            Value res = faunaClient.query(
-                    Map(
-                            Paginate(
-                                    Match(Index("event_by_userId"), Value(artistRef))
-                            ),
-                            Lambda("eventRef", Get(Var("eventRef")))
-                    )
-            ).get();
-            List<Value> events = res.at("data").to(List.class).get();
-            List<EventResponse> eventList = new ArrayList<>();
-            for(Value event : events){
-                List<String> artists = event.at("data", "artistId").collect(String.class).stream().toList();
-                List<String> tiers = event.at("data", "tierId").collect(String.class).stream().toList();
-                List<String> imageUrls= event.at("data", "images").collect(String.class).stream().toList();
-
-
-                List<ArtistResponse> artistObjList = artistService.getArtistsByIds(artists);
-                List<Tier> tierObjList = tierService.getTierListByIds(tiers);
-
-
-                EventResponse eventByArt = new EventResponse(
-                        event.at("ref").to(Value.RefV.class).get().getId(),
-                        event.at("data", "name").to(String.class).get(),
-                        event.at("data", "dateAndTime").to(String.class).get(),
-                        event.at("data", "description").to(String.class).get(),
-                        event.at("data", "duration").to(String.class).get(),
-                        imageUrls,
-                        event.at("data", "categories").collect(String.class).stream().toList(),
-                        event.at("data", "venueId").to(String.class).get(),
-                        artistObjList,
-                        tierObjList
-                );
-                eventList.add(eventByArt);
+            List<EventResponse> events = getAllEvents();
+            List<EventResponse> res = new ArrayList<>();
+            for(EventResponse event : events) {
+                List<ArtistResponse> artistList = event.artists();
+                for (ArtistResponse artistObj : artistList) {
+                    if(artistObj.id().equals(artistRef)) {
+                        res.add(event);
+                    }
+                }
             }
-
-            return eventList;
+            return res;
         } catch (Exception e) {
             throw new ResourceNotFoundException("Event","Artist",artist);
         }
@@ -345,7 +330,7 @@ public class EventServiceImpl implements EventService{
             getEventById(id);
             try{
                 String place = getPlaceByEventId(id);
-                faunaClient.query(Delete(Ref(Collection("Event"), id))).join();
+                faunaClient.query(Delete(Ref(Collection("Event"), id+1222))).join();
                 deleteEventPlaceCache(place,id);
                 return true;
             } catch (Exception e){

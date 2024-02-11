@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface EventService {
 
-    void addEvent2(Event event, List<String> imageUrls) throws ExecutionException, InterruptedException;
+    boolean addEvent2(Event event, List<String> imageUrls);
     void updateEvent(String id, Event event, List<String> imageUrls) throws ExecutionException, InterruptedException;
     List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException;
     List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException;
