@@ -27,32 +27,33 @@ public class EventController {
 
 
     @GetMapping("/id")
-    public EventResponse getEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id) throws ExecutionException, InterruptedException, IOException {
-        return eventService.getEventById(id);
+    public ResponseEntity<EventResponse> getEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id){
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(id));
     }
 
     @GetMapping("/city")
-    public List<EventResponse> getEventByName(@NotEmpty(message = "City Name cannot be null or empty") @RequestParam("city") String  city) throws ExecutionException, InterruptedException, IOException {
-        return eventService.getEventByPlaceName(city).getList();
+    public ResponseEntity<List<EventResponse>> getEventByName(@NotEmpty(message = "City Name cannot be null or empty") @RequestParam("city") String  city){
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByPlaceName(city).getList());
 
     }
     @GetMapping("/venue")
-    public List<EventResponse> getEventByVenue(@NotEmpty(message = "Venue Name cannot be null or empty") @RequestParam("venue") String venue) throws ExecutionException, InterruptedException, IOException {
-        return eventService.getEventByVenueName(venue).getList();
+    public ResponseEntity<List<EventResponse>> getEventByVenue(@NotEmpty(message = "Venue Name cannot be null or empty") @RequestParam("venue") String venue){
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByVenueName(venue).getList());
     }
     @GetMapping("/artist")
-    public List<EventResponse> getEventByArtist(@NotEmpty(message = "Artist Name cannot be null or empty") @RequestParam("artist") String artist) throws ExecutionException, InterruptedException, IOException {
-        return eventService.getEventByArtistName(artist).getList();
+    public ResponseEntity<List<EventResponse>> getEventByArtist(@NotEmpty(message = "Artist Name cannot be null or empty") @RequestParam("artist") String artist){
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByArtistName(artist).getList());
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<EventResponse>> getAllEvents() throws IOException, ExecutionException, InterruptedException {
+    public ResponseEntity<List<EventResponse>> getAllEvents(){
+        eventService.getAllEvents();
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
     }
 
     @GetMapping("/relatedPosts")
-    public List<EventResponse> getRelatedPosts(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id) throws IOException, ExecutionException, InterruptedException {
-        return eventService.getSimilarEvents(id);
+    public ResponseEntity<List<EventResponse>> getRelatedPosts(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id){
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getSimilarEvents(id));
     }
     @PostMapping(value = "/")
     public ResponseEntity<SuccessResponse> addEvent(@Valid @RequestBody EventImageResponse eventImageResponse){
@@ -70,12 +71,12 @@ public class EventController {
     }
 
     @PutMapping("/update/id")
-    public void updateEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id, @Valid @RequestBody EventImageResponse event) throws ExecutionException, InterruptedException {
+    public void updateEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id, @Valid @RequestBody EventImageResponse event){
         eventService.updateEvent(id, event.getEvent(), event.getImgUrls());
     }
 
     @DeleteMapping("/delete/id")
-    public ResponseEntity<SuccessResponse> deleteEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id) throws ExecutionException, InterruptedException {
+    public ResponseEntity<SuccessResponse> deleteEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id){
         boolean isDeleted = eventService.deleteEventById(id);
         if(isDeleted) {
             return ResponseEntity

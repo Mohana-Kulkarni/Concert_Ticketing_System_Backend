@@ -14,21 +14,21 @@ import java.util.concurrent.ExecutionException;
 public interface EventService {
 
     boolean addEvent2(Event event, List<String> imageUrls);
-    void updateEvent(String id, Event event, List<String> imageUrls) throws ExecutionException, InterruptedException;
-    List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException;
-    List<EventResponse> getEventByPlace(String place) throws ExecutionException, InterruptedException, IOException;
-    EventResponse getEventById(String id) throws ExecutionException, InterruptedException, IOException;
-    List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException, IOException;
-    List<EventResponse> getSimilarEvents(String eventId) throws IOException, ExecutionException, InterruptedException;
-    String getEventIdByName(String eventName) throws ExecutionException, InterruptedException;
+    void updateEvent(String id, Event event, List<String> imageUrls);
+    List<EventResponse> getEventByArtist(String artist);
+    List<EventResponse> getEventByPlace(String place);
+    EventResponse getEventById(String id);
+    List<EventResponse> getEventByVenue(String venue);
+    List<EventResponse> getSimilarEvents(String eventId);
+    String getEventIdByName(String eventName);
 //    String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException;
 
-    List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException, IOException;
-    boolean deleteEventById(String id) throws ExecutionException, InterruptedException;
+    List<EventResponse> getAllEvents();
+    boolean deleteEventById(String id);
     String getPlaceByEventId(String EventId);
-    ListWrapper getEventByPlaceName(String place) throws ExecutionException, InterruptedException, IOException;
-    ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException, IOException;
-    ListWrapper getEventByVenueName(String venue) throws ExecutionException, InterruptedException, IOException;
+    ListWrapper getEventByPlaceName(String place);
+    ListWrapper getEventByArtistName(String artist);
+    ListWrapper getEventByVenueName(String venue);
 
 
 

@@ -130,7 +130,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<EventResponse> getAllEvents() throws ExecutionException, InterruptedException {
+    public List<EventResponse> getAllEvents(){
         try {
             Value value = faunaClient.query(
                     Paginate(Documents(Collection("Event")))
@@ -193,13 +193,13 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#artist")
-    public ListWrapper getEventByArtistName(String artist) throws ExecutionException, InterruptedException, IOException {
+    public ListWrapper getEventByArtistName(String artist){
         List<EventResponse> res = getEventByArtist(artist);
         return new ListWrapper(res);
     }
 
     @Override
-    public List<EventResponse> getEventByArtist(String artist) throws ExecutionException, InterruptedException, IOException {
+    public List<EventResponse> getEventByArtist(String artist){
         try {
             String artistRef = artistService.getArtistIdByName(artist);
             List<EventResponse> events = getAllEvents();
@@ -219,12 +219,12 @@ public class EventServiceImpl implements EventService{
     }
 
     @Cacheable(cacheNames = "eventCacheStore1",key = "#venue")
-    public ListWrapper getEventByVenueName(String venue) throws ExecutionException, InterruptedException, IOException {
+    public ListWrapper getEventByVenueName(String venue){
         List<EventResponse> res = getEventByVenue(venue);
         return new ListWrapper(res);
     }
     @Override
-    public List<EventResponse> getEventByVenue(String venue) throws ExecutionException, InterruptedException, IOException {
+    public List<EventResponse> getEventByVenue(String venue){
         try {
             String venueRef = venueService.getVenueIdByVenueName(venue);
             List<String> eventIds = getEventIdsByVenueId(venueRef);
@@ -240,7 +240,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<EventResponse> getSimilarEvents(String eventId) throws  ExecutionException, InterruptedException {
+    public List<EventResponse> getSimilarEvents(String eventId){
         try {
             EventResponse eventResponse = getEventById(eventId);
             List<String> categoryList = eventResponse.categoryList();
@@ -271,7 +271,7 @@ public class EventServiceImpl implements EventService{
 
     @Override
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
-    public void updateEvent(String id, Event event, List<String> imageUrls) throws ExecutionException, InterruptedException {
+    public void updateEvent(String id, Event event, List<String> imageUrls){
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
 //            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
@@ -298,7 +298,7 @@ public class EventServiceImpl implements EventService{
         }
     }
 
-    public void updateEventCache(String place, String id) throws ExecutionException, InterruptedException {
+    public void updateEventCache(String place, String id){
         Cache cache = cacheManager.getCache("eventCacheStore1");
 
         if (cache != null) {
@@ -319,13 +319,13 @@ public class EventServiceImpl implements EventService{
         }
     }
 
-    public void deleteEventPlaceCache(String place, String id) throws ExecutionException, InterruptedException {
+    public void deleteEventPlaceCache(String place, String id){
         updateEventCache(place, id);
     }
 
     @Override
     @CacheEvict(cacheNames = "eventCacheStore2", key = "#id")
-    public boolean deleteEventById(String id) throws ExecutionException, InterruptedException {
+    public boolean deleteEventById(String id){
         try {
             getEventById(id);
             try{
@@ -354,7 +354,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public String getEventIdByName(String eventName) throws ExecutionException, InterruptedException {
+    public String getEventIdByName(String eventName) {
         try {
             return faunaClient.query(Get(Match(Index("event_by_eventName"), Value(eventName)))).get().at("ref").to(Value.RefV.class).get().getId();
         } catch (Exception e) {
