@@ -95,25 +95,30 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean updateUserInfo(String id, String name, String userName, String userEmail, String profileImg, String walletId, String transactionId){
-        try{
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("name", name);
-            userData.put("userName", userName);
-            userData.put("userEmail" , userEmail);
-            userData.put("walletId", walletId);
-            userData.put("transactionId", transactionId);
-            userData.put("profileImg", profileImg);
-            faunaClient.query(
-                    Update(Ref(Collection("User"), id),
-                            Obj(
-                                    "data",
-                                    Value(userData)
-                            )
-                    )
-            ).get();
-            return true;
-        } catch (Exception e) {
-            return false;
+        try {
+            getUserById(id);
+            try {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", name);
+                userData.put("userName", userName);
+                userData.put("userEmail", userEmail);
+                userData.put("walletId", walletId);
+                userData.put("transactionId", transactionId);
+                userData.put("profileImg", profileImg);
+                faunaClient.query(
+                        Update(Ref(Collection("User"), id),
+                                Obj(
+                                        "data",
+                                        Value(userData)
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e) {
+            throw new ResourceNotFoundException("User", "id", id);
         }
     }
 

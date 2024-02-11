@@ -140,21 +140,26 @@ public class TierServiceImpl implements TierService{
     @Override
     public boolean updateTier(String id, String name, int capacity, int price){
         try {
-            Value res = faunaClient.query(
-                    Update(
-                            Ref(Collection("Tier"), id),
-                            Obj(
-                                    "data", Obj(
-                                            "name", Value(name),
-                                            "capacity", Value(capacity),
-                                            "price", Value(price)
-                                    )
-                            )
-                    )
-            ).get();
-            return true;
-        } catch (Exception e) {
-            return false;
+            getTierById(id);
+            try {
+                Value res = faunaClient.query(
+                        Update(
+                                Ref(Collection("Tier"), id),
+                                Obj(
+                                        "data", Obj(
+                                                "name", Value(name),
+                                                "capacity", Value(capacity),
+                                                "price", Value(price)
+                                        )
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Tier","Id",id);
         }
 
     }

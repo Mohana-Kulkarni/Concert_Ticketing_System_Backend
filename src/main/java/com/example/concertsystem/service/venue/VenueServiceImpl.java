@@ -128,8 +128,9 @@ public class VenueServiceImpl implements VenueService{
 
 
     @Override
-    public boolean updateVenueById(String id, String name, String address, int capacity, String placeId){
-
+    public boolean updateVenueById(String id, String name, String address, int capacity, String placeId) {
+        try {
+            getVenueById(id);
         try {
             faunaClient.query(
                     Update(Ref(Collection("Venue"), id),
@@ -145,8 +146,11 @@ public class VenueServiceImpl implements VenueService{
             ).get();
             return true;
         } catch (Exception e) {
-            return false;
-        }
+                return false;
+            }
+        }catch (Exception e){
+                throw new ResourceNotFoundException("Venue","Id",id);
+            }
     }
 
     @Override

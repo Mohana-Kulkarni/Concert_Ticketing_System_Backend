@@ -100,17 +100,22 @@ public class PlaceServiceImpl implements PlaceService{
     @Override
     public boolean updatePlaceById(String id, String name){
         try {
-            faunaClient.query(
-                    Update(Ref(Collection("Place"), id),
-                            Obj(
-                                    "data", Obj(
-                                            "name", Value(name))
-                            )
-                    )
-            ).get();
-            return true;
-        } catch (Exception e) {
-            return false;
+            getPlaceById(id);
+            try {
+                faunaClient.query(
+                        Update(Ref(Collection("Place"), id),
+                                Obj(
+                                        "data", Obj(
+                                                "name", Value(name))
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Place","Id",id);
         }
     }
 

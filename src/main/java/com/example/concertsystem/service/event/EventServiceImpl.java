@@ -273,29 +273,35 @@ public class EventServiceImpl implements EventService{
     @CachePut(cacheNames = "eventCacheStore2",key = "#id")
     public boolean updateEvent(String id, Event event, List<String> imageUrls){
         try {
-            List<String> tierIds = tierService.addNewTiers(event.tierList());
+            getEventById(id);
+            try {
+                List<String> tierIds = tierService.addNewTiers(event.tierList());
 //            List<String> artistIds = artistService.addArtistList(event.artistList(), profileImgUrls);
 
-            Map<String, Object> eventData = new HashMap<>();
-            eventData.put("name", event.name());
-            eventData.put("dateAndTime", event.dateAndTime());
-            eventData.put("description", event.description());
-            eventData.put("duration", event.eventDuration());
-            eventData.put("images", imageUrls);
-            eventData.put("categories", event.categoryList());
-            eventData.put("venueId", event.venueId());
-            eventData.put("artistId",event.artistList());
-            eventData.put("tierId", tierIds);
-            faunaClient.query(
-                    Update(
-                            Ref(Collection("Event"), id),
-                            Obj("data", Value(eventData))
-                    )
-            ).join();
-            return true;
-        } catch (Exception e) {
-            return false;
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("name", event.name());
+                eventData.put("dateAndTime", event.dateAndTime());
+                eventData.put("description", event.description());
+                eventData.put("duration", event.eventDuration());
+                eventData.put("images", imageUrls);
+                eventData.put("categories", event.categoryList());
+                eventData.put("venueId", event.venueId());
+                eventData.put("artistId", event.artistList());
+                eventData.put("tierId", tierIds);
+                faunaClient.query(
+                        Update(
+                                Ref(Collection("Event"), id),
+                                Obj("data", Value(eventData))
+                        )
+                ).join();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e) {
+            throw new ResourceNotFoundException("Event","Id",id);
         }
+
     }
 
     public void updateEventCache(String place, String id){
