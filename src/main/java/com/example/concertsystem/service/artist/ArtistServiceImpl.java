@@ -105,15 +105,17 @@ public class ArtistServiceImpl implements ArtistService{
     @Override
     public List<ArtistResponse> getAllArtist(){
         try {
-            List<Value> res = (List<Value>) faunaClient.query(
+            CompletableFuture<Value> res = faunaClient.query(
                     Map(
                             Paginate(Documents(Collection("Artist"))),
                             Lambda("artistRef", Get(Var("artistRef")))
                     )
-            ).join();
+            );
+
+            List<Value> value = (List<Value>) res.join().at("data").to(List.class).get();
 
             List<ArtistResponse> artistList = new ArrayList<>();
-            for (Value val : res) {
+            for (Value val : value) {
                 ArtistResponse artist = new ArtistResponse(
                         val.at("ref").to(Value.RefV.class).get().getId(),
                         val.at("data", "name").to(String.class).get(),
