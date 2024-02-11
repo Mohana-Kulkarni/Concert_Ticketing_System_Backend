@@ -5,7 +5,6 @@ import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.service.venue.VenueService;
-import com.example.concertsystem.util.HelperUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,7 @@ public class VenueController {
 
     @GetMapping("/name")
     public ResponseEntity<Venue> getVenueByName(@RequestParam("name") String name) throws ExecutionException, InterruptedException {
-        return ResponseEntity.status(HttpStatus.OK).body(venueService.getVenueByName(HelperUtil.convertToLowerCase(name)));
+        return ResponseEntity.status(HttpStatus.OK).body(venueService.getVenueByName(name));
     }
     @GetMapping("/city")
     public ResponseEntity<List<Venue>> getVenueByCity(@RequestParam("city") String city) throws ExecutionException, InterruptedException {
