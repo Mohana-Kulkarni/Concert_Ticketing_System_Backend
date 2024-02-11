@@ -95,8 +95,9 @@ public class VenueServiceImpl implements VenueService{
     }
 
 
-    public List<String> getVenueIdsByPlaceName(String placeId) throws ExecutionException, InterruptedException {
+    public List<String> getVenueIdsByPlaceName(String place) throws ExecutionException, InterruptedException {
         try {
+            String placeId = placeService.getPlaceIdByPlaceName(place);
             ArrayList<Value> res = faunaClient.query(
                     Paginate(Match(Index("venue_by_placeId"), Value(placeId)))
             ).get().at("data").get(ArrayList.class);
@@ -107,7 +108,7 @@ public class VenueServiceImpl implements VenueService{
             }
             return venueIds;
         } catch (Exception e) {
-            throw new VenueNotFoundException("Venue with place not found - " + placeId);
+            throw new VenueNotFoundException("Venue with place not found - " + place);
         }
     }
 
