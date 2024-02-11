@@ -162,7 +162,9 @@ public class TierServiceImpl implements TierService{
     @Override
     public boolean deleteTierById(String id) {
         try {
-            faunaClient.query(Delete(Ref(Collection("Tier"), id)));
+            Value val = faunaClient.query(Delete(Ref(Collection("Tier"), id))).get();
+            if(val==null)
+                return false;
             return true;
         } catch (Exception e) {
             return false;

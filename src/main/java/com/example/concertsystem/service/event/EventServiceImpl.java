@@ -330,8 +330,10 @@ public class EventServiceImpl implements EventService{
             getEventById(id);
             try{
                 String place = getPlaceByEventId(id);
-                faunaClient.query(Delete(Ref(Collection("Event"), id+1222))).join();
+                Value val = faunaClient.query(Delete(Ref(Collection("Event"), id))).get();
                 deleteEventPlaceCache(place,id);
+                if(val==null)
+                    return false;
                 return true;
             } catch (Exception e){
                 return false;

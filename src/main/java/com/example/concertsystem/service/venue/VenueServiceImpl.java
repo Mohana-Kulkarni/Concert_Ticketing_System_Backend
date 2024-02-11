@@ -152,7 +152,9 @@ public class VenueServiceImpl implements VenueService{
     @Override
     public boolean deleteVenueById(String id) {
         try {
-            faunaClient.query(Delete(Ref(Collection("Venue"), id)));
+            Value val = faunaClient.query(Delete(Ref(Collection("Venue"), id))).get();
+            if(val==null)
+                return false;
             return true;
         } catch (Exception e) {
             return false;
