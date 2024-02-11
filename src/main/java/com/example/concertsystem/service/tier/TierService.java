@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface TierService {
-    String addTier(String name, int capacity, int price) throws ExecutionException, InterruptedException;
-    List<String> addNewTiers(List<Tier> tierList) throws ExecutionException, InterruptedException;
-    Tier getTierById(String id) throws ExecutionException, InterruptedException;
-    Tier getTierByName(String name) throws ExecutionException, InterruptedException;
+    String addTier(String name, int capacity, int price);
+    List<String> addNewTiers(List<Tier> tierList);
+    Tier getTierById(String id);
+    Tier getTierByName(String name);
 //    int getAvailableSeats();
-    void updateTier(String id, String name, int capacity, int price) throws ExecutionException, InterruptedException;
-    void deleteTierById(String id);
+    boolean updateTier(String id, String name, int capacity, int price);
+    boolean deleteTierById(String id);
     List<String> getIdByTierName(List<String> tierName);
     String getTierIdByTierName(String tierName);
-    List<Tier> getTierListByIds(List<String> tierId) throws ExecutionException, InterruptedException;
+    List<Tier> getTierListByIds(List<String> tierId);
 }
