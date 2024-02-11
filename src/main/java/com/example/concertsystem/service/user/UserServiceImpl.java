@@ -119,24 +119,20 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean deleteUser(String id) throws UserNotFoundException {
+
        try {
            getUserById(id);
            try {
-               getUserById(id);
-               try {
-                   Value val = faunaClient.query(Delete(Ref(Collection("User"), id))).get();
-                   if (val == null)
-                       return false;
-                   return true;
-               } catch (Exception e) {
+               Value val = faunaClient.query(Delete(Ref(Collection("User"), id))).get();
+               if (val == null)
                    return false;
-               }
-
+               return true;
            } catch (Exception e) {
-               throw new ResourceNotFoundException("User", "id", id);
+               return false;
            }
-       }catch (Exception e){
-           throw new ResourceNotFoundException("User","Id",id);
+
+       } catch (Exception e) {
+           throw new ResourceNotFoundException("User", "id", id);
        }
     }
 

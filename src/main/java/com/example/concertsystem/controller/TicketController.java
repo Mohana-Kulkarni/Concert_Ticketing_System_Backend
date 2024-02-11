@@ -5,6 +5,7 @@ import com.example.concertsystem.dto.TicketResponse;
 import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.service.tickets.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/tickets")
+@Validated
 public class TicketController {
     @Autowired
     private TicketService ticketService;
