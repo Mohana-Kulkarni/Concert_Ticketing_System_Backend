@@ -45,7 +45,7 @@ public class TierServiceImpl implements TierService{
             Value value = res.join();
             return value.at("ref").to(Value.RefV.class).get().getId();
         }catch(Exception e){
-            throw new RuntimeException(GlobalConstants.MESSAGE_500);
+            throw new RuntimeException(GlobalConstants.MESSAGE_417_POST);
         }
     }
 

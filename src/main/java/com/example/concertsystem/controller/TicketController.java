@@ -1,10 +1,14 @@
 package com.example.concertsystem.controller;
 
 
+import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.dto.TicketResponse;
 import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.service.tickets.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,27 +24,55 @@ public class TicketController {
     private TicketService ticketService;
 
     @GetMapping("/id")
-    public TicketResponse getTicketById(@RequestParam("id") String id) throws ExecutionException, InterruptedException, IOException {
-        return ticketService.getTicketById(id);
+    public ResponseEntity<TicketResponse> getTicketById(@RequestParam("id") String id){
+        return ResponseEntity.status(HttpStatus.OK).body(ticketService.getTicketById(id));
     }
 
     @GetMapping("/user")
-    public TicketResponse getTicketByName(@RequestParam("user") String user) throws ExecutionException, InterruptedException, IOException {
-        return ticketService.getTicketByUserId(user);
+    public ResponseEntity<TicketResponse> getTicketByName(@RequestParam("user") String user){
+        return ResponseEntity.status(HttpStatus.OK).body(ticketService.getTicketByUserId(user));
     }
 
     @PostMapping("/")
-    public void bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+    public ResponseEntity<SuccessResponse> bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
+        boolean result = ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+        if(result){
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Ticket));
+        }
+        else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 
     @PutMapping("/id")
-    public void updateTicketById(@RequestParam("id") String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
-        ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
+        boolean result = ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
     }
 
     @DeleteMapping("/id")
-    public void deleteTicketById(@RequestParam("id") String id) {
-        ticketService.deleteTicketById(id);
+    public ResponseEntity<SuccessResponse> deleteTicketById(@RequestParam("id") String id) {
+        boolean result = ticketService.deleteTicketById(id);
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_DELETE));
+        }
     }
 }
