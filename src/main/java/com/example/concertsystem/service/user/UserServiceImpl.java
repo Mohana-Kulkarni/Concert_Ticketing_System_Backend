@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.user;
 
 import com.example.concertsystem.dto.UserResponse;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.UserNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -24,27 +25,34 @@ public class UserServiceImpl implements UserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws IOException {
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("name", name);
-        userData.put("userName", userName);
-        userData.put("userEmail" , userEmail);
-        userData.put("walletId", walletId);
-        userData.put("transactionId", transactionId);
-        userData.put("profileImg", profileImg);
-        faunaClient.query(
-                Create(
-                        Collection("User"),
-                        Obj(
-                                "data",
-                                Value(userData)
-                        )
-                )
-        );
+    public boolean addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId){
+        try {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", name);
+            userData.put("userName", userName);
+            userData.put("userEmail", userEmail);
+            userData.put("walletId", walletId);
+            userData.put("transactionId", transactionId);
+            userData.put("profileImg", profileImg);
+            faunaClient.query(
+                    Create(
+                            Collection("User"),
+                            Obj(
+                                    "data",
+                                    Value(userData)
+                            )
+                    )
+            );
+            return true;
+        }catch (Exception e){
+            return false;
+
+        }
+
     }
 
     @Override
-    public UserResponse isUserRegistered(String walletId) throws ExecutionException, InterruptedException {
+    public UserResponse isUserRegistered(String walletId){
         try {
             Value val = faunaClient.query(
                     Get(
@@ -61,7 +69,7 @@ public class UserServiceImpl implements UserService{
                     val.at("data", "profileImg").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new UserNotFoundException("User not registered");
+            throw new ResourceNotFoundException("User","walletId",walletId);
         }
 
     }
@@ -81,12 +89,12 @@ public class UserServiceImpl implements UserService{
                     res.at("data", "profileImg").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new UserNotFoundException("User id not found - " + id);
+            throw new ResourceNotFoundException("User","id",id);
         }
     }
 
     @Override
-    public void updateUserInfo(String id, String name, String userName, String userEmail, String profileImg, String walletId, String transactionId) throws ExecutionException, InterruptedException, IOException {
+    public boolean updateUserInfo(String id, String name, String userName, String userEmail, String profileImg, String walletId, String transactionId){
         try{
             Map<String, Object> userData = new HashMap<>();
             userData.put("name", name);
@@ -103,28 +111,38 @@ public class UserServiceImpl implements UserService{
                             )
                     )
             ).get();
+            return true;
         } catch (Exception e) {
-            throw new UserNotFoundException("User id not found - " + id);
+            return false;
         }
     }
 
     @Override
-    public void deleteUser(String id) throws UserNotFoundException {
+    public boolean deleteUser(String id) throws UserNotFoundException {
        try {
-           faunaClient.query(Delete(Ref(Collection("User"), id)));
+           getUserById(id);
+           try {
+               faunaClient.query(Delete(Ref(Collection("User"), id)));
+               return true;
+           }catch(Exception e){
+               return false;
+           }
 
        } catch (Exception e) {
-           throw new UserNotFoundException("User id not found - " + id);
+           throw new ResourceNotFoundException("User","id",id);
        }
     }
 
     @Override
     public String getIdByUserName(String userName){
-        String value = faunaClient.query(Get(Match(Index("user_by_username"),
-                Value(userName)))).join().at("ref").get(Value.RefV.class).getId();
+        try {
+            String value = faunaClient.query(Get(Match(Index("user_by_username"),
+                    Value(userName)))).join().at("ref").get(Value.RefV.class).getId();
 
-
-        return value;
+            return value;
+        }catch(Exception e){
+            throw new ResourceNotFoundException("User","Username",userName);
+        }
 
 
     }
