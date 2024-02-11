@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.organiser;
 
 import com.example.concertsystem.entity.Organiser;
+import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.OrganiserNotFoundException;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
@@ -21,25 +22,30 @@ public class OrganiserServiceImpl implements OrganiserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public void addOrganiser(String name, String userName, String email, String govId, String walletId, String transactionId) {
-        Map<String, Object> organiserData = new HashMap<>();
-        organiserData.put("name", name);
-        organiserData.put("userName", userName);
-        organiserData.put("email" , email);
-        organiserData.put("govId", govId);
-        organiserData.put("walletId", walletId);
-        organiserData.put("transactionId", transactionId);
-        faunaClient.query(
-                Create(
-                        Collection("Organiser"),
-                        Obj(
-                                "data", Value(organiserData)
-                        )
-                )
-        );
+    public boolean addOrganiser(String name, String userName, String email, String govId, String walletId, String transactionId) {
+        try {
+            Map<String, Object> organiserData = new HashMap<>();
+            organiserData.put("name", name);
+            organiserData.put("userName", userName);
+            organiserData.put("email", email);
+            organiserData.put("govId", govId);
+            organiserData.put("walletId", walletId);
+            organiserData.put("transactionId", transactionId);
+            faunaClient.query(
+                    Create(
+                            Collection("Organiser"),
+                            Obj(
+                                    "data", Value(organiserData)
+                            )
+                    )
+            );
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
     @Override
-    public Organiser getOrganiserById(String id) throws ExecutionException, InterruptedException {
+    public Organiser getOrganiserById(String id){
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Organiser"), id))).get();
 
@@ -53,38 +59,54 @@ public class OrganiserServiceImpl implements OrganiserService{
                     res.at("data", "transactionId").to(String.class).get()
             );
         } catch (Exception e) {
-            throw new OrganiserNotFoundException("Organiser id not found - " + id);
+            throw new ResourceNotFoundException("Organiser","Id",id);
         }
     }
 
     @Override
-    public void updateOrganiser(String id, String name, String userName, String email, String govId, String walletId, String transactionId) throws ExecutionException, InterruptedException {
+    public boolean updateOrganiser(String id, String name, String userName, String email, String govId, String walletId, String transactionId){
         try {
-            Map<String, Object> organiserData = new HashMap<>();
-            organiserData.put("name", name);
-            organiserData.put("userName", userName);
-            organiserData.put("email" , email);
-            organiserData.put("govId", govId);
-            organiserData.put("walletId", walletId);
-            organiserData.put("transactionId", transactionId);
-            faunaClient.query(
-                    Update(Ref(Collection("Organiser"), id),
-                            Obj(
-                                    "data", Value(organiserData)
-                            )
-                    )
-            ).get();
-        } catch (Exception e) {
-            throw new OrganiserNotFoundException("Organiser id not found - " + id);
+            getOrganiserById(id);
+            try {
+                Map<String, Object> organiserData = new HashMap<>();
+                organiserData.put("name", name);
+                organiserData.put("userName", userName);
+                organiserData.put("email", email);
+                organiserData.put("govId", govId);
+                organiserData.put("walletId", walletId);
+                organiserData.put("transactionId", transactionId);
+                faunaClient.query(
+                        Update(Ref(Collection("Organiser"), id),
+                                Obj(
+                                        "data", Value(organiserData)
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Organiser","Id",id);
         }
     }
 
     @Override
-    public void deleteOrganiser(String id) {
+    public boolean deleteOrganiser(String id) {
         try {
-            faunaClient.query(Delete(Ref(Collection("Organiser"), id)));
-        } catch (Exception e) {
-            throw new OrganiserNotFoundException("Organiser id not found - " + id);
+            getOrganiserById(id);
+            try {
+                Value val = faunaClient.query(Delete(Ref(Collection("Organiser"), id))).get();
+                if(val==null){
+                    return false;
+                }
+                return true;
+
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Organiser","Id",id);
         }
     }
 }
