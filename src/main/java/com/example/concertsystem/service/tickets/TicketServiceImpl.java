@@ -42,30 +42,35 @@ public class TicketServiceImpl implements TicketService{
     public boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, String nftToken){
         try {
             Tier tier = tierService.getTierById(tierId);
-            Map<String, Object> ticketData = new HashMap<>();
-            ticketData.put("count", count);
-            ticketData.put("cost", (tier.price() * count));
-            ticketData.put("userId", userId);
-            ticketData.put("tierId", tierId);
-            ticketData.put("eventId", eventId);
-            ticketData.put("transactionId", transactionId);
-            ticketData.put("nftToken", nftToken);
+            try {
 
-            faunaClient.query(
-                    Create(
-                            Collection("Ticket"),
-                            Obj(
-                                    "data",
-                                    Value(ticketData)
-                            )
-                    )
-            );
+                Map<String, Object> ticketData = new HashMap<>();
+                ticketData.put("count", count);
+                ticketData.put("cost", (tier.price() * count));
+                ticketData.put("userId", userId);
+                ticketData.put("tierId", tierId);
+                ticketData.put("eventId", eventId);
+                ticketData.put("transactionId", transactionId);
+                ticketData.put("nftToken", nftToken);
 
-            int updatedCapacity = tier.capacity() - count;
-            tierService.updateTier(tierId, tier.name(), updatedCapacity, tier.price());
-            return true;
-        }catch(Exception e){
-            return false;
+                faunaClient.query(
+                        Create(
+                                Collection("Ticket"),
+                                Obj(
+                                        "data",
+                                        Value(ticketData)
+                                )
+                        )
+                );
+
+                int updatedCapacity = tier.capacity() - count;
+                tierService.updateTier(tierId, tier.name(), updatedCapacity, tier.price());
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Tier", "TierId", tierId);
         }
 
 

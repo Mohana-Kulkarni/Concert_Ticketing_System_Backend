@@ -6,6 +6,7 @@ import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.dto.TicketResponse;
 import com.example.concertsystem.entity.Ticket;
 import com.example.concertsystem.service.tickets.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class TicketController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<SuccessResponse> bookTicket(@RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<SuccessResponse> bookTicket(@Valid @RequestBody Ticket ticket){
         boolean result = ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
         if(result){
             return ResponseEntity
@@ -49,7 +50,7 @@ public class TicketController {
     }
 
     @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestBody Ticket ticket) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @Valid @RequestBody Ticket ticket){
         boolean result = ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
         if(result) {
             return ResponseEntity

@@ -26,12 +26,12 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/id")
-    public ResponseEntity<UserResponse> getUserById(@Valid @RequestParam("id") String id){
+    public ResponseEntity<UserResponse> getUserById(@RequestParam("id") String id){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id));
     }
 
     @GetMapping("/registration")
-    public ResponseEntity<UserResponse> checkUserRegistration(@Valid @RequestParam("walletId") String walletId){
+    public ResponseEntity<UserResponse> checkUserRegistration(@RequestParam("walletId") String walletId){
         return ResponseEntity.status(HttpStatus.OK).body(userService.isUserRegistered(walletId));
 
     }
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updateUserById(@Valid @RequestParam("id") String id, @RequestBody User user){
+    public ResponseEntity<SuccessResponse> updateUserById(@RequestParam("id") String id, @Valid @RequestBody User user){
         boolean result = userService.updateUserInfo(id, user.name(), user.userName(), user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
         if(result) {
             return ResponseEntity
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/id")
-    public ResponseEntity<SuccessResponse> deletePlaceById(@Valid @RequestParam("id") String id){
+    public ResponseEntity<SuccessResponse> deletePlaceById(@RequestParam("id") String id){
         boolean result = userService.deleteUser(id);
         if(result) {
             return ResponseEntity
