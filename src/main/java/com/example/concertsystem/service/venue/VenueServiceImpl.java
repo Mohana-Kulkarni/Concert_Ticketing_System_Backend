@@ -30,7 +30,7 @@ public class VenueServiceImpl implements VenueService{
     @Override
     public boolean addVenue(Venue venue) {
         try {
-            Value.RefV placeRef = getPlaceRef(venue.placeId());
+            String placeRef = getPlaceRef(venue.placeId()).getId();
             faunaClient.query(
                     Create(
                             Collection("Venue"),
@@ -40,7 +40,7 @@ public class VenueServiceImpl implements VenueService{
                                             "name", Value(venue.name()),
                                             "address", Value(venue.address()),
                                             "capacity", Value(venue.capacity()),
-                                            "placeId", placeRef
+                                            "placeId", Value(placeRef)
                                     )
                             )
                     )
