@@ -39,8 +39,11 @@ public class VenueController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> addVenue(@Valid @RequestBody Venue venue) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(venueService.addVenue(venue));
+    public ResponseEntity<SuccessResponse> addVenue(@Valid @RequestBody Venue venue) {
+        String result = venueService.addVenue(venue);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new SuccessResponse(GlobalConstants.STATUS_201, result));
     }
 
     @PutMapping("/id")
