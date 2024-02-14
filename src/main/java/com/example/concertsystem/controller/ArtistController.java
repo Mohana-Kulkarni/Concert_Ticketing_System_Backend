@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -39,8 +40,21 @@ public class ArtistController {
 
     }
     @PostMapping("/")
-    public ResponseEntity<String> addNewArtist(@Valid @RequestBody Artist artist,@RequestParam("profileImg")String profileImg){
-        return ResponseEntity.status(HttpStatus.OK).body(artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg));
+    public ResponseEntity<SuccessResponse> addNewArtist(@Valid @RequestBody Artist artist,@RequestParam("profileImg")String profileImg){
+        Map<String, String> result = artistService.addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImg);
+        if(result.get("val").equals("true")) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, result.get("id")));
+        } else if (result.get("val").equals("exists")) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_409, result.get("id")));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
     }
 
     @PutMapping("/update/id")

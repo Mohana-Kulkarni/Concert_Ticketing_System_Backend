@@ -10,7 +10,9 @@ import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -26,11 +28,14 @@ public class ArtistServiceImpl implements ArtistService{
     }
 
     @Override
-    public String addArtist(String name, String userName, String email, String govId, String profileImg) {
+    public Map<String, String> addArtist(String name, String userName, String email, String govId, String profileImg) {
+        Map<String, String> map = new HashMap<>();
         try {
             Value val = retrieveValue(userName);
             if (val != null) {
-                return val.at("ref").to(Value.RefV.class).get().getId();
+                map.put("val", "exists");
+                map.put("id", val.at("ref").to(Value.RefV.class).get().getId());
+                return map;
             }
 
             Value res = faunaClient.query(
@@ -48,7 +53,9 @@ public class ArtistServiceImpl implements ArtistService{
                             )
                     )
             ).get();
-            return res.at("ref").to(Value.RefV.class).get().getId();
+            map.put("val", "true");
+            map.put("id", res.at("ref").to(Value.RefV.class).get().getId());
+            return map;
         }catch(Exception e){
             throw new RuntimeException(GlobalConstants.MESSAGE_417_POST);
         }
@@ -60,7 +67,7 @@ public class ArtistServiceImpl implements ArtistService{
             List<String> artistIds = new ArrayList<>();
             int i = 0;
             for (Artist artist : artistList) {
-                String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImages.get(i));
+                String id = addArtist(artist.name(), artist.userName(), artist.email(), artist.govId(), profileImages.get(i)).get("id");
                 i++;
                 artistIds.add(id);
             }

@@ -8,6 +8,7 @@ public final class GlobalConstants {
 
 
     public static final String  STATUS_201 = "201";
+    public static final String STATUS_409 = "409";
     public static final String  MESSAGE_201_Event = "Event Created successfully";
     public static final String  MESSAGE_201_User = "User Created successfully";
     public static final String  MESSAGE_201_Venue = "Venue Created successfully";
