@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.venue;
 
+import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.VenueNotFoundException;
@@ -28,10 +29,10 @@ public class VenueServiceImpl implements VenueService{
         this.placeService = placeService;
     }
     @Override
-    public boolean addVenue(Venue venue) {
+    public String addVenue(Venue venue) {
         try {
-            String placeRef = getPlaceRef(venue.placeId()).getId();
-            faunaClient.query(
+            Value.RefV placeRef = getPlaceRef(venue.placeId());
+            CompletableFuture<Value> res = faunaClient.query(
                     Create(
                             Collection("Venue"),
                             Obj(
@@ -45,9 +46,10 @@ public class VenueServiceImpl implements VenueService{
                             )
                     )
             );
-            return true;
+            Value value = res.join();
+            return value.at("ref").to(Value.RefV.class).get().getId();
         }catch(Exception e){
-            return false;
+            throw new RuntimeException(GlobalConstants.MESSAGE_417_POST);
         }
     }
 

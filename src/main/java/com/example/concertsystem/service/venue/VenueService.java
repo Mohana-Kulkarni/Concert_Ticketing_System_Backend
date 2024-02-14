@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface VenueService {
 
-    boolean addVenue(Venue venue);
+    String addVenue(Venue venue);
     Venue getVenueById(String id);
     Venue getVenueByName(String name);
     List<String> getVenueIdsByPlaceName(String placeName);
