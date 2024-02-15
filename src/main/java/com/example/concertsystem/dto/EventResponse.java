@@ -15,7 +15,8 @@ public record EventResponse (
         List<String> categoryList,
         String venueId,
         List<ArtistResponse> artists,
-        List<Tier> tiers
+        List<Tier> tiers,
+        String transactionId
 
 ) implements Serializable {
     public String getId() {

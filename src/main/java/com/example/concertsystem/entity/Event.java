@@ -23,6 +23,10 @@ public record Event(
         @NotEmpty(message = "Artist List cannot be null or empty")
         List<String> artistList,
         @NotEmpty(message = "Tier List cannot be null or empty")
-        List<Tier> tierList
-) implements Serializable {
+        List<Tier> tierList,
+
+        @NotEmpty(message = "TransactionId cannot be null or empty")
+        String transactionId
+
+        ) implements Serializable {
 }

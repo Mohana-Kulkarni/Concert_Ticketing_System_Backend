@@ -65,6 +65,7 @@ public class EventServiceImpl implements EventService{
             eventData.put("venueId", event.venueId());
             eventData.put("artistId", event.artistList());
             eventData.put("tierId", tierIds);
+            eventData.put("transactionId", event.transactionId());
 
             String id = faunaClient.query(
                     Create(
@@ -122,7 +123,9 @@ public class EventServiceImpl implements EventService{
                     categoryList,
                     val.at("data", "venueId").to(String.class).get(),
                     artistList,
-                    tierObjList
+                    tierObjList,
+                    val.at("data", "transactionId").to(String.class).get()
+
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Event","Id",id);
@@ -288,6 +291,7 @@ public class EventServiceImpl implements EventService{
                 eventData.put("venueId", event.venueId());
                 eventData.put("artistId", event.artistList());
                 eventData.put("tierId", tierIds);
+                eventData.put("transactionId", event.transactionId());
                 faunaClient.query(
                         Update(
                                 Ref(Collection("Event"), id),
