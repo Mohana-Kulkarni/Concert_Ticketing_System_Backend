@@ -25,7 +25,7 @@ public record Ticket(
         String tierId,
         @NotEmpty(message = "eventId cannot be null or empty")
         String eventId,
-        @NotEmpty(message = "nftToken cannot be null or empty")
-        String nftToken
+        @NotEmpty(message = "nftToken List cannot be null or empty")
+        List<String> nftToken
 ) implements Serializable  {
 }

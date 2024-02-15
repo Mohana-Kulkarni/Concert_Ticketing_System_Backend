@@ -39,7 +39,7 @@ public class TicketServiceImpl implements TicketService{
         this.eventService = eventService;
     }
     @Override
-    public boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, String nftToken){
+    public boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken){
         try {
             Tier tier = tierService.getTierById(tierId);
             try {
@@ -77,7 +77,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public boolean updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, String nftToken){
+    public boolean updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken){
         try {
             getTicketById(id);
             try {
