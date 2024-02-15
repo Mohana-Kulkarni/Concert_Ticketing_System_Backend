@@ -90,20 +90,15 @@ public class PlaceServiceImpl implements PlaceService{
     @Override
     public List<PlaceResponse> getAllPlaces(){
         try {
-            List<Value> res = (List<Value>) faunaClient.query(
-                    Map(
-                            Paginate(Documents(Collection("Place"))),
-                            Lambda("placeRef", Get(Var("placeRef")))
-                    )
+            Value value = faunaClient.query(
+                    Paginate(Documents(Collection("Place")))
             ).get();
+            List<Value> res = value.at("data").collect(Value.class).stream().toList();
 
             List<PlaceResponse> places = new ArrayList<>();
             for(Value val : res) {
-                PlaceResponse place = new PlaceResponse(
-                        val.at("ref").to(Value.RefV.class).get().getId(),
-                        val.at("data", "city").to(String.class).get(),
-                        val.at("data", "popular").to(Boolean.class).get()
-                );
+                String id = val.get(Value.RefV.class).getId();
+                PlaceResponse place = getPlaceById(id);
                 places.add(place);
             }
             return places;

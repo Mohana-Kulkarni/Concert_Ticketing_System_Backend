@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -33,6 +34,11 @@ public class PlaceController {
     public ResponseEntity<PlaceResponse> getPlaceByName(@RequestParam("city") String city){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.getPlaceByName(city));
 
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PlaceResponse>> getAllPlaces() {
+        return ResponseEntity.status(HttpStatus.OK).body(placeService.getAllPlaces());
     }
 
     @PostMapping("/")
