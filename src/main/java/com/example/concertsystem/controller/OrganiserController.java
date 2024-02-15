@@ -28,6 +28,12 @@ public class OrganiserController {
         return ResponseEntity.status(HttpStatus.OK).body(organiserService.getOrganiserById(id));
     }
 
+    @GetMapping("/registration")
+    public ResponseEntity<Organiser> checkOrganiserRegistration(@RequestParam("walletId") String walletId){
+        return ResponseEntity.status(HttpStatus.OK).body(organiserService.isOrganiserRegistered(walletId));
+
+    }
+
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> addNewOrganiser(@Valid  @RequestBody Organiser organiser) {
         boolean result = organiserService.addOrganiser(organiser.name(), organiser.userName(),
