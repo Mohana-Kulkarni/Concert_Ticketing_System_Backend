@@ -40,17 +40,10 @@ public class VenueController {
 
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> addVenue(@Valid @RequestBody Venue venue) {
-        boolean result = venueService.addVenue(venue);
-        if(result){
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Venue));
-        }
-        else{
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_POST));
-        }
+        String result = venueService.addVenue(venue);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new SuccessResponse(GlobalConstants.STATUS_201, result));
     }
 
     @PutMapping("/id")
