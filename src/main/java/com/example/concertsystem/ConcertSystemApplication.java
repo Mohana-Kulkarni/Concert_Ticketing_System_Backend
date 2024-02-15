@@ -69,7 +69,7 @@ public class ConcertSystemApplication {
 //			updateEvent(eventService);
 //			eventByArtist(eventService);
 //			getEventWithId(eventService);
-//			getEventWithVenue(eventService);
+//			getEventWithVenue(eventService);sw
 //			getEventWithPlace(eventService);
 //			getAllEventsList(eventService);
 //			getPlaceByEventId(eventService);
