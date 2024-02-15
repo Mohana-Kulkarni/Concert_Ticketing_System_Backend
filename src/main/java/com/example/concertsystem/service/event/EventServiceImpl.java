@@ -2,6 +2,7 @@ package com.example.concertsystem.service.event;
 import com.example.concertsystem.constants.GlobalConstants;
 import com.example.concertsystem.dto.ArtistResponse;
 import com.example.concertsystem.dto.EventResponse;
+import com.example.concertsystem.dto.PlaceResponse;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.Wrapper.ListWrapper;
@@ -9,11 +10,13 @@ import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
 import com.example.concertsystem.service.firebase.FirebaseService;
+import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.venue.VenueService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,14 +43,14 @@ public class EventServiceImpl implements EventService{
     private Logger logger = Logger.getLogger(EventServiceImpl.class.getName());
     private VenueService venueService;
     private CacheManager cacheManager;
-    private FirebaseService firebaseService;
-    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, FirebaseService firebaseService) {
+    private PlaceService placeService;
+    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, PlaceService placeService) {
         this.faunaClient = faunaClient;
         this.artistService = artistService;
         this.tierService = tierService;
         this.venueService = venueService;
         this.cacheManager = cacheManager;
-        this.firebaseService = firebaseService;
+        this.placeService = placeService;
     }
 
     @Override
@@ -76,6 +79,8 @@ public class EventServiceImpl implements EventService{
 
 
             EventResponse eventResponse = getEventById(id);
+            String place = getPlaceByEventId(id);
+            placeService.updateEventCount(place);
             addEventToCachedList(getPlaceByEventId(id), eventResponse);
             return true;
         }catch (Exception e){

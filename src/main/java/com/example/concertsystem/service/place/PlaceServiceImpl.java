@@ -1,6 +1,7 @@
 package com.example.concertsystem.service.place;
 
 import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.PlaceResponse;
 import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.PlaceNotFoundException;
@@ -28,6 +29,7 @@ public class PlaceServiceImpl implements PlaceService{
     }
     @Override
     public boolean addPlace(String name) {
+        boolean popular = false;
         try{
         faunaClient.query(
                 Create(
@@ -35,7 +37,9 @@ public class PlaceServiceImpl implements PlaceService{
                         Obj(
                                 "data",
                                 Obj(
-                                        "name", Value(name)
+                                        "name", Value(name),
+                                        "popular", Value(popular),
+                                        "eventCount", Value(0)
                                 )
                         )
                 )
@@ -47,13 +51,14 @@ public class PlaceServiceImpl implements PlaceService{
     }
 
     @Override
-    public Place getPlaceById(String id){
+    public PlaceResponse getPlaceById(String id){
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Place"), id))).get();
 
-            return new Place(
+            return new PlaceResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
-                    res.at("data", "name").to(String.class).get()
+                    res.at("data", "name").to(String.class).get(),
+                    res.at("data", "popular").to(Boolean.class).get()
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Place","PlaceId",id);
@@ -61,12 +66,13 @@ public class PlaceServiceImpl implements PlaceService{
     }
 
     @Override
-    public Place getPlaceByName(String name){
+    public PlaceResponse getPlaceByName(String name){
        try {
-           CompletableFuture<Value> res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name))));
-           return new Place(
-                   res.get().at("ref").to(Value.RefV.class).get().getId(),
-                   res.get().at("data", "name").to(String.class).get()
+           Value res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name)))).get();
+           return new PlaceResponse(
+                   res.at("ref").to(Value.RefV.class).get().getId(),
+                   res.at("data", "name").to(String.class).get(),
+                   res.at("data", "popular").to(Boolean.class).get()
            );
        } catch (Exception e) {
            throw new ResourceNotFoundException("Place","PlaceName",name);
@@ -74,7 +80,15 @@ public class PlaceServiceImpl implements PlaceService{
     }
 
     @Override
-    public List<Place> getAllPlaces(){
+    public void updateEventCount(String name) throws ExecutionException, InterruptedException {
+        Value res = faunaClient.query(Get(Match(Index("place_by_name"), Value(name)))).get();
+        String id = res.at("ref").to(Value.RefV.class).get().getId();
+        int count = res.at("data", "eventCount").to(Integer.class).get();
+        updatePlaceById(id, name, ++count);
+    }
+
+    @Override
+    public List<PlaceResponse> getAllPlaces(){
         try {
             List<Value> res = (List<Value>) faunaClient.query(
                     Map(
@@ -83,11 +97,12 @@ public class PlaceServiceImpl implements PlaceService{
                     )
             ).get();
 
-            List<Place> places = new ArrayList<>();
+            List<PlaceResponse> places = new ArrayList<>();
             for(Value val : res) {
-                Place place = new Place(
+                PlaceResponse place = new PlaceResponse(
                         val.at("ref").to(Value.RefV.class).get().getId(),
-                        val.at("data", "city").to(String.class).get()
+                        val.at("data", "city").to(String.class).get(),
+                        val.at("data", "popular").to(Boolean.class).get()
                 );
                 places.add(place);
             }
@@ -98,15 +113,22 @@ public class PlaceServiceImpl implements PlaceService{
     }
 
     @Override
-    public boolean updatePlaceById(String id, String name){
+    public boolean updatePlaceById(String id, String name, int count){
         try {
             getPlaceById(id);
+            boolean popular = false;
+            if(count >= 2) {
+                popular = true;
+            }
             try {
                 faunaClient.query(
                         Update(Ref(Collection("Place"), id),
                                 Obj(
                                         "data", Obj(
-                                                "name", Value(name))
+                                                "name", Value(name),
+                                                "popular", Value(popular),
+                                                "eventCount", Value(count)
+                                        )
                                 )
                         )
                 ).get();
@@ -147,4 +169,6 @@ public class PlaceServiceImpl implements PlaceService{
         }
 
     }
+
+
 }

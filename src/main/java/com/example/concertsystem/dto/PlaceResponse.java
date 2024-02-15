@@ -1,13 +1,14 @@
-package com.example.concertsystem.entity;
+package com.example.concertsystem.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serializable;
 
-public record Place(
+public record PlaceResponse(
         String id,
         @NotEmpty(message = "City cannot be null or empty")
-        String city
+        String city,
+        boolean popular
 
 ) implements Serializable {
 }

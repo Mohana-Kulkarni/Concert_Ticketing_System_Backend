@@ -2,6 +2,7 @@ package com.example.concertsystem.controller;
 
 
 import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.PlaceResponse;
 import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Place;
 import com.example.concertsystem.entity.Tier;
@@ -24,12 +25,12 @@ public class PlaceController {
     private PlaceService placeService;
 
     @GetMapping("/id")
-    public ResponseEntity<Place> getPlaceById(@RequestParam("id") String id){
+    public ResponseEntity<PlaceResponse> getPlaceById(@RequestParam("id") String id){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.getPlaceById(id));
     }
 
     @GetMapping("/city")
-    public ResponseEntity<Place> getPlaceByName(@RequestParam("city") String city){
+    public ResponseEntity<PlaceResponse> getPlaceByName(@RequestParam("city") String city){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.getPlaceByName(city));
 
     }
@@ -50,8 +51,8 @@ public class PlaceController {
     }
 
     @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updatePlaceById(@RequestParam("id") String id, @Valid @RequestBody Place place){
-        boolean result = placeService.updatePlaceById(id, place.city());
+    public ResponseEntity<SuccessResponse> updatePlaceById(@RequestParam("id") String id, @Valid @RequestBody Place place, @RequestParam("count") int count){
+        boolean result = placeService.updatePlaceById(id, place.city(), count);
         if(result) {
             return ResponseEntity
                     .status(HttpStatus.OK)
