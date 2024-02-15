@@ -30,7 +30,8 @@ public class VenueServiceImpl implements VenueService{
     @Override
     public boolean addVenue(Venue venue) {
         try {
-            String placeRef = getPlaceRef(venue.placeId()).getId();
+            String place = venue.placeId();
+            String placeRef = getPlaceRef(place);
             faunaClient.query(
                     Create(
                             Collection("Venue"),
@@ -170,11 +171,11 @@ public class VenueServiceImpl implements VenueService{
         }
     }
 
-    private Value.RefV getPlaceRef(String placeId) {
+    private String getPlaceRef(String placeId) {
         CompletableFuture<Value> result = faunaClient.query(Get(Ref(Collection("Place"), placeId)));
         try {
             Value res = result.join();
-            Value.RefV documentId = res.at("ref").to(Value.RefV.class).get();
+            String documentId = res.at("ref").to(Value.RefV.class).get().getId();
             System.out.println("The ref is : "  + documentId);
             return documentId;
         } catch (Exception e) {
