@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.organiser;
 
+import com.example.concertsystem.dto.UserResponse;
 import com.example.concertsystem.entity.Organiser;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.OrganiserNotFoundException;
@@ -43,6 +44,28 @@ public class OrganiserServiceImpl implements OrganiserService{
         }catch (Exception e){
             return false;
         }
+    }
+    @Override
+    public Organiser isOrganiserRegistered(String walletId){
+        try {
+            Value val = faunaClient.query(
+                    Get(
+                            Match(Index("organiser_by_walletId"), Value(walletId))
+                    )
+            ).get();
+            return new Organiser(
+                    val.at("ref").to(Value.RefV.class).get().getId(),
+                    val.at("data", "name").to(String.class).get(),
+                    val.at("data", "userName").to(String.class).get(),
+                    val.at("data", "email").to(String.class).get(),
+                    val.at("data","govId").to(String.class).get(),
+                    val.at("data", "walletId").to(String.class).get(),
+                    val.at("data", "transactionId").to(String.class).get()
+            );
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Organiser","walletId", walletId);
+        }
+
     }
     @Override
     public Organiser getOrganiserById(String id){

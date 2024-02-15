@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface OrganiserService {
     boolean addOrganiser(String name, String userName, String email, String govId, String walletId, String transactionId);
+    Organiser isOrganiserRegistered(String walletId);
     Organiser getOrganiserById(String id);
     boolean updateOrganiser(String id, String name, String userName, String email, String govId, String walletId, String transactionId);
     boolean deleteOrganiser(String id);
