@@ -1,8 +1,10 @@
 package com.example.concertsystem.service.organiser;
 
+import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.entity.Organiser;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface OrganiserService {

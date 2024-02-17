@@ -1,6 +1,7 @@
 package com.example.concertsystem.controller;
 
 import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.dto.SuccessResponse;
 import com.example.concertsystem.entity.Organiser;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController

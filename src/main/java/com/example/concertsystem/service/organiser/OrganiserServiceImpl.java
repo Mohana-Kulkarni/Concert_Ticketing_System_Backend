@@ -1,10 +1,12 @@
 package com.example.concertsystem.service.organiser;
 
+import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.dto.UserResponse;
 import com.example.concertsystem.entity.Organiser;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.OrganiserNotFoundException;
+import com.example.concertsystem.service.event.EventService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
