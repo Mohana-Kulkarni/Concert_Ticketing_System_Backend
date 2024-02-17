@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface EventService {
 
-    boolean addEvent2(Event event, List<String> imageUrls);
+    boolean addEvent2(Event event, List<String> imageUrls, String organiserId);
     boolean updateEvent(String id, Event event, List<String> imageUrls);
     List<EventResponse> getEventByArtist(String artist);
     List<EventResponse> getEventByPlace(String place);

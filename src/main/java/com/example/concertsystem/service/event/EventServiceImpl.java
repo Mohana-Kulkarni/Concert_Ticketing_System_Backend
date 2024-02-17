@@ -10,6 +10,7 @@ import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
 import com.example.concertsystem.service.firebase.FirebaseService;
+import com.example.concertsystem.service.organiser.OrganiserService;
 import com.example.concertsystem.service.place.PlaceService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.venue.VenueService;
@@ -44,17 +45,19 @@ public class EventServiceImpl implements EventService{
     private VenueService venueService;
     private CacheManager cacheManager;
     private PlaceService placeService;
-    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, PlaceService placeService) {
+    private OrganiserService organiserService;
+    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, PlaceService placeService, OrganiserService organiserService) {
         this.faunaClient = faunaClient;
         this.artistService = artistService;
         this.tierService = tierService;
         this.venueService = venueService;
         this.cacheManager = cacheManager;
         this.placeService = placeService;
+        this.organiserService = organiserService;
     }
 
     @Override
-    public boolean addEvent2(Event event, List<String> imageUrls){
+    public boolean addEvent2(Event event, List<String> imageUrls, String organiserId){
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
 
@@ -77,10 +80,10 @@ public class EventServiceImpl implements EventService{
                     )
             ).join().at("ref").get(Value.RefV.class).getId();
 
-
             EventResponse eventResponse = getEventById(id);
             String place = getPlaceByEventId(id);
             placeService.updateEventCount(place);
+            organiserService.updateOrganiser(organiserId, id);
             addEventToCachedList(getPlaceByEventId(id), eventResponse);
             return true;
         }catch (Exception e){

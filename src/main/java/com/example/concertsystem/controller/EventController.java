@@ -56,8 +56,8 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getSimilarEvents(id));
     }
     @PostMapping(value = "/")
-    public ResponseEntity<SuccessResponse> addEvent(@Valid @RequestBody EventImageResponse eventImageResponse){
-        boolean result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls());
+    public ResponseEntity<SuccessResponse> addEvent(@RequestParam("organiserId") String organiserId, @Valid @RequestBody EventImageResponse eventImageResponse){
+        boolean result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls(), organiserId);
         if(result){
             return ResponseEntity
                     .status(HttpStatus.CREATED)
