@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.organiser;
 
+import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.dto.UserResponse;
 import com.example.concertsystem.entity.Organiser;
 import com.example.concertsystem.exception.ResourceNotFoundException;
@@ -8,7 +9,9 @@ import com.faunadb.client.FaunaClient;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -23,15 +26,15 @@ public class OrganiserServiceImpl implements OrganiserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public boolean addOrganiser(String name, String userName, String email, String govId, String walletId, String transactionId) {
+    public boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId) {
         try {
             Map<String, Object> organiserData = new HashMap<>();
             organiserData.put("name", name);
-            organiserData.put("userName", userName);
             organiserData.put("email", email);
             organiserData.put("govId", govId);
             organiserData.put("walletId", walletId);
             organiserData.put("transactionId", transactionId);
+            organiserData.put("organisedEvents", new ArrayList<>());
             faunaClient.query(
                     Create(
                             Collection("Organiser"),
@@ -46,21 +49,22 @@ public class OrganiserServiceImpl implements OrganiserService{
         }
     }
     @Override
-    public Organiser isOrganiserRegistered(String walletId){
+    public OrganiserResponse isOrganiserRegistered(String walletId){
         try {
             Value val = faunaClient.query(
                     Get(
                             Match(Index("organiser_by_walletId"), Value(walletId))
                     )
             ).get();
-            return new Organiser(
+            List<String> events = val.at("data", "organisedEvents").collect(String.class).stream().toList();
+            return new OrganiserResponse(
                     val.at("ref").to(Value.RefV.class).get().getId(),
                     val.at("data", "name").to(String.class).get(),
-                    val.at("data", "userName").to(String.class).get(),
                     val.at("data", "email").to(String.class).get(),
                     val.at("data","govId").to(String.class).get(),
                     val.at("data", "walletId").to(String.class).get(),
-                    val.at("data", "transactionId").to(String.class).get()
+                    val.at("data", "transactionId").to(String.class).get(),
+                    events
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Organiser","walletId", walletId);
@@ -68,18 +72,18 @@ public class OrganiserServiceImpl implements OrganiserService{
 
     }
     @Override
-    public Organiser getOrganiserById(String id){
+    public OrganiserResponse getOrganiserById(String id){
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Organiser"), id))).get();
 
-            return new Organiser(
+            return new OrganiserResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "name").to(String.class).get(),
-                    res.at("data", "userName").to(String.class).get(),
                     res.at("data", "email").to(String.class).get(),
                     res.at("data", "govId").to(String.class).get(),
                     res.at("data", "walletId").to(String.class).get(),
-                    res.at("data", "transactionId").to(String.class).get()
+                    res.at("data", "transactionId").to(String.class).get(),
+                    res.at("data", "organisedEvents").collect(String.class).stream().toList()
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Organiser","Id",id);
@@ -87,17 +91,21 @@ public class OrganiserServiceImpl implements OrganiserService{
     }
 
     @Override
-    public boolean updateOrganiser(String id, String name, String userName, String email, String govId, String walletId, String transactionId){
+    public boolean updateOrganiser(String id, String eventId){
         try {
-            getOrganiserById(id);
+            OrganiserResponse organiser = getOrganiserById(id);
+            List<String> organisedEvents = new ArrayList<>();
+            organisedEvents.addAll(organiser.organisedEvents());
+            organisedEvents.add(eventId);
+
             try {
                 Map<String, Object> organiserData = new HashMap<>();
-                organiserData.put("name", name);
-                organiserData.put("userName", userName);
-                organiserData.put("email", email);
-                organiserData.put("govId", govId);
-                organiserData.put("walletId", walletId);
-                organiserData.put("transactionId", transactionId);
+                organiserData.put("name", organiser.name());
+                organiserData.put("email", organiser.email());
+                organiserData.put("govId", organiser.govId());
+                organiserData.put("walletId", organiser.walletId());
+                organiserData.put("transactionId", organiser.transactionId());
+                organiserData.put("organisedEvents", organisedEvents);
                 faunaClient.query(
                         Update(Ref(Collection("Organiser"), id),
                                 Obj(

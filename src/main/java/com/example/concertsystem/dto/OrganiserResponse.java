@@ -1,4 +1,4 @@
-package com.example.concertsystem.entity;
+package com.example.concertsystem.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -6,7 +6,10 @@ import jakarta.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.List;
 
-public record Organiser (
+
+
+public record OrganiserResponse(
+        String id,
         @NotEmpty(message = "Name cannot be null or empty")
         String name,
         @NotEmpty(message = "Email cannot be null or empty")
@@ -17,6 +20,7 @@ public record Organiser (
         @NotEmpty(message = "walletId cannot be null or empty")
         String walletId,
         @NotEmpty(message = "transactionId cannot be null or empty")
-        String transactionId
+        String transactionId,
+        List<String> organisedEvents
 ) implements Serializable {
 }
