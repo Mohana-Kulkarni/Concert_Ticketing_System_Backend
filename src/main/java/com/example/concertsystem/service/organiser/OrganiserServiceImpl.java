@@ -28,7 +28,7 @@ public class OrganiserServiceImpl implements OrganiserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId) {
+    public boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId, String profileImg) {
         try {
             Map<String, Object> organiserData = new HashMap<>();
             organiserData.put("name", name);
@@ -36,6 +36,7 @@ public class OrganiserServiceImpl implements OrganiserService{
             organiserData.put("govId", govId);
             organiserData.put("walletId", walletId);
             organiserData.put("transactionId", transactionId);
+            organiserData.put("profileImg", profileImg);
             organiserData.put("organisedEvents", new ArrayList<>());
             faunaClient.query(
                     Create(
@@ -66,6 +67,7 @@ public class OrganiserServiceImpl implements OrganiserService{
                     val.at("data","govId").to(String.class).get(),
                     val.at("data", "walletId").to(String.class).get(),
                     val.at("data", "transactionId").to(String.class).get(),
+                    val.at("data", "profileImg").to(String.class).get(),
                     events
             );
         } catch (Exception e) {
@@ -85,6 +87,7 @@ public class OrganiserServiceImpl implements OrganiserService{
                     res.at("data", "govId").to(String.class).get(),
                     res.at("data", "walletId").to(String.class).get(),
                     res.at("data", "transactionId").to(String.class).get(),
+                    res.at("data", "profileImg").to(String.class).get(),
                     res.at("data", "organisedEvents").collect(String.class).stream().toList()
             );
         } catch (Exception e) {
@@ -107,6 +110,7 @@ public class OrganiserServiceImpl implements OrganiserService{
                 organiserData.put("govId", organiser.govId());
                 organiserData.put("walletId", organiser.walletId());
                 organiserData.put("transactionId", organiser.transactionId());
+                organiserData.put("profileImg", organiser.profileImg());
                 organiserData.put("organisedEvents", organisedEvents);
                 faunaClient.query(
                         Update(Ref(Collection("Organiser"), id),

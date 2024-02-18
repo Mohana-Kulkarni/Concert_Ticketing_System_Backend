@@ -10,17 +10,12 @@ import java.util.List;
 
 public record OrganiserResponse(
         String id,
-        @NotEmpty(message = "Name cannot be null or empty")
         String name,
-        @NotEmpty(message = "Email cannot be null or empty")
-        @Email(message = "Email address should be a valid value")
         String email,
-        @NotEmpty(message = "govId cannot be null or empty")
         String govId,
-        @NotEmpty(message = "walletId cannot be null or empty")
         String walletId,
-        @NotEmpty(message = "transactionId cannot be null or empty")
         String transactionId,
+        String profileImg,
         List<String> organisedEvents
 ) implements Serializable {
 }

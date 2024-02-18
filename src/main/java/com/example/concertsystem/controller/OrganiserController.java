@@ -40,7 +40,7 @@ public class OrganiserController {
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> addNewOrganiser(@Valid  @RequestBody Organiser organiser) {
         boolean result = organiserService.addOrganiser(organiser.name(),
-                organiser.email(), organiser.govId(), organiser.walletId(), organiser.transactionId());
+                organiser.email(), organiser.govId(), organiser.walletId(), organiser.transactionId(), organiser.profileImg());
         if(result){
             return ResponseEntity
                     .status(HttpStatus.CREATED)

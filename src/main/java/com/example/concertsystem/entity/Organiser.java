@@ -17,6 +17,8 @@ public record Organiser (
         @NotEmpty(message = "walletId cannot be null or empty")
         String walletId,
         @NotEmpty(message = "transactionId cannot be null or empty")
-        String transactionId
+        String transactionId,
+        @NotEmpty(message = "profileImage cannot be null or empty")
+        String profileImg
 ) implements Serializable {
 }

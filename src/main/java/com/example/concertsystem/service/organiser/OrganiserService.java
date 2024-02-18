@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface OrganiserService {
-    boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId);
+    boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId, String profileImg);
     OrganiserResponse isOrganiserRegistered(String walletId);
     OrganiserResponse getOrganiserById(String id);
     boolean updateOrganiser(String id, String eventId);
