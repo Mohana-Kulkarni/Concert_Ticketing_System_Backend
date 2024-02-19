@@ -158,7 +158,7 @@ public class OrganiserServiceImpl implements OrganiserService{
     }
 
     @Override
-    public boolean updateOrgqniserProfile(String id, Organiser organiser) {
+    public boolean updateOrganiserProfile(String id, Organiser organiser) {
         try {
             faunaClient.query(
                     Update(Ref(Collection("Organiser"), id),
