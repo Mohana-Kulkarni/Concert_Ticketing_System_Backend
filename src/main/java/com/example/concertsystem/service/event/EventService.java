@@ -9,11 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface EventService {
 
-    boolean addEvent2(Event event, List<String> imageUrls, String organiserId);
+    Map<String, String> addEvent2(Event event, List<String> imageUrls);
     boolean updateEvent(String id, Event event, List<String> imageUrls);
     List<EventResponse> getEventByArtist(String artist);
     List<EventResponse> getEventByPlace(String place);
@@ -22,7 +23,7 @@ public interface EventService {
     List<EventResponse> getSimilarEvents(String eventId);
     String getEventIdByName(String eventName);
 //    String getTiersAddedForEvent(List<Tier> tierList) throws ExecutionException, InterruptedException;
-
+    List<EventResponse> getEventsByIdList(List<String> eventIds);
     List<EventResponse> getAllEvents();
     boolean deleteEventById(String id);
     String getPlaceByEventId(String EventId);

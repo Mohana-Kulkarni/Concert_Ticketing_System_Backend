@@ -45,19 +45,17 @@ public class EventServiceImpl implements EventService{
     private VenueService venueService;
     private CacheManager cacheManager;
     private PlaceService placeService;
-    private OrganiserService organiserService;
-    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, PlaceService placeService, OrganiserService organiserService) {
+    public EventServiceImpl(FaunaClient faunaClient, ArtistService artistService, TierService tierService, VenueService venueService, CacheManager cacheManager, PlaceService placeService) {
         this.faunaClient = faunaClient;
         this.artistService = artistService;
         this.tierService = tierService;
         this.venueService = venueService;
         this.cacheManager = cacheManager;
         this.placeService = placeService;
-        this.organiserService = organiserService;
     }
 
     @Override
-    public boolean addEvent2(Event event, List<String> imageUrls, String organiserId){
+    public Map<String, String> addEvent2(Event event, List<String> imageUrls){
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
 
@@ -80,14 +78,19 @@ public class EventServiceImpl implements EventService{
                     )
             ).join().at("ref").get(Value.RefV.class).getId();
 
+            Map<String, String> map = new HashMap<>();
             EventResponse eventResponse = getEventById(id);
             String place = getPlaceByEventId(id);
             placeService.updateEventCount(place);
-            organiserService.updateOrganiser(organiserId, id);
             addEventToCachedList(getPlaceByEventId(id), eventResponse);
-            return true;
+            map.put("result", "true");
+            map.put("id", id);
+            return map;
         }catch (Exception e){
-            return false;
+            Map<String, String> map = new HashMap<>();
+            map.put("result", "false");
+            map.put("id", null);
+            return map;
         }
 
     }
@@ -380,6 +383,16 @@ public class EventServiceImpl implements EventService{
         } catch (Exception e) {
             throw new EventNotFoundException("Event with name not found - "+ eventName);
         }
+    }
+
+    @Override
+    public List<EventResponse> getEventsByIdList(List<String> eventIds) {
+        List<EventResponse> events = new ArrayList<>();
+        for (String id : eventIds) {
+            EventResponse response = getEventById(id);
+            events.add(response);
+        }
+        return events;
     }
 
     private List<String> getEventIdsByVenueId(String id) throws ExecutionException, InterruptedException {

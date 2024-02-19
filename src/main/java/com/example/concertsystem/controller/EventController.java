@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -56,9 +57,9 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getSimilarEvents(id));
     }
     @PostMapping(value = "/")
-    public ResponseEntity<SuccessResponse> addEvent(@RequestParam("organiserId") String organiserId, @Valid @RequestBody EventImageResponse eventImageResponse){
-        boolean result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls(), organiserId);
-        if(result){
+    public ResponseEntity<SuccessResponse> addEvent(@Valid @RequestBody EventImageResponse eventImageResponse){
+        Map<String, String> result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls());
+        if(result.get("result").equals("true")){
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Event));
