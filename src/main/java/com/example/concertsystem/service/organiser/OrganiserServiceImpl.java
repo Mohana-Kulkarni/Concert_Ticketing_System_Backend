@@ -158,6 +158,22 @@ public class OrganiserServiceImpl implements OrganiserService{
     }
 
     @Override
+    public boolean updateOrgqniserProfile(String id, Organiser organiser) {
+        try {
+            faunaClient.query(
+                    Update(Ref(Collection("Organiser"), id),
+                            Obj(
+                                    "data", Value(organiser)
+                            )
+                    )
+            ).get();
+            return true;
+        }catch (Exception e){
+            throw new ResourceNotFoundException("Organiser","Id",id);
+        }
+    }
+
+    @Override
     public boolean deleteOrganiser(String id) {
         try {
             getOrganiserById(id);

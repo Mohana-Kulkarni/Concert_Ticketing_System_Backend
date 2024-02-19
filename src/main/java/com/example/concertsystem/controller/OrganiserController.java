@@ -53,7 +53,7 @@ public class OrganiserController {
         }
     }
 
-    @PostMapping("/events")
+    @GetMapping("/events")
     public ResponseEntity<List<EventResponse>> getEventsAddedByOrganiser(@RequestParam("id") String id) {
         return ResponseEntity.status(HttpStatus.OK).body(organiserService.getEventsAddedByOrganiser(id));
     }
@@ -74,9 +74,23 @@ public class OrganiserController {
         }
     }
 
+//    @PutMapping("/update/id")
+//    public ResponseEntity<SuccessResponse> updateOrganiser(@RequestParam("id") String id,@RequestParam("eventId") String eventId){
+//        boolean result = organiserService.updateOrganiser(id, eventId);
+//        if(result) {
+//            return ResponseEntity
+//                    .status(HttpStatus.OK)
+//                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+//        }else{
+//            return ResponseEntity
+//                    .status(HttpStatus.EXPECTATION_FAILED)
+//                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+//        }
+//    }
+
     @PutMapping("/update/id")
-    public ResponseEntity<SuccessResponse> updateOrganiser(@RequestParam("id") String id,@RequestParam("eventId") String eventId){
-        boolean result = organiserService.updateOrganiser(id, eventId);
+    public ResponseEntity<SuccessResponse> updateOrgaaniser(@RequestParam("id") String id, @Valid @RequestBody Organiser organiser) {
+        boolean result = organiserService.updateOrganiserProfile(id, organiser);
         if(result) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -87,7 +101,6 @@ public class OrganiserController {
                     .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
         }
     }
-
     @DeleteMapping("/delete/id")
     public ResponseEntity<SuccessResponse> deleteOrganiser(@RequestParam("id") String id) {
         boolean result = organiserService.deleteOrganiser(id);

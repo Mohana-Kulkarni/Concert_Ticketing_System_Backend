@@ -15,5 +15,6 @@ public interface OrganiserService {
     List<EventResponse> getEventsAddedByOrganiser(String id);
     OrganiserResponse getOrganiserById(String id);
     boolean updateOrganiser(String id, String eventId);
+    boolean updateOrganiserProfile(String id, Organiser organiser);
     boolean deleteOrganiser(String id);
 }
