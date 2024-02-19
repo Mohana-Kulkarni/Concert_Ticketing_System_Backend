@@ -1,6 +1,7 @@
 package com.example.concertsystem.controller;
 
 import com.example.concertsystem.constants.GlobalConstants;
+import com.example.concertsystem.dto.EventImageResponse;
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.dto.SuccessResponse;
@@ -35,6 +36,26 @@ public class OrganiserController {
     public ResponseEntity<OrganiserResponse> checkOrganiserRegistration(@RequestParam("walletId") String walletId){
         return ResponseEntity.status(HttpStatus.OK).body(organiserService.isOrganiserRegistered(walletId));
 
+    }
+
+    @PostMapping("/addEvent")
+    public ResponseEntity<SuccessResponse> createNewEvent(@RequestParam("id") String id, @Valid @RequestBody EventImageResponse response) {
+        boolean result = organiserService.createEvent(response, id);
+        if (result) {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Event));
+        }
+        else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_POST));
+        }
+    }
+
+    @PostMapping("/events")
+    public ResponseEntity<List<EventResponse>> getEventsAddedByOrganiser(@RequestParam("id") String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(organiserService.getEventsAddedByOrganiser(id));
     }
 
     @PostMapping("/")

@@ -1,5 +1,6 @@
 package com.example.concertsystem.service.organiser;
 
+import com.example.concertsystem.dto.EventImageResponse;
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.OrganiserResponse;
 import com.example.concertsystem.dto.UserResponse;
@@ -24,8 +25,10 @@ import static com.faunadb.client.query.Language.Value;
 public class OrganiserServiceImpl implements OrganiserService{
     private FaunaClient faunaClient;
 
-    public OrganiserServiceImpl(FaunaClient faunaClient) {
+    private EventService eventService;
+    public OrganiserServiceImpl(FaunaClient faunaClient, EventService eventService) {
         this.faunaClient= faunaClient;
+        this.eventService = eventService;
     }
     @Override
     public boolean addOrganiser(String name, String email, String govId, String walletId, String transactionId, String profileImg) {
@@ -75,6 +78,32 @@ public class OrganiserServiceImpl implements OrganiserService{
         }
 
     }
+
+    @Override
+    public boolean createEvent(EventImageResponse eventImageResponse, String organiserId) {
+        String id = null;
+        try {
+            Map<String, String> map = eventService.addEvent2(eventImageResponse.getEvent(), eventImageResponse.getImgUrls());
+            if(map.get("result").equals("true")) {
+                if(map.get("id") != null) {
+                    id = map.get("id");
+                }
+            }
+            updateOrganiser(organiserId, id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public List<EventResponse> getEventsAddedByOrganiser(String id) {
+        OrganiserResponse organiser = getOrganiserById(id);
+        List<String> eventIds = new ArrayList<>();
+        eventIds.addAll(organiser.organisedEvents());
+        return eventService.getEventsByIdList(eventIds);
+    }
+
     @Override
     public OrganiserResponse getOrganiserById(String id){
         try {
