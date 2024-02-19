@@ -6,6 +6,7 @@ import com.example.concertsystem.dto.PlaceResponse;
 import com.example.concertsystem.entity.Event;
 import com.example.concertsystem.entity.Tier;
 import com.example.concertsystem.Wrapper.ListWrapper;
+import com.example.concertsystem.entity.Venue;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.exception_handling.classes.EventNotFoundException;
 import com.example.concertsystem.service.artist.ArtistService;
@@ -121,6 +122,7 @@ public class EventServiceImpl implements EventService{
             List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
             List<String> imageUrls= val.at("data", "images").collect(String.class).stream().toList();
             List<String> categoryList= val.at("data", "categories").collect(String.class).stream().toList();
+            Venue venue = venueService.getVenueById(val.at("data", "venueId").to(String.class).get());
 
             List<ArtistResponse> artistList = artistService.getArtistsByIds(artists);
             List<Tier> tierObjList = tierService.getTierListByIds(tiers);
@@ -132,7 +134,7 @@ public class EventServiceImpl implements EventService{
                     val.at("data", "duration").to(String.class).get(),
                     imageUrls,
                     categoryList,
-                    val.at("data", "venueId").to(String.class).get(),
+                    venue,
                     artistList,
                     tierObjList,
                     val.at("data", "transactionId").to(String.class).get()

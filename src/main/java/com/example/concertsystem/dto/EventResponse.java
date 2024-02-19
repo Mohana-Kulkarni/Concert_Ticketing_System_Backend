@@ -1,6 +1,7 @@
 package com.example.concertsystem.dto;
 
 import com.example.concertsystem.entity.Tier;
+import com.example.concertsystem.entity.Venue;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +14,7 @@ public record EventResponse (
         String eventDuration,
         List<String> imageUrls,
         List<String> categoryList,
-        String venueId,
+        Venue venueId,
         List<ArtistResponse> artists,
         List<Tier> tiers,
         String transactionId
