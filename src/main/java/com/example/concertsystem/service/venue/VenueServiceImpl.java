@@ -58,13 +58,14 @@ public class VenueServiceImpl implements VenueService{
     public Venue getVenueById(String id) throws VenueNotFoundException {
         try {
             Value res = faunaClient.query(Get(Ref(Collection("Venue"), id))).get();
+            String place = placeService.getPlaceById(res.at("data","placeId").to(String.class).get()).city();
 
             return new Venue(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "name").to(String.class).get(),
                     res.at("data", "address").to(String.class).get(),
                     res.at("data", "capacity").to(Integer.class).get(),
-                    res.at("data","placeId").to(String.class).get()
+                    place
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Venue","VenueId",id);
@@ -75,12 +76,14 @@ public class VenueServiceImpl implements VenueService{
     public Venue getVenueByName(String name){
         try {
             Value res = faunaClient.query(Get(Match(Index("venues_by_name"), Value(name)))).join();
+            String place = placeService.getPlaceById(res.at("data","placeId").to(String.class).get()).city();
+
             return new Venue(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "name").to(String.class).get(),
                     res.at("data", "address").to(String.class).get(),
                     res.at("data", "capacity").to(Integer.class).get(),
-                    String.valueOf(res.at("data", "placeId").to(String.class).get())
+                    place
             );
         }catch (Exception e) {
             throw new ResourceNotFoundException("Venue","VenueName",name);
