@@ -1,15 +1,8 @@
 package com.example.concertsystem;
 
-import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.entity.*;
 import com.example.concertsystem.service.event.EventService;
-import com.example.concertsystem.service.place.PlaceService;
-import com.example.concertsystem.service.tickets.TicketService;
-import com.example.concertsystem.service.tier.TierService;
-import com.example.concertsystem.service.user.UserService;
 import com.example.concertsystem.service.venue.VenueService;
-import com.faunadb.client.types.Value;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.models.annotations.OpenAPI30;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,13 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @EnableCaching

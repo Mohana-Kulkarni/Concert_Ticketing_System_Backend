@@ -89,7 +89,7 @@ public class OrganiserController {
 //    }
 
     @PutMapping("/update/id")
-    public ResponseEntity<SuccessResponse> updateOrgaaniser(@RequestParam("id") String id, @Valid @RequestBody Organiser organiser) {
+    public ResponseEntity<SuccessResponse> updateOrganiser(@RequestParam("id") String id, @Valid @RequestBody Organiser organiser) {
         boolean result = organiserService.updateOrganiserProfile(id, organiser);
         if(result) {
             return ResponseEntity
