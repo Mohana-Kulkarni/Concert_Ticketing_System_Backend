@@ -160,14 +160,29 @@ public class OrganiserServiceImpl implements OrganiserService{
     @Override
     public boolean updateOrganiserProfile(String id, Organiser organiser) {
         try {
-            faunaClient.query(
-                    Update(Ref(Collection("Organiser"), id),
-                            Obj(
-                                    "data", Value(organiser)
-                            )
-                    )
-            ).get();
-            return true;
+            OrganiserResponse organiser1 = getOrganiserById(id);
+            List<String> organisedEvents = new ArrayList<>();
+            organisedEvents.addAll(organiser1.organisedEvents());
+            try {
+                Map<String, Object> organiserData = new HashMap<>();
+                organiserData.put("name", organiser.name());
+                organiserData.put("email", organiser.email());
+                organiserData.put("govId", organiser.govId());
+                organiserData.put("walletId", organiser.walletId());
+                organiserData.put("transactionId", organiser.transactionId());
+                organiserData.put("profileImg", organiser.profileImg());
+                organiserData.put("organisedEvents", organisedEvents);
+                faunaClient.query(
+                        Update(Ref(Collection("Organiser"), id),
+                                Obj(
+                                        "data", Value(organiserData)
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }catch (Exception e){
             throw new ResourceNotFoundException("Organiser","Id",id);
         }
