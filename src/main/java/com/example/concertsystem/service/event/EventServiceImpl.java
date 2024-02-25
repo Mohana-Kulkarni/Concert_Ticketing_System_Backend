@@ -116,7 +116,7 @@ public class EventServiceImpl implements EventService{
     @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
     public EventResponse getEventById(String id){
         try{
-            Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).get();
+            Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).join().get(Value.ObjectV.class);
 
             List<String> artists = val.at("data", "artistId").collect(String.class).stream().toList();
             List<String> tiers = val.at("data", "tierId").collect(String.class).stream().toList();
@@ -286,7 +286,7 @@ public class EventServiceImpl implements EventService{
 
 
     @Override
-    @CachePut(cacheNames = "eventCacheStore2",key = "#id")
+//    @CachePut(cacheNames = "eventCacheStore2",key = "#id")
     public boolean updateEvent(String id, Event event, List<String> imageUrls){
         try {
             getEventById(id);
