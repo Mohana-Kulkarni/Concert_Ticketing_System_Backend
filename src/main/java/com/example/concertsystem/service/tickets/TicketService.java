@@ -10,6 +10,6 @@ public interface TicketService {
     boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, List<String> ntfToken);
     boolean updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, List<String> ntfToken);
     TicketResponse getTicketById(String id);
-    TicketResponse getTicketByUserId(String walletId);
+    List<TicketResponse> getTicketByUserId(String walletId);
     boolean deleteTicketById(String id);
 }

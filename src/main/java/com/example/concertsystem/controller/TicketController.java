@@ -30,7 +30,7 @@ public class TicketController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<TicketResponse> getTicketByName(@RequestParam("user") String user){
+    public ResponseEntity<List<TicketResponse>> getTicketByName(@RequestParam("user") String user){
         return ResponseEntity.status(HttpStatus.OK).body(ticketService.getTicketByUserId(user));
     }
 

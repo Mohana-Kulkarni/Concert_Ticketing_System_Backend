@@ -3,22 +3,19 @@ package com.example.concertsystem.service.tickets;
 import com.example.concertsystem.dto.EventResponse;
 import com.example.concertsystem.dto.TicketResponse;
 import com.example.concertsystem.dto.UserResponse;
-import com.example.concertsystem.entity.Event;
-import com.example.concertsystem.entity.Ticket;
-import com.example.concertsystem.entity.Tier;
-import com.example.concertsystem.entity.User;
+import com.example.concertsystem.entity.*;
 import com.example.concertsystem.exception.ResourceNotFoundException;
 import com.example.concertsystem.service.event.EventService;
 import com.example.concertsystem.service.tier.TierService;
 import com.example.concertsystem.service.user.UserService;
 import com.faunadb.client.FaunaClient;
+import com.faunadb.client.query.Pagination;
 import com.faunadb.client.types.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.faunadb.client.query.Language.*;
@@ -135,20 +132,21 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public TicketResponse getTicketByUserId(String userId){
+    public List<TicketResponse> getTicketByUserId(String userId){
         try {
-            Value res = faunaClient.query(Get(Match(Index("ticket_by_userId"), Value(userId)))).get();
-            UserResponse user = userService.getUserById(res.at("data", "userId").to(String.class).get());
-            Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
-            EventResponse event = eventService.getEventById(res.at("data", "eventId").to(String.class).get());
-            return new TicketResponse(
-                    res.at("ref").to(Value.RefV.class).get().getId(),
-                    res.at("data", "count").to(Integer.class).get(),
-                    res.at("data", "cost").to(Integer.class).get(),
-                    user,
-                    tier,
-                    event
-            );
+            CompletableFuture<Value> res = faunaClient.query(Paginate(Documents(Collection("Ticket"))));
+            Value value = res.join();
+            List<Value> valueList = value.at("data").collect(Value.class).stream().toList();
+            List<TicketResponse> tickets = new ArrayList<>();
+            for(Value val : valueList) {
+                String ticketId = ((Value.RefV)val).getId();
+                TicketResponse ticket = getTicketById(ticketId);
+                if(ticket.user().id().equals(userId)) {
+                    tickets.add(ticket);
+                }
+            }
+            return tickets;
+
         }catch (Exception e){
             throw new ResourceNotFoundException("Ticket", "userId", userId);
         }
