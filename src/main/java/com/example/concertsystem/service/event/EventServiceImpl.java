@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -148,9 +149,10 @@ public class EventServiceImpl implements EventService{
     @Override
     public List<EventResponse> getAllEvents(){
         try {
-            Value value = faunaClient.query(
+            CompletableFuture<Value> result = faunaClient.query(
                     Paginate(Documents(Collection("Event")))
-            ).get();
+            );
+            Value value = result.join();
             List<Value> res = value.at("data").collect(Value.class).stream().toList();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
