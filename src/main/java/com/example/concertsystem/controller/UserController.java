@@ -12,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+
 
 
 @RestController
@@ -38,7 +36,7 @@ public class UserController {
 
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> addUser(@Valid @RequestBody User user){
-        boolean result = userService.addUser(user.name(), user.userName(), user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
+        boolean result = userService.addUser(user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
         if(result){
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -52,8 +50,8 @@ public class UserController {
     }
 
     @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updateUserById(@RequestParam("id") String id, @Valid @RequestBody User user){
-        boolean result = userService.updateUserInfo(id, user.name(), user.userName(), user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
+    public ResponseEntity<SuccessResponse> updateUserById(@RequestParam("id") String id, @Valid @RequestBody UserResponse user){
+        boolean result = userService.updateUserInfo(id, user.userEmail(), user.profileImg(), user.walletId(), user.transactionId(), user.userDetailsId());
         if(result) {
             return ResponseEntity
                     .status(HttpStatus.OK)

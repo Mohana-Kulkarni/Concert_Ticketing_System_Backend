@@ -6,11 +6,10 @@ import java.io.Serializable;
 
 public record UserResponse(
         String id,
-        String name,
-        String userName,
         String userEmail,
         String walletId,
         String transactionId,
-        String profileImg
+        String profileImg,
+        String userDetailsId
 ) implements Serializable {
 }

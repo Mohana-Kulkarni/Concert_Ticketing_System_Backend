@@ -25,15 +25,14 @@ public class UserServiceImpl implements UserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public boolean addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId){
+    public boolean addUser(String userEmail, String profileImg, String walletId, String transactionId){
         try {
             Map<String, Object> userData = new HashMap<>();
-            userData.put("name", name);
-            userData.put("userName", userName);
             userData.put("userEmail", userEmail);
             userData.put("walletId", walletId);
             userData.put("transactionId", transactionId);
             userData.put("profileImg", profileImg);
+            userData.put("userDetailsId", "");
             faunaClient.query(
                     Create(
                             Collection("User"),
@@ -61,12 +60,11 @@ public class UserServiceImpl implements UserService{
             ).get();
             return new UserResponse(
                     val.at("ref").to(Value.RefV.class).get().getId(),
-                    val.at("data", "name").to(String.class).get(),
-                    val.at("data", "userName").to(String.class).get(),
                     val.at("data", "userEmail").to(String.class).get(),
                     val.at("data","walletId").to(String.class).get(),
                     val.at("data", "transactionId").to(String.class).get(),
-                    val.at("data", "profileImg").to(String.class).get()
+                    val.at("data", "profileImg").to(String.class).get(),
+                    val.at("data", "userDetailsId").to(String.class).get()
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("User","walletId",walletId);
@@ -81,12 +79,11 @@ public class UserServiceImpl implements UserService{
 
             return new UserResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
-                    res.at("data", "name").to(String.class).get(),
-                    res.at("data", "userName").to(String.class).get(),
                     res.at("data", "userEmail").to(String.class).get(),
                     res.at("data", "walletId").to(String.class).get(),
                     res.at("data", "transactionId").to(String.class).get(),
-                    res.at("data", "profileImg").to(String.class).get()
+                    res.at("data", "profileImg").to(String.class).get(),
+                    res.at("data", "userDetailsId").to(String.class).get()
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("User","id",id);
@@ -94,17 +91,16 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean updateUserInfo(String id, String name, String userName, String userEmail, String profileImg, String walletId, String transactionId){
+    public boolean updateUserInfo(String id, String userEmail, String profileImg, String walletId, String transactionId, String userDetailsId){
         try {
             getUserById(id);
             try {
                 Map<String, Object> userData = new HashMap<>();
-                userData.put("name", name);
-                userData.put("userName", userName);
                 userData.put("userEmail", userEmail);
                 userData.put("walletId", walletId);
                 userData.put("transactionId", transactionId);
                 userData.put("profileImg", profileImg);
+                userData.put("userDetailsId", userDetailsId);
                 faunaClient.query(
                         Update(Ref(Collection("User"), id),
                                 Obj(

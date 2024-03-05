@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface UserService {
-    boolean addUser(String name, String userName, String userEmail, String profileImg, String walletId, String transactionId);
+    boolean addUser(String userEmail, String profileImg, String walletId, String transactionId);
     UserResponse isUserRegistered(String walletId);
     UserResponse getUserById(String id);
-    boolean updateUserInfo(String id, String name, String userName, String userEMail, String profileImg, String walletId,String transactionId);
+    boolean updateUserInfo(String id, String userEmail, String profileImg, String walletId,String transactionId, String userDetailsId);
     boolean deleteUser(String id);
     String getIdByUserName(String userName);
 
