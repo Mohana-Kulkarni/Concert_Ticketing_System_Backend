@@ -123,7 +123,8 @@ public class TicketServiceImpl implements TicketService{
                     res.at("data", "cost").to(Integer.class).get(),
                     user,
                     tier,
-                    event
+                    event,
+                    res.at("data", "nftToken").collect(String.class).stream().toList()
             );
         }catch (Exception e){
             throw new ResourceNotFoundException("Ticket", "Id", id);
