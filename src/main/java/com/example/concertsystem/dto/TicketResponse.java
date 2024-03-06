@@ -5,6 +5,7 @@ import com.example.concertsystem.entity.User;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public record TicketResponse(
         String id,
@@ -13,6 +14,6 @@ public record TicketResponse(
         UserResponse user,
         Tier tier,
         EventResponse eventId,
-        List<String> nfts
+        Map<String, Boolean> nfts
 ) implements Serializable {
 }

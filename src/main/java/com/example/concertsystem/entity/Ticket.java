@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public record Ticket(
         String id,

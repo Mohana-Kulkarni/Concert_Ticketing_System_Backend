@@ -48,7 +48,12 @@ public class TicketServiceImpl implements TicketService{
                 ticketData.put("tierId", tierId);
                 ticketData.put("eventId", eventId);
                 ticketData.put("transactionId", transactionId);
-                ticketData.put("nftToken", nftToken);
+                Map<String, Boolean> nftData = new HashMap<>();
+                for(String nft : nftToken) {
+                    nftData.put(nft, false);
+                }
+                ticketData.put("nftToken", nftData);
+
 
                 faunaClient.query(
                         Create(
@@ -76,7 +81,7 @@ public class TicketServiceImpl implements TicketService{
     @Override
     public boolean updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken){
         try {
-            getTicketById(id);
+            TicketResponse ticket = getTicketById(id);
             try {
                 Tier tier = tierService.getTierById(tierId);
                 Map<String, Object> ticketData = new HashMap<>();
@@ -86,16 +91,21 @@ public class TicketServiceImpl implements TicketService{
                 ticketData.put("tierId", tierId);
                 ticketData.put("eventId", eventId);
                 ticketData.put("transactionId", transactionId);
-                ticketData.put("nftToken", nftToken);
+                Map<String, Boolean> map = ticket.nfts();
+                for(String key : nftToken) {
+                    if(map.containsKey(key)) {
+                        map.replace(key, true);
+                    }
+                }
+                ticketData.put("nftToken", map);
 
                 faunaClient.query(
-                        Create(
-                                Collection("Ticket"),
+                        Update(
+                                Ref(Collection("Ticket"), Value(id)),
                                 Obj(
                                         "data",
                                         Value(ticketData)
-                                )
-                        )
+                                ))
                 );
 
                 int updatedCapacity = tier.capacity() - count;
@@ -117,6 +127,11 @@ public class TicketServiceImpl implements TicketService{
             UserResponse user = userService.getUserById(res.at("data", "userId").to(String.class).get());
             Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
             EventResponse event = eventService.getEventById(res.at("data", "eventId").to(String.class).get());
+            Map<String, Value> nftTokenMap = res.at("data", "nftToken").toMap(Value.class);
+            Map<String, Boolean> nftToken = new HashMap<>();
+            for (Map.Entry<String, Value> entry : nftTokenMap.entrySet()) {
+                nftToken.put(entry.getKey(), entry.getValue().to(Boolean.class).get());
+            }
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "count").to(Integer.class).get(),
@@ -124,7 +139,7 @@ public class TicketServiceImpl implements TicketService{
                     user,
                     tier,
                     event,
-                    res.at("data", "nftToken").collect(String.class).stream().toList()
+                    nftToken
             );
         }catch (Exception e){
             throw new ResourceNotFoundException("Ticket", "Id", id);
