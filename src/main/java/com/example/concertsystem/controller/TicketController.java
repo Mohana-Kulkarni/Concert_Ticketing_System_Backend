@@ -49,9 +49,9 @@ public class TicketController {
         }
     }
 
-    @PutMapping("/id")
-    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @Valid @RequestBody Ticket ticket){
-        boolean result = ticketService.updateTicket(id, ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+    @PutMapping("/scanNft")
+    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestParam("nftId") String nftId){
+        boolean result = ticketService.updateTicket(id, nftId);
         if(result) {
             return ResponseEntity
                     .status(HttpStatus.OK)

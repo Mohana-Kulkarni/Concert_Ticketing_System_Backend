@@ -79,24 +79,21 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public boolean updateTicket(String id, int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken){
+    public boolean updateTicket(String id, String nftId){
         try {
             TicketResponse ticket = getTicketById(id);
             try {
-                Tier tier = tierService.getTierById(tierId);
                 Map<String, Object> ticketData = new HashMap<>();
-                ticketData.put("count", count);
-                ticketData.put("cost", (tier.price() * count));
-                ticketData.put("userId", userId);
-                ticketData.put("tierId", tierId);
-                ticketData.put("eventId", eventId);
-                ticketData.put("transactionId", transactionId);
+                ticketData.put("count", ticket.count());
+                ticketData.put("cost", (ticket.cost()));
+                ticketData.put("userId", ticket.user().id());
+                ticketData.put("tierId", ticket.tier().id());
+                ticketData.put("eventId", ticket.eventId().id());
+                ticketData.put("transactionId", ticket.transactionId());
                 Map<String, Boolean> map = ticket.nfts();
-                for(String key : nftToken) {
-                    if(map.containsKey(key)) {
-                        map.replace(key, true);
+                if(map.containsKey(nftId)) {
+                        map.replace(nftId, true);
                     }
-                }
                 ticketData.put("nftToken", map);
 
                 faunaClient.query(
@@ -108,8 +105,6 @@ public class TicketServiceImpl implements TicketService{
                                 ))
                 );
 
-                int updatedCapacity = tier.capacity() - count;
-                tierService.updateTier(tierId, tier.name(), updatedCapacity, tier.price());
                 return true;
             } catch (Exception e) {
                 return false;
@@ -139,6 +134,7 @@ public class TicketServiceImpl implements TicketService{
                     user,
                     tier,
                     event,
+                    res.at("data", "transactionId").to(String.class).get(),
                     nftToken
             );
         }catch (Exception e){
