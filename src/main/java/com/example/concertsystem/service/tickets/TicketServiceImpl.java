@@ -11,6 +11,7 @@ import com.example.concertsystem.service.user.UserService;
 import com.faunadb.client.FaunaClient;
 import com.faunadb.client.query.Pagination;
 import com.faunadb.client.types.Value;
+import com.google.api.MetricDescriptor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -135,10 +136,11 @@ public class TicketServiceImpl implements TicketService{
             for (Map.Entry<String, Value> entry : nftTokenMap.entrySet()) {
                 nftToken.put(entry.getKey(), entry.getValue().to(Boolean.class).get());
             }
+            int costValue = res.at("data", "cost").get(Integer.class);
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "count").to(Integer.class).get(),
-                    res.at("data", "cost").to(Double.class).get().intValue(),
+                    costValue,
                     user,
                     tier,
                     event,
