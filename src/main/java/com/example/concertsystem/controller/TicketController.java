@@ -10,11 +10,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -51,16 +53,23 @@ public class TicketController {
 
     @PutMapping("/scanNft")
     public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestParam("nftId") String nftId){
-        boolean result = ticketService.updateTicket(id, nftId);
-        if(result) {
+        Map<String, String> result = ticketService.updateTicket(id, nftId);
+        if(result.get("result").equals("NFT Status updated!")) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
-        }else{
+        }else if(result.get("result").equals("Already Scanned Ticket")){
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+                    .body(new SuccessResponse(GlobalConstants.STATUS_409, "Update operation failed. Ticket Already Scanned!"));
+        } else if(result.get("result").equals("Fraud Ticket")){
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_451, GlobalConstants.MESSAGE_451));
         }
+        return ResponseEntity
+                .status(HttpStatus.EXPECTATION_FAILED)
+                .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
     }
 
     @DeleteMapping("/id")

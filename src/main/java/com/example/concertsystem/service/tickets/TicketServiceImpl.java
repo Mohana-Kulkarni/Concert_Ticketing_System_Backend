@@ -40,10 +40,10 @@ public class TicketServiceImpl implements TicketService{
         try {
             Tier tier = tierService.getTierById(tierId);
             try {
-
+                int cost = tier.price() * count;
                 Map<String, Object> ticketData = new HashMap<>();
                 ticketData.put("count", count);
-                ticketData.put("cost", (tier.price() * count));
+                ticketData.put("cost", cost);
                 ticketData.put("userId", userId);
                 ticketData.put("tierId", tierId);
                 ticketData.put("eventId", eventId);
@@ -79,36 +79,44 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public boolean updateTicket(String id, String nftId){
+    public Map<String, String> updateTicket(String id, String nftId){
         try {
             TicketResponse ticket = getTicketById(id);
-            try {
-                Map<String, Object> ticketData = new HashMap<>();
-                ticketData.put("count", ticket.count());
-                ticketData.put("cost", (ticket.cost()));
-                ticketData.put("userId", ticket.user().id());
-                ticketData.put("tierId", ticket.tier().id());
-                ticketData.put("eventId", ticket.eventId().id());
-                ticketData.put("transactionId", ticket.transactionId());
+            Map<String, String> res = new HashMap<>();
+
+            if(!ticket.nfts().containsKey(nftId)) {
+                res.put("result", "Fraud Ticket");
+                return res;
+            } else {
                 Map<String, Boolean> map = ticket.nfts();
-                if(map.containsKey(nftId)) {
+                if(map.get(nftId)) {
+                    res.put("result", "Already Scanned Ticket");
+                    return res;
+                } else {
+                    Map<String, Object> ticketData = new HashMap<>();
+                    ticketData.put("count", ticket.count());
+                    ticketData.put("cost", (ticket.cost()));
+                    ticketData.put("userId", ticket.user().id());
+                    ticketData.put("tierId", ticket.tier().id());
+                    ticketData.put("eventId", ticket.eventId().id());
+                    ticketData.put("transactionId", ticket.transactionId());
+                    if(map.containsKey(nftId)) {
                         map.replace(nftId, true);
                     }
-                ticketData.put("nftToken", map);
+                    ticketData.put("nftToken", map);
 
-                faunaClient.query(
-                        Update(
-                                Ref(Collection("Ticket"), Value(id)),
-                                Obj(
-                                        "data",
-                                        Value(ticketData)
-                                ))
-                );
-
-                return true;
-            } catch (Exception e) {
-                return false;
+                    faunaClient.query(
+                            Update(
+                                    Ref(Collection("Ticket"), Value(id)),
+                                    Obj(
+                                            "data",
+                                            Value(ticketData)
+                                    ))
+                    );
+                    res.put("result", "NFT Status updated!");
+                }
             }
+            return res;
         }catch (Exception e){
             throw new ResourceNotFoundException("Ticket", "Id", id);
         }
@@ -130,7 +138,7 @@ public class TicketServiceImpl implements TicketService{
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "count").to(Integer.class).get(),
-                    res.at("data", "cost").to(Integer.class).get(),
+                    res.at("data", "cost").to(Double.class).get().intValue(),
                     user,
                     tier,
                     event,
