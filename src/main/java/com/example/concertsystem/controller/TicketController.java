@@ -60,15 +60,15 @@ public class TicketController {
                     .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
         }else if(result.get("result").equals("Already Scanned Ticket")){
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new SuccessResponse(GlobalConstants.STATUS_409, "Update operation failed. Ticket Already Scanned!"));
         } else if(result.get("result").equals("Fraud Ticket")){
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new SuccessResponse(GlobalConstants.STATUS_451, GlobalConstants.MESSAGE_451));
         }
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.EXPECTATION_FAILED)
                 .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
     }
 
