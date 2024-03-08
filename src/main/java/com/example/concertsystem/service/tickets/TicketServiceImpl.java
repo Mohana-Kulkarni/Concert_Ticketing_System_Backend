@@ -136,11 +136,12 @@ public class TicketServiceImpl implements TicketService{
             for (Map.Entry<String, Value> entry : nftTokenMap.entrySet()) {
                 nftToken.put(entry.getKey(), entry.getValue().to(Boolean.class).get());
             }
-            int costValue = res.at("data", "cost").get(Integer.class);
+            Double costValue = res.at("data", "cost").get(Value.DoubleV.class).to(Double.class).get();
+            int cost = costValue.intValue();
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "count").to(Integer.class).get(),
-                    costValue,
+                    cost,
                     user,
                     tier,
                     event,
