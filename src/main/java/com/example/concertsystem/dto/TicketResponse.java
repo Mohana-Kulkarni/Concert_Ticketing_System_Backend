@@ -10,7 +10,7 @@ import java.util.Map;
 public record TicketResponse(
         String id,
         int count,
-        float cost,
+        String cost,
         UserResponse user,
         Tier tier,
         EventResponse eventId,

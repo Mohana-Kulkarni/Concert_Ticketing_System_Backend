@@ -41,7 +41,7 @@ public class TicketServiceImpl implements TicketService{
         try {
             Tier tier = tierService.getTierById(tierId);
             try {
-                int cost = tier.price() * count;
+                String cost = Integer.toString(tier.price() * count);
                 Map<String, Object> ticketData = new HashMap<>();
                 ticketData.put("count", count);
                 ticketData.put("cost", cost);
@@ -136,12 +136,10 @@ public class TicketServiceImpl implements TicketService{
             for (Map.Entry<String, Value> entry : nftTokenMap.entrySet()) {
                 nftToken.put(entry.getKey(), entry.getValue().to(Boolean.class).get());
             }
-            Double costValue = res.at("data", "cost").get(Value.DoubleV.class).to(Double.class).get();
-            int cost = costValue.intValue();
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
                     res.at("data", "count").to(Integer.class).get(),
-                    cost,
+                    res.at("data", "cost").get(String.class),
                     user,
                     tier,
                     event,
