@@ -114,7 +114,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
+//    @Cacheable(cacheNames = "eventCacheStore2",key = "#id")
     public EventResponse getEventById(String id){
         try{
             Value val = faunaClient.query(Get(Ref(Collection("Event"), id))).join().get(Value.ObjectV.class);
