@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
+import java.util.Map;
 
 
 @RestController
@@ -36,11 +36,11 @@ public class UserController {
 
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> addUser(@Valid @RequestBody User user){
-        boolean result = userService.addUser(user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
-        if(result){
+        Map<String, String> result = userService.addUser(user.userEmail(), user.profileImg(), user.walletId(), user.transactionId());
+        if(result.get("result").equals("true")){
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_User));
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, result.get("id")));
         }
         else{
             return ResponseEntity

@@ -25,7 +25,8 @@ public class UserServiceImpl implements UserService{
         this.faunaClient= faunaClient;
     }
     @Override
-    public boolean addUser(String userEmail, String profileImg, String walletId, String transactionId){
+    public Map<String, String> addUser(String userEmail, String profileImg, String walletId, String transactionId){
+        Map<String, String > map = new HashMap<>();
         try {
             Map<String, Object> userData = new HashMap<>();
             userData.put("userEmail", userEmail);
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService{
             userData.put("transactionId", transactionId);
             userData.put("profileImg", profileImg);
             userData.put("userDetailsId", "");
-            faunaClient.query(
+            Value val = faunaClient.query(
                     Create(
                             Collection("User"),
                             Obj(
@@ -41,11 +42,14 @@ public class UserServiceImpl implements UserService{
                                     Value(userData)
                             )
                     )
-            );
-            return true;
+            ).get();
+            String id = val.at("ref").get(Value.RefV.class).getId();
+            map.put("result", "true");
+            map.put("id", id);
+            return map;
         }catch (Exception e){
-            return false;
-
+            map.put("result", "false");
+            return map;
         }
 
     }
