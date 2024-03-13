@@ -164,6 +164,7 @@ public class EventServiceImpl implements EventService{
             List<EventResponse> eventList = new ArrayList<>();
             for (Value val : res) {
                 String eventId = val.get(Value.RefV.class).getId();
+                System.out.println(eventId);
                 EventResponse event = getEventById(eventId);
                 String eventDate = event.dateAndTime();
                 LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
@@ -261,9 +262,10 @@ public class EventServiceImpl implements EventService{
     public List<EventResponse> getSimilarEvents(String eventId){
         try {
             EventResponse eventResponse = getEventById(eventId);
+            String city = eventResponse.venueId().placeId();
             List<String> categoryList = eventResponse.categoryList();
 
-            List<EventResponse> events = getAllEvents();
+            List<EventResponse> events = getEventByPlace(city);
             List<EventResponse> relatedPosts = new ArrayList<>();
             Map<String, Double> map = new HashMap<>();
             System.out.println(events.size());

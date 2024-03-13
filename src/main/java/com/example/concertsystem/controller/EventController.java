@@ -41,16 +41,16 @@ public class EventController {
     public ResponseEntity<List<EventResponse>> getEventByVenue(@NotEmpty(message = "Venue Name cannot be null or empty") @RequestParam("venue") String venue){
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByVenueName(venue).getList());
     }
-    @GetMapping("/artist")
-    public ResponseEntity<List<EventResponse>> getEventByArtist(@NotEmpty(message = "Artist Name cannot be null or empty") @RequestParam("artist") String artist){
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByArtistName(artist).getList());
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<EventResponse>> getAllEvents(){
-        eventService.getAllEvents();
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
-    }
+//    @GetMapping("/artist")
+//    public ResponseEntity<List<EventResponse>> getEventByArtist(@NotEmpty(message = "Artist Name cannot be null or empty") @RequestParam("artist") String artist){
+//        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventByArtistName(artist).getList());
+//    }
+//
+//    @GetMapping("/all")
+//    public ResponseEntity<List<EventResponse>> getAllEvents(){
+//        eventService.getAllEvents();
+//        return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
+//    }
 
     @GetMapping("/relatedPosts")
     public ResponseEntity<List<EventResponse>> getRelatedPosts(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id){
