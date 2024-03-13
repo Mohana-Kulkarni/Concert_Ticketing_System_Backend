@@ -52,8 +52,8 @@ public class TicketController {
     }
 
     @PutMapping("/scanNft")
-    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestParam("nftId") String nftId){
-        Map<String, String> result = ticketService.updateTicket(id, nftId);
+    public ResponseEntity<SuccessResponse> updateTicketById(@RequestParam("id") String id, @RequestParam("nftId") String nftId, @RequestParam("verifier") String verifier){
+        Map<String, String> result = ticketService.updateTicket(id, nftId, verifier);
         if(result.get("result").equals("NFT Status updated!")) {
             return ResponseEntity
                     .status(HttpStatus.OK)
