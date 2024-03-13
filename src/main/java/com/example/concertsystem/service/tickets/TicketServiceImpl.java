@@ -49,9 +49,12 @@ public class TicketServiceImpl implements TicketService{
                 ticketData.put("tierId", tierId);
                 ticketData.put("eventId", eventId);
                 ticketData.put("transactionId", transactionId);
-                Map<String, Boolean> nftData = new HashMap<>();
+                Map<String, Map<String, String >> nftData = new HashMap<>();
                 for(String nft : nftToken) {
-                    nftData.put(nft, false);
+                    Map<String, String> values = new HashMap<>();
+                    values.put("scanned", "false");
+                    values.put("verifier", "");
+                    nftData.put(nft, values);
                 }
                 ticketData.put("nftToken", nftData);
 
@@ -80,7 +83,7 @@ public class TicketServiceImpl implements TicketService{
     }
 
     @Override
-    public Map<String, String> updateTicket(String id, String nftId){
+    public Map<String, String> updateTicket(String id, String nftId, String verifierDid){
         try {
             TicketResponse ticket = getTicketById(id);
             Map<String, String> res = new HashMap<>();
@@ -89,8 +92,8 @@ public class TicketServiceImpl implements TicketService{
                 res.put("result", "Fraud Ticket");
                 return res;
             } else {
-                Map<String, Boolean> map = ticket.nfts();
-                if(map.get(nftId)) {
+                Map<String, Map<String, String >> map = ticket.nfts();
+                if(map.get(nftId).get("scanned").equals("true")) {
                     res.put("result", "Already Scanned Ticket");
                     return res;
                 } else {
@@ -102,7 +105,10 @@ public class TicketServiceImpl implements TicketService{
                     ticketData.put("eventId", ticket.eventId().id());
                     ticketData.put("transactionId", ticket.transactionId());
                     if(map.containsKey(nftId)) {
-                        map.replace(nftId, true);
+                        Map<String, String> map1 = new HashMap<>();
+                        map1.put("scanned", "true");
+                        map1.put("verifier", verifierDid);
+                        map.replace(nftId, map1);
                     }
                     ticketData.put("nftToken", map);
 
@@ -132,9 +138,12 @@ public class TicketServiceImpl implements TicketService{
             Tier tier = tierService.getTierById(res.at("data", "tierId").to(String.class).get());
             EventResponse event = eventService.getEventById(res.at("data", "eventId").to(String.class).get());
             Map<String, Value> nftTokenMap = res.at("data", "nftToken").toMap(Value.class);
-            Map<String, Boolean> nftToken = new HashMap<>();
+            Map<String, Map<String, String>> nftToken = new HashMap<>();
             for (Map.Entry<String, Value> entry : nftTokenMap.entrySet()) {
-                nftToken.put(entry.getKey(), entry.getValue().to(Boolean.class).get());
+                Map<String, String > values = new HashMap<>();
+                values.put("scanned", res.at("data", "nftToken", entry.getKey(), "scanned").get(String.class));
+                values.put("verifier", res.at("data", "nftToken", entry.getKey(), "verifier").get(String.class));
+                nftToken.put(entry.getKey(), values);
             }
             return new TicketResponse(
                     res.at("ref").to(Value.RefV.class).get().getId(),
