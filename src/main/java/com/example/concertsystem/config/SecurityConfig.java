@@ -24,6 +24,7 @@ public class SecurityConfig {
                         .requestMatchers("/tiers/**").permitAll()
                         .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/venues/**").permitAll()
+                        .requestMatchers("/mail/**").permitAll()
                         .requestMatchers("/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**").permitAll()
