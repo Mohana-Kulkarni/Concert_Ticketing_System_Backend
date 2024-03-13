@@ -15,6 +15,6 @@ public record TicketResponse(
         Tier tier,
         EventResponse eventId,
         String transactionId,
-        Map<String, Boolean> nfts
+        Map<String, Map<String, String >> nfts
 ) implements Serializable {
 }
