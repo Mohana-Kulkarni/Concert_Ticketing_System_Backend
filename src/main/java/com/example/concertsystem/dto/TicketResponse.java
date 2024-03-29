@@ -12,6 +12,7 @@ public record TicketResponse(
         int count,
         String cost,
         UserResponse user,
+        String vcId,
         Tier tier,
         EventResponse eventId,
         String transactionId,

@@ -37,7 +37,7 @@ public class TicketServiceImpl implements TicketService{
         this.eventService = eventService;
     }
     @Override
-    public boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken){
+    public boolean generateTicket(int count, String userId, String tierId, String eventId, String transactionId, List<String> nftToken, String vcId){
         try {
             Tier tier = tierService.getTierById(tierId);
             try {
@@ -46,6 +46,7 @@ public class TicketServiceImpl implements TicketService{
                 ticketData.put("count", count);
                 ticketData.put("cost", cost);
                 ticketData.put("userId", userId);
+                ticketData.put("vcId", vcId);
                 ticketData.put("tierId", tierId);
                 ticketData.put("eventId", eventId);
                 ticketData.put("transactionId", transactionId);
@@ -101,6 +102,7 @@ public class TicketServiceImpl implements TicketService{
                     ticketData.put("count", ticket.count());
                     ticketData.put("cost", (ticket.cost()));
                     ticketData.put("userId", ticket.user().id());
+                    ticketData.put("vcId", ticket.vcId());
                     ticketData.put("tierId", ticket.tier().id());
                     ticketData.put("eventId", ticket.eventId().id());
                     ticketData.put("transactionId", ticket.transactionId());
@@ -150,6 +152,7 @@ public class TicketServiceImpl implements TicketService{
                     res.at("data", "count").to(Integer.class).get(),
                     res.at("data", "cost").get(String.class),
                     user,
+                    res.at("data", "vcId").get(String.class),
                     tier,
                     event,
                     res.at("data", "transactionId").to(String.class).get(),

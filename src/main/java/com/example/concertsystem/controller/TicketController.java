@@ -38,7 +38,7 @@ public class TicketController {
 
     @PostMapping("/")
     public ResponseEntity<SuccessResponse> bookTicket(@Valid @RequestBody Ticket ticket){
-        boolean result = ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken());
+        boolean result = ticketService.generateTicket(ticket.count(),ticket.userId(), ticket.tierId(), ticket.eventId(), ticket.transactionId(),ticket.nftToken(), ticket.vcId());
         if(result){
             return ResponseEntity
                     .status(HttpStatus.CREATED)
