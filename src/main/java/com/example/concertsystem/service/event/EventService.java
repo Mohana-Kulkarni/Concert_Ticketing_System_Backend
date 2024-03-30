@@ -14,8 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface EventService {
 
-    Map<String, String> addEvent2(Event event, List<String> imageUrls);
-    boolean updateEvent(String id, Event event, List<String> imageUrls);
+    Map<String, String> addEvent2(Event event, List<String> imageUrls, List<String> trustedIssuers, String verificationMode);
+    boolean updateEvent(String id, Event event, List<String> imageUrls, List<String> trustedIssuers, String verificationMode);
     List<EventResponse> getEventByArtist(String artist);
     List<EventResponse> getEventByPlace(String place);
     EventResponse getEventById(String id);

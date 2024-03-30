@@ -57,7 +57,7 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public Map<String, String> addEvent2(Event event, List<String> imageUrls){
+    public Map<String, String> addEvent2(Event event, List<String> imageUrls, List<String> trustedIssuers, String verificationMode){
         try {
             List<String> tierIds = tierService.addNewTiers(event.tierList());
 
@@ -72,6 +72,8 @@ public class EventServiceImpl implements EventService{
             eventData.put("artistId", event.artistList());
             eventData.put("tierId", tierIds);
             eventData.put("transactionId", event.transactionId());
+            eventData.put("verificationMode",verificationMode);
+            eventData.put("trustedIssuers", trustedIssuers);
 
             String id = faunaClient.query(
                     Create(
@@ -127,6 +129,13 @@ public class EventServiceImpl implements EventService{
 
             List<ArtistResponse> artistList = artistService.getArtistsByIds(artists);
             List<Tier> tierObjList = tierService.getTierListByIds(tiers);
+            List<String> trustedIssuers;
+            if(val.at("data", "trustedIssuers").collect(String.class).stream().toList().isEmpty()) {
+                trustedIssuers = new ArrayList<>();
+            } else {
+                trustedIssuers = new ArrayList<>();
+                trustedIssuers.addAll(val.at("data", "trustedIssuers").collect(String.class).stream().toList());
+            }
             return new EventResponse(
                     id,
                     val.at("data", "name").to(String.class).get(),
@@ -138,8 +147,9 @@ public class EventServiceImpl implements EventService{
                     venue,
                     artistList,
                     tierObjList,
-                    val.at("data", "transactionId").to(String.class).get()
-
+                    val.at("data", "transactionId").to(String.class).get(),
+                    val.at("data", "verificationMode").to(String.class).get(),
+                    trustedIssuers
             );
         } catch (Exception e) {
             throw new ResourceNotFoundException("Event","Id",id);
@@ -164,8 +174,7 @@ public class EventServiceImpl implements EventService{
             List<EventResponse> eventList = new ArrayList<>();
             for (Value val : res) {
                 String eventId = val.get(Value.RefV.class).getId();
-                System.out.println(eventId);
-                EventResponse event = getEventById(eventId);
+                 EventResponse event = getEventById(eventId);
                 String eventDate = event.dateAndTime();
                 LocalDateTime dateTime = LocalDateTime.parse(eventDate, dtFormatter);
                 String date = dateTime.format(formatter);
@@ -291,7 +300,7 @@ public class EventServiceImpl implements EventService{
 
     @Override
 //    @CachePut(cacheNames = "eventCacheStore2",key = "#id")
-    public boolean updateEvent(String id, Event event, List<String> imageUrls){
+    public boolean updateEvent(String id, Event event, List<String> imageUrls, List<String> trustedIssuers, String verificationMode){
         try {
             getEventById(id);
             try {
