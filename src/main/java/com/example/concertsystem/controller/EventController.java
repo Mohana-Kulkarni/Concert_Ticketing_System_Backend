@@ -58,7 +58,7 @@ public class EventController {
     }
     @PostMapping(value = "/")
     public ResponseEntity<SuccessResponse> addEvent(@Valid @RequestBody EventImageResponse eventImageResponse){
-        Map<String, String> result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls());
+        Map<String, String> result = eventService.addEvent2(eventImageResponse.getEvent() ,eventImageResponse.getImgUrls(), eventImageResponse.getTrustedIssuers(), eventImageResponse.getVerificationMode());
         if(result.get("result").equals("true")){
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -73,7 +73,7 @@ public class EventController {
 
     @PutMapping("/update/id")
     public ResponseEntity<SuccessResponse> updateEventById(@NotEmpty(message = "EventId cannot be null or empty") @RequestParam("id") String id, @Valid @RequestBody EventImageResponse event){
-        boolean result = eventService.updateEvent(id, event.getEvent(), event.getImgUrls());
+        boolean result = eventService.updateEvent(id, event.getEvent(), event.getImgUrls(), event.getTrustedIssuers(), event.getVerificationMode());
         if(result) {
             return ResponseEntity
                     .status(HttpStatus.OK)
