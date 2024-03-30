@@ -44,7 +44,6 @@ public class UserServiceImpl implements UserService{
                     )
             ).get();
             String id = val.at("ref").get(Value.RefV.class).getId();
-            map.put("result", "true");
             map.put("id", id);
             return map;
         }catch (Exception e){
