@@ -83,7 +83,7 @@ public class OrganiserServiceImpl implements OrganiserService{
     public boolean createEvent(EventImageResponse eventImageResponse, String organiserId) {
         String id = null;
         try {
-            Map<String, String> map = eventService.addEvent2(eventImageResponse.getEvent(), eventImageResponse.getImgUrls());
+            Map<String, String> map = eventService.addEvent2(eventImageResponse.getEvent(), eventImageResponse.getImgUrls(), eventImageResponse.getTrustedIssuers(), eventImageResponse.getVerificationMode());
             if(map.get("result").equals("true")) {
                 if(map.get("id") != null) {
                     id = map.get("id");
