@@ -17,7 +17,9 @@ public record EventResponse (
         Venue venueId,
         List<ArtistResponse> artists,
         List<Tier> tiers,
-        String transactionId
+        String transactionId,
+        String verificationMode,
+        List<String> trustedIssuers
 
 ) implements Serializable {
     public String getId() {
