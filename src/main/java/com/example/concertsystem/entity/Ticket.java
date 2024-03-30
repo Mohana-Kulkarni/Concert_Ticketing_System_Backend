@@ -22,6 +22,8 @@ public record Ticket(
         String transactionId,
         @NotEmpty(message = "userId cannot be null or empty")
         String userId,
+        @NotEmpty(message = "vcId cannot be null or empty")
+        String vcId,
         @NotEmpty(message = "tierId cannot be null or empty")
         String tierId,
         @NotEmpty(message = "eventId cannot be null or empty")
