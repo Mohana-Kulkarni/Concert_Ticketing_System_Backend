@@ -122,6 +122,34 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public boolean updateUserDetailsId(String id, String userDetailsId) {
+        try{
+            UserResponse user = getUserById(id);
+            try {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("userEmail", user.userEmail());
+                userData.put("walletId", user.walletId());
+                userData.put("transactionId", user.transactionId());
+                userData.put("profileImg", user.profileImg());
+                userData.put("userDetailsId", userDetailsId);
+                faunaClient.query(
+                        Update(Ref(Collection("User"), id),
+                                Obj(
+                                        "data",
+                                        Value(userData)
+                                )
+                        )
+                ).get();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("User", "id", id);
+        }
+    }
+
+    @Override
     public boolean deleteUser(String id) throws UserNotFoundException {
 
        try {

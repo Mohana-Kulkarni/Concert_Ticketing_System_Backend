@@ -14,6 +14,7 @@ public interface UserService {
     UserResponse isUserRegistered(String walletId);
     UserResponse getUserById(String id);
     boolean updateUserInfo(String id, String userEmail, String profileImg, String walletId,String transactionId, String userDetailsId);
+    boolean updateUserDetailsId(String id, String userDetailsId);
     boolean deleteUser(String id);
     String getIdByUserName(String userName);
 

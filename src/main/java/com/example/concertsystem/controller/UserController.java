@@ -63,6 +63,19 @@ public class UserController {
         }
     }
 
+    @PutMapping("/details/")
+    public ResponseEntity<SuccessResponse> updateUserDetailsId(@RequestParam("id") String id, @RequestParam("detailsId") String detailsId) {
+        boolean result = userService.updateUserDetailsId(id, detailsId);
+        if(result) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_200, GlobalConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new SuccessResponse(GlobalConstants.STATUS_417, GlobalConstants.MESSAGE_417_UPDATE));
+        }
+    }
     @DeleteMapping("/delete/id")
     public ResponseEntity<SuccessResponse> deletePlaceById(@RequestParam("id") String id){
         boolean result = userService.deleteUser(id);
