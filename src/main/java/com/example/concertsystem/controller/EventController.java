@@ -62,7 +62,7 @@ public class EventController {
         if(result.get("result").equals("true")){
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new SuccessResponse(GlobalConstants.STATUS_201, GlobalConstants.MESSAGE_201_Event));
+                    .body(new SuccessResponse(GlobalConstants.STATUS_201, result.get("id")));
         }
         else{
             return ResponseEntity
