@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService{
             userData.put("walletId", walletId);
             userData.put("transactionId", transactionId);
             userData.put("profileImg", profileImg);
-            userData.put("userDetailsId", "");
+            userData.put("userDetailsId", new String());
             Value val = faunaClient.query(
                     Create(
                             Collection("User"),
@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService{
             ).get();
             String id = val.at("ref").get(Value.RefV.class).getId();
             map.put("id", id);
+            map.put("result", "true");
             return map;
         }catch (Exception e){
             map.put("result", "false");
