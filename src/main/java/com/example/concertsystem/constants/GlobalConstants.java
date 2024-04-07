@@ -26,5 +26,9 @@ public final class GlobalConstants {
     public static final String  MESSAGE_500 = "An error occurred. Please try again or contact Dev team";
     public static final String  MESSAGE_451 = "The resource has never existed";
 
+    public static final String  STATUS_400 = "400";
+    public static final String  MESSAGE_400 = "The verification code provided is invalid. Please check and try again.";
+
+
 
 }
